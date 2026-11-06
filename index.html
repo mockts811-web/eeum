@@ -1,0 +1,1311 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>유실물 e음</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 공공 누리집형 웹 서비스. 상단 머리 영역 + 1200px 본문, 모바일에서 한 줄로 쌓임 */
+:root {
+  --bg: #FFFFFF; --surface: #F4F5F6; --surface-2: #E6E8EA; --line: #CDD1D5; --line-strong: #58616A;
+  --fg: #1E2124; --fg-2: #464C53; --fg-3: #6D7882;
+  --primary: #256EF4; --primary-strong: #0B50D0; --primary-soft: #ECF2FE; --on-primary: #FFFFFF;
+  --navy: #063A74; --on-navy: #FFFFFF; --line-2: #00A84D;
+  --success-fg: #267337; --success-bg: #EAF6EC;
+  --warning-fg: #8A5C00; --warning-bg: #FFF3DB;
+  --error-fg: #BD2C0F; --error-bg: #FDEFEC;
+  --info-fg: #096AB3; --info-bg: #E7F4FE;
+  --shade: rgba(16, 20, 24, .55);
+  --font: "Pretendard GOV", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --r-sm: 4px; --r-md: 6px; --r-lg: 8px; --r-xl: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131416; --surface: #1E2124; --surface-2: #2B2F33; --line: #464C53; --line-strong: #B1B8BE;
+    --fg: #F4F5F6; --fg-2: #CDD1D5; --fg-3: #B1B8BE;
+    --primary: #4C87F6; --primary-strong: #86AFF9; --primary-soft: #0D2456; --on-primary: #03163A;
+    --navy: #0D2456; --on-navy: #F4F5F6; --line-2: #3CC77A;
+    --success-fg: #8FD19E; --success-bg: #12351C; --warning-fg: #F2C46B; --warning-bg: #3A2A05;
+    --error-fg: #F5A08C; --error-bg: #3E1409; --info-fg: #8CC8F5; --info-bg: #072E4D;
+    --shade: rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131416; --surface: #1E2124; --surface-2: #2B2F33; --line: #464C53; --line-strong: #B1B8BE;
+  --fg: #F4F5F6; --fg-2: #CDD1D5; --fg-3: #B1B8BE;
+  --primary: #4C87F6; --primary-strong: #86AFF9; --primary-soft: #0D2456; --on-primary: #03163A;
+  --navy: #0D2456; --on-navy: #F4F5F6; --line-2: #3CC77A;
+  --success-fg: #8FD19E; --success-bg: #12351C; --warning-fg: #F2C46B; --warning-bg: #3A2A05;
+  --error-fg: #F5A08C; --error-bg: #3E1409; --info-fg: #8CC8F5; --info-bg: #072E4D;
+  --shade: rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scrollbar-gutter: stable; overflow-y: scroll; }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; } body > main { flex: 1 0 auto; } body > footer { flex: none; } [hidden] { display: none !important; } img { max-width: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 17px; line-height: 1.5; }
+.band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.in { max-width: 1200px; margin: 0 auto; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 700; }
+h1 { font-size: 40px; line-height: 1.4; } h2 { font-size: 32px; line-height: 1.4; } h3 { font-size: 24px; line-height: 1.5; }
+h3.s { font-size: 19px; }
+p { margin: 0; }
+a { color: var(--primary-strong); }
+.small { font-size: 15px; color: var(--fg-2); } .cap { font-size: 13px; color: var(--fg-3); }
+button, input, textarea, select { font-family: inherit; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 머리 영역 */
+.pilot { background: var(--surface); border-bottom: 1px solid var(--line); font-size: 15px; color: var(--fg-2); }
+.pilot .in { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: space-between; padding-block: 8px; }
+.pilot b { color: var(--fg); }
+.zoom { display: flex; gap: 4px; align-items: center; }
+.zoom button { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: var(--r-sm); height: 32px; min-width: 36px; cursor: pointer; font-size: 15px; }
+header.top { border-bottom: 1px solid var(--line); background: var(--bg); }
+header.top .in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 16px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); }
+.logo .mark { width: 40px; height: 40px; flex: none; }
+.logo .nm { display: flex; flex-direction: column; line-height: 1.25; }
+.logo .nm b { font-size: 22px; letter-spacing: -.01em; } .logo .nm span { font-size: 13px; color: var(--fg-3); }
+nav.gnb { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+nav.gnb a { text-decoration: none; color: var(--fg); font-weight: 700; font-size: 17px; padding: 8px 12px; border-radius: var(--r-md); min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+nav.gnb a:hover { background: var(--surface); }
+nav.gnb a[aria-current="page"] { color: var(--primary-strong); box-shadow: inset 0 -3px 0 var(--primary); border-radius: 0; }
+nav.gnb a.staff { border: 1px solid var(--line-strong); }
+nav.gnb a.staff svg { width: 18px; height: 18px; }
+.subnav { background: var(--navy); color: var(--on-navy); }
+.subnav .in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-block: 8px; font-size: 15px; }
+.subnav nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.subnav a, .subnav button { color: var(--on-navy); text-decoration: none; font-weight: 700; padding: 6px 12px; border-radius: var(--r-md); min-height: 40px; display: inline-flex; align-items: center; background: transparent; border: 1px solid transparent; cursor: pointer; font-size: 15px; }
+.subnav a[aria-current="page"] { background: var(--on-navy); color: var(--navy); }
+.subnav button { border-color: currentColor; }
+main { padding-block: 32px 64px; }
+.crumb { font-size: 15px; color: var(--fg-3); display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.crumb a { color: var(--fg-3); }
+.view { display: flex; flex-direction: column; gap: 32px; }
+.panel { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; background: var(--bg); display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel.soft { background: var(--surface); border-color: transparent; }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* 버튼 */
+.btn { font-size: 17px; font-weight: 700; border-radius: var(--r-md); padding: 0 20px; height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 1px solid transparent; text-decoration: none; white-space: nowrap; }
+.btn svg { flex: none; }
+.btn.primary { background: var(--primary); color: var(--on-primary); } .btn.primary:hover { background: var(--primary-strong); }
+.btn.secondary { background: var(--primary-soft); color: var(--primary-strong); border-color: var(--primary); }
+.btn.tertiary { background: var(--bg); color: var(--fg); border-color: var(--line-strong); }
+.btn.danger { background: var(--error-fg); color: var(--bg); }
+.btn.sm { height: 40px; font-size: 15px; padding: 0 14px; }
+.btn.lg { height: 56px; font-size: 19px; padding: 0 28px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btns.center { justify-content: center; }
+.btns.end { justify-content: flex-end; }
+
+/* 입력 */
+textarea, input[type="text"], input[type="email"], input[type="password"], input[type="time"], input[type="date"], input[type="search"], select { font-size: 17px; color: var(--fg); background: var(--bg); border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 12px 14px; min-height: 48px; width: 100%; }
+textarea { resize: vertical; line-height: 1.6; min-height: 96px; }
+textarea::placeholder, input::placeholder { color: var(--fg-3); }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.form .f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.form .full { grid-column: 1 / -1; }
+.form label, .lbl { font-size: 15px; font-weight: 700; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin-top: 2px; flex: none; }
+
+/* 메인 */
+.hero { background: var(--navy); color: var(--on-navy); border-radius: var(--r-xl); padding: 40px; display: flex; flex-direction: column; gap: 20px; }
+.hero h1 { color: var(--on-navy); }
+.hero .sub { font-size: 19px; opacity: .9; max-width: 60ch; }
+.search { background: var(--bg); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.search label { font-size: 15px; font-weight: 700; color: var(--fg); }
+.search .row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.ph-dots { display: flex; gap: 6px; }
+.ph-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--surface-2); }
+.ph-dots span.on { background: var(--primary); }
+.quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.quick a { text-decoration: none; color: var(--fg); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 8px; min-height: 140px; }
+.quick a:hover { border-color: var(--primary); }
+.quick .ic { width: 40px; height: 40px; border-radius: var(--r-md); background: var(--primary-soft); color: var(--primary-strong); display: grid; place-items: center; }
+.quick b { font-size: 19px; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: s; padding: 0; margin: 0; }
+.steps li { list-style: none; border-top: 3px solid var(--primary); padding-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+.steps li b::before { counter-increment: s; content: counter(s) ". "; color: var(--primary-strong); }
+
+/* 습득물 찾기 */
+.aisearch { background: var(--navy); color: var(--on-navy); border-radius: var(--r-xl); padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.aisearch label { font-weight: 700; font-size: 17px; }
+.aisearch .bar { display: flex; gap: 8px; }
+.aisearch .bar input { flex: 1; min-width: 0; }
+.aisearch .msg { font-size: 15px; opacity: .92; min-height: 22px; }
+.filters { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 16px; background: var(--surface); }
+.filters .top { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+.fgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.fgrid .f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.fgrid .feat { grid-column: span 2; }
+.fgrid label { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.ai-tag { font-size: 11px; font-weight: 700; color: var(--on-primary); background: var(--primary); padding: 1px 6px; border-radius: var(--r-sm); letter-spacing: .04em; }
+.fgrid .ai select, .fgrid .ai input { border-color: var(--primary); background: var(--primary-soft); }
+.tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tabs button { border: 0; background: transparent; color: var(--fg-2); font-size: 17px; font-weight: 700; padding: 10px 16px; cursor: pointer; min-height: 48px; border-bottom: 3px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--primary-strong); border-bottom-color: var(--primary); }
+.listhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+.list { display: flex; flex-direction: column; gap: 12px; }
+.card { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; gap: 16px; align-items: center; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; background: var(--bg); cursor: pointer; text-align: left; color: var(--fg); font-size: 17px; width: 100%; }
+.card:hover { border-color: var(--primary); }
+.card.top { border: 2px solid var(--primary); }
+.thumb { width: 112px; height: 112px; border-radius: var(--r-md); display: grid; place-items: center; color: var(--fg-3); background: var(--surface-2); overflow: hidden; }
+.thumb svg { width: 56px; height: 56px; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cbody { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cname { font-size: 19px; font-weight: 700; }
+.reason { font-size: 15px; color: var(--fg-2); }
+.score { font-size: 13px; color: var(--fg-3); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; padding: 3px 8px; border-radius: var(--r-sm); width: fit-content; white-space: nowrap; }
+.badge svg { width: 14px; height: 14px; }
+.b-high { background: var(--primary); color: var(--on-primary); }
+.b-mid { background: var(--primary-soft); color: var(--primary-strong); }
+.b-low { background: var(--surface-2); color: var(--fg-2); }
+.s-keep { background: var(--info-bg); color: var(--info-fg); }
+.s-soon { background: var(--warning-bg); color: var(--warning-fg); }
+.s-moved { background: var(--surface-2); color: var(--fg); }
+.s-done { background: var(--success-bg); color: var(--success-fg); }
+.s-val { background: var(--error-bg); color: var(--error-fg); border: 1px solid currentColor; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+
+/* 알림 */
+.alert { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; padding: 14px 16px; border-radius: var(--r-lg); border: 1px solid currentColor; }
+.alert svg { width: 22px; height: 22px; }
+.alert b { display: block; }
+.alert p { color: var(--fg); font-size: 15px; }
+.a-info { background: var(--info-bg); color: var(--info-fg); }
+.a-warn { background: var(--warning-bg); color: var(--warning-fg); }
+.a-error { background: var(--error-bg); color: var(--error-fg); }
+.a-ok { background: var(--success-bg); color: var(--success-fg); }
+
+/* 상세 */
+.detail { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+.photo { aspect-ratio: 4 / 3; max-width: 100%; border-radius: var(--r-lg); background: var(--surface-2); display: grid; place-items: center; color: var(--fg-3); overflow: hidden; }
+.photo svg { width: 120px; height: 120px; }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.scroll { overflow-x: auto; }
+table.info { width: 100%; border-collapse: collapse; font-size: 17px; }
+table.info th, table.info td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+table.info th { width: 128px; background: var(--surface); color: var(--fg-2); font-weight: 700; font-size: 15px; }
+.orgline { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.orgline .tel { font-weight: 700; font-variant-numeric: tabular-nums; }
+.howto { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 0; counter-reset: h; }
+.howto li { list-style: none; background: var(--surface); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.howto li b::before { counter-increment: h; content: counter(h) ". "; color: var(--primary-strong); }
+.bottom-actions { border-top: 1px solid var(--line); padding-top: 24px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.bottom-actions .proxy { width: 100%; max-width: 720px; }
+.copyline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.num { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.toast { font-size: 15px; color: var(--success-fg); }
+
+/* 당일 분실 */
+.today { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+.modetabs { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r-lg); padding: 4px; gap: 4px; width: fit-content; }
+.modetabs button { border: 0; background: transparent; color: var(--fg); font-size: 17px; font-weight: 700; height: 44px; padding: 0 20px; border-radius: var(--r-md); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.modetabs button[aria-selected="true"] { background: var(--primary); color: var(--on-primary); }
+.dirs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.dirs label { border: 1px solid var(--line-strong); border-radius: var(--r-md); min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 12px; cursor: pointer; font-size: 15px; }
+.dirs label:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); font-weight: 700; }
+.dirs input { width: 18px; height: 18px; }
+
+/* 열차·버스 위치 화면 (차내 노선 안내 화면 모양) */
+.screen { background: #0E1A2B; color: #F4F6F8; border-radius: var(--r-lg); padding: 16px 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+.screen .hd { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: center; font-size: 15px; }
+.screen .hd b { font-size: 17px; }
+.screen .lineno { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--line-c, #00A84D); color: #fff; font-weight: 700; font-size: 15px; margin-right: 8px; }
+.screen .clock { font-variant-numeric: tabular-nums; color: #B7C2CF; }
+.track-wrap { overflow-x: auto; padding-bottom: 4px; }
+.track { position: relative; min-width: 620px; height: 132px; margin: 0 24px; }
+.track .rail { position: absolute; left: 0; right: 0; top: 70px; height: 8px; border-radius: 4px; background: var(--line-c, #00A84D); }
+.track .rail.done { right: auto; background: #50606F; }
+.track .st { position: absolute; top: 64px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; width: 80px; }
+.track .st i { width: 20px; height: 20px; border-radius: 50%; background: #0E1A2B; border: 4px solid var(--line-c, #00A84D); }
+.track .st span { font-size: 13px; color: #D5DDE5; text-align: center; line-height: 1.25; word-break: keep-all; }
+.track .st.me i { border-color: #FFC83D; background: #FFC83D; }
+.track .st.me span { color: #FFC83D; font-weight: 700; }
+.track .veh { position: absolute; top: 4px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; transition: left .6s ease; }
+.track .veh .pill { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #2B3A4D; color: #F4F6F8; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.track .veh.best .pill { background: #FFC83D; color: #2A1E00; }
+.track .veh svg { width: 44px; height: 26px; }
+.screen .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: #B7C2CF; }
+.screen .legend span { display: inline-flex; gap: 6px; align-items: center; }
+.screen .legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.cands { display: flex; flex-direction: column; gap: 8px; }
+.cand { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border-radius: var(--r-md); padding: 12px 16px; }
+.cand.best { background: var(--primary-soft); }
+.cand .no { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+dl.facts { display: grid; grid-template-columns: 120px minmax(0, 1fr); margin: 0; border-top: 1px solid var(--line); }
+dl.facts dt, dl.facts dd { margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
+dl.facts dt { background: var(--surface); color: var(--fg-2); font-weight: 700; }
+dl.facts dd { font-weight: 500; }
+
+/* 알림 추적 */
+.track2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.saved { display: flex; flex-direction: column; gap: 10px; }
+.saved .it { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.saved .row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }
+.prog { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.prog span { height: 6px; border-radius: 3px; background: var(--surface-2); }
+.prog span.on { background: var(--primary); }
+.progl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; font-size: 13px; color: var(--fg-3); }
+
+/* 보관 기관 */
+.orggrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+table.queue { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 620px; }
+table.queue th, table.queue td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+table.queue th { background: var(--surface); white-space: nowrap; }
+table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* 직원 */
+.login { max-width: 480px; margin: 0 auto; width: 100%; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.kpi { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; background: var(--bg); text-align: left; color: var(--fg); font-size: 15px; cursor: pointer; }
+.kpi .v { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.kpi.val .v { color: var(--error-fg); }
+.kpi[aria-pressed="true"] { border: 2px solid var(--primary); }
+.stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; margin: 0; }
+.stepper li { list-style: none; display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 4px solid var(--surface-2); color: var(--fg-3); font-weight: 700; font-size: 15px; }
+.stepper li .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--fg-2); flex: none; font-variant-numeric: tabular-nums; }
+.stepper li.done { color: var(--fg-2); border-bottom-color: var(--primary-soft); }
+.stepper li.done .n { background: var(--primary-soft); color: var(--primary-strong); }
+.stepper li.on { color: var(--primary-strong); border-bottom-color: var(--primary); }
+.stepper li.on .n { background: var(--primary); color: var(--on-primary); }
+.reg { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: start; }
+.cmp { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
+.srcbox { background: var(--surface); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.srcbox .memo { white-space: pre-wrap; font-size: 17px; line-height: 1.6; }
+.aibox { border: 2px solid var(--primary); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.aibox .t { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.drop { border: 2px dashed var(--line-strong); border-radius: var(--r-lg); padding: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.drop img { width: 96px; height: 96px; object-fit: cover; border-radius: var(--r-md); }
+.drop .ph { width: 96px; height: 96px; border-radius: var(--r-md); background: var(--surface-2); display: grid; place-items: center; color: var(--fg-3); font-size: 13px; text-align: center; }
+.script { background: var(--surface); border-radius: var(--r-md); padding: 16px; font-size: 17px; line-height: 1.6; white-space: pre-wrap; }
+.guide-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.guide-tabs button { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; height: 36px; padding: 0 14px; font-size: 15px; cursor: pointer; }
+.guide-tabs button[aria-selected="true"] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.tmpl { display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.tmpl .fmt { font-weight: 700; background: var(--surface); border-radius: var(--r-md); padding: 10px 12px; }
+.tmpl ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--fg-2); }
+.tmpl .exm { border-left: 3px solid var(--primary); padding: 4px 0 4px 12px; }
+.memo-block { display: flex; flex-direction: column; gap: 8px; }
+.memo-box { border: 1px solid var(--line-strong); border-radius: var(--r-md); overflow: hidden; background: var(--bg); }
+.memo-box:focus-within { outline: 3px solid var(--primary); outline-offset: 2px; }
+.memo-guide { background: var(--surface); border-bottom: 1px dashed var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.memo-guide .mg-top { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.memo-guide .mg-top .fmt { font-weight: 700; }
+.memo-guide .mg-ex { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; color: var(--fg-2); }
+.memo-guide .mg-ex span { flex: 1 1 260px; min-width: 0; }
+.memo-guide details summary { cursor: pointer; color: var(--fg-3); font-size: 13px; }
+.memo-guide details ul { margin: 6px 0 0; padding-left: 20px; color: var(--fg-2); display: flex; flex-direction: column; gap: 2px; }
+.memo-box textarea { border: 0; border-radius: 0; min-height: 120px; }
+.memo-box textarea:focus-visible { outline: none; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.toolbar .grow { flex: 1 1 220px; min-width: 0; }
+.toolbar select { width: auto; min-width: 140px; }
+.scard { cursor: default; grid-template-columns: 112px minmax(0, 1fr) auto; }
+.scard:hover { border-color: var(--line); }
+.scard .inner { font-size: 15px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm); padding: 4px 8px; width: fit-content; max-width: 100%; }
+.scard.val { border: 2px solid var(--error-fg); }
+.scard.val .cname { color: var(--error-fg); font-weight: 700; }
+.scard.done { opacity: .7; }
+.sacts { display: flex; flex-direction: column; gap: 8px; }
+.tabs button.tab-val { color: var(--error-fg); }
+.tabs button.tab-val[aria-selected="true"] { border-bottom-color: var(--error-fg); color: var(--error-fg); }
+.val-text { color: var(--error-fg); }
+tr.val td { background: var(--error-bg); }
+tr.val .iname { color: var(--error-fg); font-weight: 700; }
+tr.done td { color: var(--fg-3); }
+.iname { font-weight: 500; }
+.acts { display: flex; gap: 6px; flex-wrap: nowrap; }
+
+/* 팝업 */
+.modal { position: fixed; inset: 0; background: var(--shade); display: grid; place-items: center; z-index: 50; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.modal .box { background: var(--bg); color: var(--fg); border-radius: var(--r-xl); width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.modal .box.val { border-top: 8px solid var(--error-fg); }
+.modal .mh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.modal .x { border: 0; background: transparent; color: var(--fg-2); font-size: 24px; width: 40px; height: 40px; cursor: pointer; border-radius: var(--r-md); flex: none; }
+.valnote { background: var(--error-bg); color: var(--error-fg); border-radius: var(--r-md); padding: 12px 14px; font-weight: 700; font-size: 15px; }
+.checklist { display: flex; flex-direction: column; gap: 10px; }
+.checklist .check.strong span { color: var(--error-fg); font-weight: 700; }
+
+footer { border-top: 1px solid var(--line); background: var(--surface); }
+footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--fg-3); }
+
+@media (max-width: 1023px) {
+  .detail, .today, .track2, .reg, .cmp, .orggrid { grid-template-columns: minmax(0, 1fr); }
+  .quick, .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  h1 { font-size: 28px; } h2 { font-size: 24px; } h3 { font-size: 20px; }
+  .hero { padding: 24px 20px; } .hero .sub { font-size: 17px; }
+  nav.gnb { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  nav.gnb a { font-size: 15px; white-space: nowrap; }
+  .steps, .howto { grid-template-columns: minmax(0, 1fr); }
+  .card { grid-template-columns: 80px minmax(0, 1fr); }
+  .card .score { grid-column: 1 / -1; text-align: left; }
+  .sacts { grid-column: 1 / -1; flex-direction: row; }
+  .sacts .btn { flex: 1; }
+  .thumb { width: 80px; height: 80px; }
+  .form, .fgrid { grid-template-columns: minmax(0, 1fr); }
+  .fgrid .feat { grid-column: auto; }
+  .aisearch .bar { flex-direction: column; }
+  .panel { padding: 16px; }
+  main { padding-block: 20px 48px; }
+  .stepper li { flex-direction: column; text-align: center; gap: 4px; font-size: 13px; }
+  dl.facts { grid-template-columns: 96px minmax(0, 1fr); }
+}
+@media (max-width: 420px) { .quick { grid-template-columns: minmax(0, 1fr); } .quick a { min-height: 0; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="pilot band"><div class="in">
+  <span><b>시범 서비스</b> · 공공데이터를 활용한 시범 서비스입니다. 경찰청·서울교통공사의 공식 누리집이 아니며, <span id="mode-note">화면의 습득물과 연락처는 가상 데이터입니다.</span></span>
+  <span class="zoom" aria-label="글자 크기"><span class="cap">글자 크기</span><button type="button" data-zoom="-1" aria-label="글자 작게">가−</button><button type="button" data-zoom="0" aria-label="기본 크기">가</button><button type="button" data-zoom="1" aria-label="글자 크게">가+</button></span>
+</div></div>
+
+<header class="top band"><div class="in">
+  <a class="logo" href="#home" aria-label="유실물 e음 홈">
+    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+      <rect width="40" height="40" rx="10" fill="var(--primary)"/>
+      <path d="M11.5 19.5h16a8 8 0 1 0-2.34 5.66" fill="none" stroke="var(--on-primary)" stroke-width="3.4" stroke-linecap="round"/>
+      <circle cx="30" cy="29.5" r="2.6" fill="var(--on-primary)"/>
+    </svg>
+    <span class="nm"><b>유실물 e음</b><span>AI 대중교통 유실물 찾기·등록 도우미</span></span>
+  </a>
+  <nav class="gnb" aria-label="주 메뉴">
+    <a href="#find" data-nav="find">습득물 찾기</a>
+    <a href="#today" data-nav="today">당일 분실</a>
+    <a href="#track" data-nav="track">비슷한 물건 알림</a>
+    <a href="#guide" data-nav="guide">보관 기관 안내</a>
+    <a href="#staff-login" data-nav="staff" class="staff" id="staff-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>기관 담당자</span></a>
+  </nav>
+</div></header>
+<div class="subnav band" id="subnav" hidden></div>
+
+<main class="band"><div class="in" id="app"></div></main>
+<div id="modal-root"></div>
+
+<footer class="band"><div class="in">
+  <span>청년공공AX 서포터즈 에공 팀 시범 서비스 · 습득물 정보: 경찰청 포털기관 습득물정보·습득물정보 조회 서비스(공공데이터포털) · 열차 정보: 서울교통공사 열차시간표</span>
+  <span>물건은 보관 기관에서 본인 확인 후 받을 수 있습니다. 이 서비스는 찾기 안내만 제공합니다.</span>
+</div></footer>
+
+<script>
+/* ===== 백엔드 연결 설정 =====
+   두 값을 비워 두면 시연용 가상 데이터로 동작합니다.
+   Supabase 대시보드 > Project Settings > API 에서 Project URL과 publishable(또는 anon) key를 넣으세요.
+   secret / service_role 키는 절대 넣지 마세요. */
+var CONFIG = {
+  SUPABASE_URL: 'https://xhvthvxpwlaecizqlrrv.supabase.co',
+  SUPABASE_KEY: 'sb_publishable_u7-bl5JLDNUAJaiQfs8enQ_k-5NVyE8'
+};
+
+(function () {
+  var LIVE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+  var sb = null;
+  var app = document.getElementById('app');
+  function kstToday() { return new Date(Date.now() + 9 * 36e5).toISOString().slice(0, 10); }
+  var TODAY = LIVE ? kstToday() : '2026-10-25'; // 시연 데이터 기준일
+
+  /* ---------- 기본 데이터 (시연용) ---------- */
+  var ORGS = {
+    '시청 유실물센터': { tel: '02-6110-1122', hours: '평일 09:00~18:00', lines: '1·2호선', delivery: true, kind: '지하철' },
+    '충무로 유실물센터': { tel: '02-6110-3344', hours: '평일 09:00~18:00', lines: '3·4호선', delivery: true, kind: '지하철' },
+    '왕십리 유실물센터': { tel: '02-6311-5582', hours: '평일 09:00~18:00', lines: '5·8호선', delivery: true, kind: '지하철' },
+    '태릉입구 유실물센터': { tel: '02-6311-6765', hours: '평일 09:00~18:00', lines: '6·7호선', delivery: true, kind: '지하철' },
+    '가상운수 차고지': { tel: '02-000-0472', hours: '평일 09:00~17:00', lines: '472번 버스', delivery: false, kind: '버스' },
+    '강남경찰서 유실물': { tel: '182', hours: '평일 09:00~18:00', lines: '경찰서', delivery: false, kind: '경찰서' },
+    '서초경찰서 유실물': { tel: '182', hours: '평일 09:00~18:00', lines: '경찰서', delivery: false, kind: '경찰서' }
+  };
+  var DEMO_ITEMS = [
+    { id: 'F2026102400012', type: '지하철', name: '남성용 반지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-24', line: '2호선', found: '2호선 열차 내 (외선)', org: '시청 유실물센터', desc: '가죽 반지갑 검정 카드', photo: 'wallet', valuable: true, status: '보관중', inner: '카드 3장, 모서리 해짐' },
+    { id: 'F2026102500031', type: '지하철', name: '카드지갑', cat: '지갑', sub: '카드지갑', color: '검정', date: '2026-10-25', line: '2호선', found: '2호선 삼성역 승강장', org: '시청 유실물센터', desc: '카드지갑 검정 얇은', photo: 'wallet', valuable: true, status: '보관중', inner: '교통카드 1장' },
+    { id: 'F2026102400044', type: '지하철', name: '무선 이어폰', cat: '이어폰', sub: '무선 이어폰', color: '흰색', date: '2026-10-24', line: '2호선', found: '2호선 열차 내 (내선)', org: '시청 유실물센터', desc: '무선 이어폰 흰색 충전케이스', photo: 'earbuds', valuable: true, status: '보관중', inner: '케이스에 이니셜 각인' },
+    { id: 'F2026102400090', type: '지하철', name: '휴대폰', cat: '휴대폰', sub: '스마트폰', color: '검정', date: '2026-10-24', line: '2호선', found: '2호선 강남역 고객안전실', org: '시청 유실물센터', desc: '스마트폰 검정 케이스', photo: 'phone', valuable: true, status: '보관중', inner: '잠금화면 강아지 사진' },
+    { id: 'F2026101900020', type: '지하철', name: '노트북 가방', cat: '가방', sub: '서류가방', color: '검정', date: '2026-10-19', line: '1호선', found: '1호선 종각역 승강장', org: '시청 유실물센터', desc: '가방 검정 노트북', photo: 'bag', valuable: true, status: '보관중', inner: '노트북 1대, 충전기' },
+    { id: 'F2026101700008', type: '지하철', name: '장우산', cat: '우산', sub: '장우산', color: '검정', date: '2026-10-17', line: '2호선', found: '2호선 열차 내', org: '시청 유실물센터', desc: '장우산 검정 자동', photo: 'umbrella', valuable: false, status: '보관중', inner: '' },
+    { id: 'F2026102100066', type: '지하철', name: '쇼핑백', cat: '가방', sub: '쇼핑백', color: '흰색', date: '2026-10-21', line: '1호선', found: '1호선 시청역 대합실', org: '시청 유실물센터', desc: '쇼핑백 흰색 의류', photo: 'bag', valuable: false, status: '수령완료', inner: '니트 1벌' },
+    { id: 'F2026102300108', type: '지하철', name: '검정 백팩', cat: '가방', sub: '배낭', color: '검정', date: '2026-10-23', line: '3호선', found: '3호선 열차 내', org: '충무로 유실물센터', desc: '백팩 배낭 검정 노트북', photo: 'bag', valuable: false, status: '보관중', inner: '' },
+    { id: 'F2026102400077', type: '지하철', name: '장우산', cat: '우산', sub: '장우산', color: '남색', date: '2026-10-24', line: '7호선', found: '7호선 열차 내', org: '태릉입구 유실물센터', desc: '장우산 남색 자동', photo: 'umbrella', valuable: false, status: '보관중', inner: '' },
+    { id: 'F2026101800051', type: '지하철', name: '여성용 장지갑', cat: '지갑', sub: '여성용 지갑', color: '빨강', date: '2026-10-18', line: '5호선', found: '5호선 열차 내', org: '왕십리 유실물센터', desc: '장지갑 빨강 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
+    { id: 'F2026102200015', type: '지하철', name: '패딩 점퍼', cat: '의류', sub: '점퍼', color: '회색', date: '2026-10-22', line: '4호선', found: '4호선 열차 내', org: '충무로 유실물센터', desc: '패딩 점퍼 회색', photo: 'bag', valuable: false, status: '보관중', inner: '' },
+    { id: 'B2026102400003', type: '버스', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '갈색', date: '2026-10-24', line: '472번 버스', found: '472번 버스 차내', org: '가상운수 차고지', desc: '반지갑 갈색 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
+    { id: 'P2026102400211', type: '경찰서', name: '장지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-24', line: '', found: '강남역 인근 (경찰서 접수)', org: '강남경찰서 유실물', desc: '장지갑 검정 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
+    { id: 'P2026101700145', type: '경찰서', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-17', line: '2호선', found: '시청 유실물센터에서 이관', org: '강남경찰서 유실물', desc: '반지갑 검정 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
+    { id: 'P2026102300302', type: '경찰서', name: '쇼핑백', cat: '가방', sub: '쇼핑백', color: '흰색', date: '2026-10-23', line: '', found: '서초역 인근 (경찰서 접수)', org: '서초경찰서 유실물', desc: '쇼핑백 흰색 의류', photo: 'bag', valuable: false, status: '보관중', inner: '' }
+  ];
+  var ITEMS = DEMO_ITEMS.slice();
+
+  var COLORS = [['검정', ['검정', '검은', '까만', '블랙', '흑색']], ['흰색', ['흰', '하얀', '화이트', '흰색']], ['남색', ['남색', '네이비']], ['파랑', ['파란', '파랑', '블루']], ['빨강', ['빨간', '빨강', '레드']], ['회색', ['회색', '그레이']], ['갈색', ['갈색', '브라운']], ['분홍', ['분홍', '핑크']], ['베이지', ['베이지']]];
+  var CATS = [['지갑', ['반지갑', '장지갑', '카드지갑', '지갑']], ['휴대폰', ['휴대폰', '핸드폰', '스마트폰', '아이폰', '갤럭시', '폰']], ['이어폰', ['이어폰', '에어팟', '버즈']], ['가방', ['백팩', '배낭', '쇼핑백', '가방']], ['우산', ['우산']], ['의류', ['패딩', '점퍼', '코트', '자켓', '옷']]];
+  var FEATS = ['가죽', '반지갑', '장지갑', '카드지갑', '카드', '무선', '충전케이스', '백팩', '배낭', '노트북', '장우산', '자동', '스마트폰', '케이스', '패딩', '쇼핑백', '얇은'];
+  var LINES = ['1호선', '2호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '9호선', '472번 버스'];
+  var VALUABLE_CATS = ['지갑', '휴대폰', '이어폰'];
+
+  var EXAMPLES = [
+    '어제 저녁 7시쯤 2호선 강남역에서 내렸는데 검은 가죽 반지갑을 두고 내렸어요.',
+    '어제 472번 버스에서 갈색 반지갑을 잃어버렸어요.',
+    '그저께 3호선에 검정 백팩을 두고 내렸어요. 노트북이 들어 있어요.',
+    '어제 아침 2호선에서 흰색 무선 이어폰을 놓고 내렸어요.',
+    '10월 24일 7호선에서 남색 장우산을 두고 내렸어요.'
+  ];
+
+  var state = { query: '', conds: emptyConds(), aiKeys: {}, tab: '전체', selected: null, saved: [], zoom: 0, staff: null, aiMsg: '' };
+  try { var sv = JSON.parse(localStorage.getItem('eeum-saved') || '[]'); if (Array.isArray(sv)) state.saved = sv; } catch (e) {}
+  function persist() { try { localStorage.setItem('eeum-saved', JSON.stringify(state.saved)); } catch (e) {} }
+
+  function emptyConds() { return { cat: '', color: '', date: '', line: '', station: '', feats: [] }; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function days(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 864e5); }
+  function addDays(d, n) { var t = new Date(Date.parse(d) + n * 864e5); return t.toISOString().slice(0, 10); }
+  function md(d) { return d ? Number(d.slice(5, 7)) + '.' + Number(d.slice(8, 10)) : ''; }
+  function findIn(text, table) { for (var i = 0; i < table.length; i++) { for (var j = 0; j < table[i][1].length; j++) { if (text.indexOf(table[i][1][j]) > -1) return table[i][0]; } } return ''; }
+  function orgOf(it) { return ORGS[it.org] || { tel: '-', hours: '-', lines: '', delivery: false }; }
+  function hasCond(c) { return !!(c.cat || c.color || c.date || c.line || c.station || c.feats.length); }
+
+  /* ---------- 문장 → 조건 (규칙 기반. 백엔드 연결 시 생성형 AI 결과로 대체) ---------- */
+  function parse(text) {
+    var c = { cat: findIn(text, CATS), color: findIn(text, COLORS), date: '', line: '', station: '', feats: [] };
+    if (/그저께|그제|엊그제/.test(text)) c.date = addDays(TODAY, -2);
+    else if (/어제/.test(text)) c.date = addDays(TODAY, -1);
+    else if (/오늘|방금|아까/.test(text)) c.date = TODAY;
+    var dm = text.match(/(\d{1,2})월\s*(\d{1,2})일/); if (dm) c.date = TODAY.slice(0, 4) + '-' + ('0' + dm[1]).slice(-2) + '-' + ('0' + dm[2]).slice(-2);
+    var lm = text.match(/(\d)\s*호선/); if (lm) c.line = lm[1] + '호선';
+    var bm = text.match(/(\d{2,4})\s*번/); if (bm && /버스/.test(text)) c.line = bm[1] + '번 버스';
+    var sm = text.match(/([가-힣]{1,6})역/); if (sm) c.station = sm[1];
+    FEATS.forEach(function (f) { if (text.indexOf(f) > -1 && c.feats.indexOf(f) < 0) c.feats.push(f); });
+    return c;
+  }
+
+  /* 정렬 점수 = 0.45 유사도 + 0.20 색상 + 0.15 날짜 + 0.10 노선 + 0.10 분류 (계획서 붙임 1) */
+  function score(it, c) {
+    var words = (it.desc + ' ' + it.name + ' ' + it.sub);
+    var q = c.feats.slice(); if (c.cat) q.push(c.cat);
+    var hit = 0; q.forEach(function (w) { if (words.indexOf(w) > -1) hit++; });
+    var sim = q.length ? hit / q.length : 0.3;
+    sim = Math.min(1, 0.35 + 0.6 * sim);
+    var colorOk = c.color && it.color === c.color ? 1 : 0;
+    var dateScore = 0.5;
+    if (c.date) {
+      var gap = Math.abs(days(c.date, it.date));
+      dateScore = (it.date >= c.date && gap <= 1) ? 1 : gap === 2 ? 0.5 : 0.2;
+      if (it.date < c.date) dateScore = gap <= 1 ? 0.5 : 0.2;
+    }
+    var lineOk = c.line && it.line === c.line ? 1 : 0;
+    var catOk = c.cat && it.cat === c.cat ? 1 : 0;
+    var total = 0.45 * sim + 0.20 * colorOk + 0.15 * dateScore + 0.10 * lineOk + 0.10 * catOk;
+    var why = [];
+    if (colorOk) why.push('색상'); if (c.date && dateScore === 1) why.push('날짜'); if (lineOk) why.push('노선'); if (catOk) why.push('분류');
+    var extra = '';
+    c.feats.forEach(function (f) { if (!extra && it.desc.indexOf(f) > -1 && f !== c.cat) extra = f; });
+    var miss = [];
+    if (c.color && !colorOk) miss.push('색상이 ' + it.color);
+    if (c.cat && !catOk) miss.push('분류가 ' + it.cat);
+    if (c.date && dateScore < 1) miss.push(md(it.date) + ' 습득');
+    var reason = (why.length ? why.join('·') + '이(가) 같아요' : '일치하는 조건이 적어요') + (extra ? ", '" + extra + "'까지 일치" : '') + (miss.length ? ' · 다만 ' + miss.join(', ') : '');
+    return { total: Math.round(total * 100) / 100, reason: reason };
+  }
+
+  function storage(it) {
+    var age = days(it.date, TODAY) + 1;
+    if (it.status === '수령완료') return { label: '수령 완료', cls: 's-done', warn: '', age: age };
+    if (it.type === '경찰서') return { label: '경찰서 보관 · ' + age + '일째', cls: 's-moved', warn: '', age: age };
+    if (it.status === '경찰서이관') return { label: '경찰서 이관', cls: 's-moved', warn: '경찰서로 옮겨졌어요. 경찰서 보관 습득물을 확인하세요.', age: age };
+    var left = 7 - (age - 1);
+    if (left <= 0) return { label: '경찰서 이관', cls: 's-moved', warn: '습득 후 1주일이 지나 경찰서로 옮겨졌을 수 있어요. 경찰서 보관 습득물을 확인하세요.', age: age };
+    if (left <= 1) return { label: '이관 임박 · D-' + left, cls: 's-soon', warn: '내일 경찰서로 옮겨질 수 있어요. 오늘 보관 기관에 연락하세요.', age: age };
+    return { label: '보관 중 · ' + age + '일째', cls: 's-keep', warn: '', age: age };
+  }
+
+  var ICONS = {
+    wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg>',
+    earbuds: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 4a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3v8"/><path d="M16 4a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3v8"/></svg>',
+    bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="7" width="14" height="13" rx="3"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><path d="M5 13h14"/></svg>',
+    umbrella: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0z"/><path d="M12 12v7a2 2 0 0 0 4 0"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>'
+  };
+  var CAT_ICON = { '지갑': 'wallet', '휴대폰': 'phone', '이어폰': 'earbuds', '가방': 'bag', '우산': 'umbrella', '의류': 'bag' };
+  function pic(it) { return it.photoUrl ? '<img src="' + esc(it.photoUrl) + '" alt="">' : (ICONS[it.photo] || ICONS[CAT_ICON[it.cat]] || ICONS.bag); }
+  var I = {
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>',
+    ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>',
+    search: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+    spark: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>',
+    train: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/></svg>',
+    bus: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M7 21v-3M17 21v-3"/></svg>',
+    shield: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
+    bell: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+    trainSide: '<svg viewBox="0 0 44 26" aria-hidden="true"><rect x="1" y="3" width="42" height="18" rx="6" fill="currentColor"/><rect x="6" y="7" width="7" height="6" rx="1.5" fill="#0E1A2B"/><rect x="16" y="7" width="7" height="6" rx="1.5" fill="#0E1A2B"/><rect x="26" y="7" width="7" height="6" rx="1.5" fill="#0E1A2B"/><path d="M37 7h3v6h-3z" fill="#0E1A2B"/><circle cx="10" cy="23" r="2.2" fill="currentColor"/><circle cx="34" cy="23" r="2.2" fill="currentColor"/></svg>',
+    busSide: '<svg viewBox="0 0 44 26" aria-hidden="true"><rect x="2" y="2" width="40" height="19" rx="4" fill="currentColor"/><rect x="6" y="6" width="9" height="6" rx="1" fill="#0E1A2B"/><rect x="18" y="6" width="9" height="6" rx="1" fill="#0E1A2B"/><rect x="30" y="6" width="8" height="9" rx="1" fill="#0E1A2B"/><circle cx="11" cy="22" r="3" fill="currentColor"/><circle cx="33" cy="22" r="3" fill="currentColor"/></svg>'
+  };
+
+  function copy(text, msgEl, fallbackEl) {
+    function done(t) { if (msgEl) { msgEl.textContent = t; setTimeout(function () { msgEl.textContent = ''; }, 2500); } }
+    function sel() { if (fallbackEl) { var r = document.createRange(); r.selectNodeContents(fallbackEl); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } done('글을 선택했어요. 직접 복사하세요'); }
+    try { navigator.clipboard.writeText(text).then(function () { done('복사했어요'); }, sel); } catch (e) { sel(); }
+  }
+
+  /* ================= 데이터 계층 (시연 ↔ Supabase) ================= */
+  function fromRow(r) {
+    var o = r.orgs || {};
+    if (o.name && !ORGS[o.name]) ORGS[o.name] = { tel: o.tel || '-', hours: o.hours || '-', lines: o.lines || '', delivery: !!o.delivery, kind: o.kind };
+    return { id: r.id, type: r.kind, name: r.name, cat: r.category, sub: r.sub_category || '', color: r.color || '', date: r.found_on, line: r.line || '', found: r.found_place || '', org: o.name || '', orgId: r.org_id, desc: r.description || '', photo: CAT_ICON[r.category] || 'bag', photoUrl: r.photo_path ? sb.storage.from('item-photos').getPublicUrl(r.photo_path).data.publicUrl : '', valuable: !!r.valuable, status: r.status, inner: (r.item_private && r.item_private.owner_check_memo) || '' };
+  }
+  var DB = {
+    init: function () {
+      if (!LIVE) return Promise.resolve();
+      document.getElementById('mode-note').textContent = '습득물은 연결된 데이터베이스에서 불러옵니다.';
+      return new Promise(function (res) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
+        s.onload = function () { sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY, {
+          // 일부 미리보기 화면은 Headers 객체를 넘기지 못해서, 일반 객체로 바꿔 보냄
+          global: { fetch: function (url, opts) { opts = Object.assign({}, opts); if (opts.headers) { var h = {}; new Headers(opts.headers).forEach(function (v, k) { h[k] = v; }); opts.headers = h; } return fetch(url, opts); } }
+        }); res(); };
+        s.onerror = function () { LIVE = false; TODAY = '2026-10-25'; res(); };
+        document.head.appendChild(s);
+      }).then(function () { return LIVE ? DB.restoreStaff().then(DB.loadItems) : null; });
+    },
+    loadItems: function () {
+      if (!LIVE) return Promise.resolve(ITEMS);
+      var cols = '*, orgs(name, tel, hours, lines, delivery, kind)' + (state.staff ? ', item_private(owner_check_memo)' : '');
+      return sb.from('items').select(cols).order('found_on', { ascending: false }).limit(500).then(function (r) {
+        var note = document.getElementById('mode-note');
+        if (r.error) { console.error(r.error); note.textContent = '데이터베이스에 연결하지 못해 시연 데이터를 보여 주고 있어요 (' + (r.error.message || r.error.code) + ').'; return ITEMS; }
+        note.textContent = '습득물은 연결된 데이터베이스에서 불러옵니다 (' + r.data.length + '건).';
+        ITEMS = r.data.map(fromRow); return ITEMS;
+      });
+    },
+    ai: function (text, mode) {
+      var local = mode === 'register' ? aiRegisterLocal(text) : parse(text);
+      if (!LIVE) return new Promise(function (res) { setTimeout(function () { res({ out: local, by: 'rule' }); }, 350); });
+      return sb.functions.invoke('ai-parse', { body: { text: text, mode: mode, today: TODAY } }).then(function (r) {
+        var d = r.data && r.data.result;
+        if (r.error || !d) return { out: local, by: 'rule' };
+        if (mode === 'register') return { out: Object.assign(local, d), by: 'ai' };
+        return { out: { cat: d.cat || '', color: d.color || '', date: d.date || '', line: d.line || '', station: d.station || '', feats: Array.isArray(d.feats) ? d.feats.slice(0, 6) : [] }, by: 'ai' };
+      }, function () { return { out: local, by: 'rule' }; });
+    },
+    restoreStaff: function () {
+      return sb.auth.getSession().then(function (r) { return r.data.session ? DB.staffProfile() : null; });
+    },
+    signIn: function (email, pw) {
+      if (!LIVE) { state.staff = { name: '시연 담당자', org: '시청 유실물센터', orgId: 0 }; return Promise.resolve(state.staff); }
+      return sb.auth.signInWithPassword({ email: email, password: pw }).then(function (r) {
+        if (r.error) throw new Error('이메일 또는 비밀번호가 맞지 않아요.');
+        return DB.staffProfile().then(function (p) { if (!p) { sb.auth.signOut(); throw new Error('담당자로 등록되지 않은 계정이에요. 관리자에게 기관 연결을 요청하세요.'); } return DB.loadItems().then(function () { return p; }); });
+      });
+    },
+    staffProfile: function () {
+      return sb.auth.getUser().then(function (u) {
+        if (!u.data.user) return null;
+        return sb.from('staff_members').select('org_id, display_name, orgs(name)').eq('user_id', u.data.user.id).maybeSingle().then(function (r) {
+          if (r.error || !r.data) return null;
+          state.staff = { name: r.data.display_name || u.data.user.email, org: r.data.orgs.name, orgId: r.data.org_id };
+          return state.staff;
+        });
+      });
+    },
+    signOut: function () { state.staff = null; return LIVE ? sb.auth.signOut().then(DB.loadItems) : Promise.resolve(); },
+    createItem: function (it, file) {
+      if (!LIVE) { ITEMS.unshift(it); return Promise.resolve(it); }
+      var path = file ? state.staff.orgId + '/' + it.id + '-' + Date.now() + '.' + ((file.name.split('.').pop() || 'jpg').toLowerCase()) : null;
+      var up = file ? sb.storage.from('item-photos').upload(path, file, { contentType: file.type }) : Promise.resolve({});
+      return up.then(function (u) {
+        if (u.error) throw u.error;
+        return sb.from('items').insert({ id: it.id, kind: it.type, name: it.name, category: it.cat, sub_category: it.sub, color: it.color, found_on: it.date, line: it.line || null, found_place: it.found, org_id: state.staff.orgId, description: it.desc, photo_path: path, valuable: it.valuable });
+      }).then(function (r) {
+        if (r.error) throw r.error;
+        return it.inner ? sb.from('item_private').insert({ item_id: it.id, owner_check_memo: it.inner }) : {};
+      }).then(function (r) { if (r && r.error) throw r.error; return DB.loadItems(); });
+    },
+    updateItem: function (id, p) {
+      var it = ITEMS.filter(function (x) { return x.id === id; })[0];
+      if (!LIVE) { Object.assign(it, p); return Promise.resolve(it); }
+      return sb.from('items').update({ name: p.name, category: p.cat, color: p.color, description: p.desc, found_place: p.found, valuable: p.valuable, status: p.status }).eq('id', id).select('id').then(function (r) {
+        if (r.error) throw r.error;
+        if (!r.data.length) throw new Error('수정 권한이 없는 물품이에요.');
+        return sb.from('item_private').upsert({ item_id: id, owner_check_memo: p.inner || '' });
+      }).then(function (r) { if (r.error) throw r.error; return DB.loadItems(); });
+    },
+    recordPickup: function (id, chk) {
+      var it = ITEMS.filter(function (x) { return x.id === id; })[0];
+      if (!LIVE) { it.status = '수령완료'; return Promise.resolve(); }
+      return sb.from('pickups').insert({ item_id: id, checked_id: chk.id, checked_feature: chk.feat, proxy: chk.proxy, proxy_doc: chk.doc, note: chk.note || null }).then(function (r) {
+        if (r.error) throw r.error;
+        return sb.from('items').update({ status: '수령완료' }).eq('id', id);
+      }).then(function (r) { if (r.error) throw r.error; return DB.loadItems(); });
+    },
+    saveAlert: function (a) {
+      if (!LIVE) return Promise.resolve();
+      return sb.from('alerts').insert({ id: a.id, label: a.label, conditions: a.conds, email: a.email || null, email_consent: !!a.email }).then(function (r) { if (r.error) throw r.error; });
+    },
+    cancelAlert: function (id) { return LIVE ? sb.rpc('cancel_alert', { p_id: id }) : Promise.resolve(); }
+  };
+  function uuid() { try { return crypto.randomUUID(); } catch (e) { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }); } }
+
+  /* ================= 화면: 메인 ================= */
+  function vHome() {
+    return '<div class="view">' +
+      '<section class="hero" aria-labelledby="h-home">' +
+        '<h1 id="h-home">잃어버린 물건, 한 문장으로 찾아보세요</h1>' +
+        '<p class="sub">지하철·버스·경찰서에 접수된 습득물을 한 번에 찾아, 닮은 순서대로 보여 드려요. 분류나 지역을 고르지 않아도 됩니다.</p>' +
+        '<form class="search" id="f-search"><label for="q">무엇을, 언제, 어디서 잃어버렸나요?</label>' +
+          '<textarea id="q" rows="3" placeholder="' + esc(EXAMPLES[0]) + '">' + esc(state.query) + '</textarea>' +
+          '<div class="row"><span class="cap" id="ph-hint">회색 글씨는 예시예요. 비워 두고 누르면 예시로 찾아 드려요.</span>' +
+            '<button class="btn primary lg" type="submit">' + I.search + '찾아보기</button></div>' +
+          '<div class="row"><span class="ph-dots" aria-hidden="true" id="ph-dots">' + EXAMPLES.map(function (e, i) { return '<span' + (i === 0 ? ' class="on"' : '') + '></span>'; }).join('') + '</span><span class="cap">입력한 문장은 검색에만 쓰고 저장하지 않아요.</span></div>' +
+        '</form>' +
+      '</section>' +
+      '<section class="head" aria-labelledby="h-quick"><h2 id="h-quick">자주 찾는 메뉴</h2></section>' +
+      '<div class="quick">' +
+        '<a href="#today"><span class="ic">' + I.train + '</span><b>방금 두고 내렸어요</b><span class="small">탔던 열차·버스를 추정하고 연락처를 알려 드려요</span></a>' +
+        '<a href="#find" data-tab="지하철"><span class="ic">' + I.bus + '</span><b>지하철·버스 습득물</b><span class="small">유실물센터·운수회사에 보관 중인 물건</span></a>' +
+        '<a href="#find" data-tab="경찰서"><span class="ic">' + I.shield + '</span><b>경찰서 보관 습득물</b><span class="small">1주일이 지나 경찰서로 옮겨진 물건</span></a>' +
+        '<a href="#track"><span class="ic">' + I.bell + '</span><b>비슷한 물건 알림</b><span class="small">새로 등록되면 알려 드려요</span></a>' +
+      '</div>' +
+      '<section class="panel soft" aria-labelledby="h-how"><h3 id="h-how">이용 방법</h3>' +
+        '<ol class="steps"><li><b>문장으로 입력</b><span class="small">물건, 시간, 노선을 아는 만큼 적어요</span></li><li><b>후보 확인</b><span class="small">AI가 찾은 조건을 고치고, 닮은 순 후보를 봐요</span></li><li><b>연락하고 받기</b><span class="small">보관 기관에 연락한 뒤 신분증을 들고 받아요</span></li></ol>' +
+      '</section></div>';
+  }
+
+  /* ================= 화면: 습득물 찾기 ================= */
+  function opt(list, cur, all) { return '<option value="">' + all + '</option>' + list.map(function (v) { return '<option' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join(''); }
+  function rankItems(base, c) {
+    if (!hasCond(c)) return base.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (it) { return { it: it, s: null }; });
+    var from = c.date ? addDays(c.date, -2) : '';
+    return base.filter(function (it) { return !from || it.date >= from; })
+      .map(function (it) { var s = score(it, c); return { it: it, s: s.total, reason: s.reason }; })
+      .filter(function (r) { return r.s >= 0.35; })
+      .sort(function (a, b) { return b.s - a.s; });
+  }
+  function ranked() { return rankItems(ITEMS.filter(function (it) { return it.status !== '수령완료'; }), state.conds); }
+  function fieldCls(x, k) { return x.aiKeys[k] ? 'f ai' : 'f'; }
+  function aiTag(x, k) { return x.aiKeys[k] ? '<span class="ai-tag">AI</span>' : ''; }
+  // AI 검색창 + 검색 조건 (시민 '습득물 찾기'와 담당자 '보관 물품'이 같이 씀)
+  function aiSearchHtml(x, ph, hint) {
+    return '<form class="aisearch" id="f-ai"><label for="aiq">' + I.spark + ' AI로 검색</label>' +
+      '<div class="bar"><input id="aiq" type="search" value="' + esc(x.query) + '" placeholder="' + esc(ph) + '"><button class="btn primary" type="submit" id="b-ai">' + I.search + 'AI로 찾기</button></div>' +
+      '<p class="msg" id="ai-msg" aria-live="polite">' + esc(x.aiMsg || hint) + '</p></form>';
+  }
+  function filtersHtml(x, dateLabel) {
+    var c = x.conds;
+    return '<section class="filters" aria-labelledby="h-f"><div class="top"><h3 id="h-f" class="s">검색 조건</h3><div class="btns"><span class="cap" style="align-self:center">' + (Object.keys(x.aiKeys).length ? '<span class="ai-tag">AI</span> 표시는 AI가 채운 조건이에요. 틀리면 바로 고치세요.' : '조건을 바꾸면 목록이 바로 다시 정렬돼요.') + '</span><button type="button" class="btn tertiary sm" id="b-reset">조건 초기화</button></div></div>' +
+      '<div class="fgrid">' +
+        '<div class="' + fieldCls(x, 'cat') + '"><label for="c-cat">분류' + aiTag(x, 'cat') + '</label><select id="c-cat" data-k="cat">' + opt(CATS.map(function (y) { return y[0]; }), c.cat, '전체 분류') + '</select></div>' +
+        '<div class="' + fieldCls(x, 'color') + '"><label for="c-color">색상' + aiTag(x, 'color') + '</label><select id="c-color" data-k="color">' + opt(COLORS.map(function (y) { return y[0]; }), c.color, '전체 색상') + '</select></div>' +
+        '<div class="' + fieldCls(x, 'line') + '"><label for="c-line">노선' + aiTag(x, 'line') + '</label><select id="c-line" data-k="line">' + opt(LINES.indexOf(c.line) < 0 && c.line ? LINES.concat([c.line]) : LINES, c.line, '전체 노선') + '</select></div>' +
+        '<div class="' + fieldCls(x, 'date') + '"><label for="c-date">' + dateLabel + aiTag(x, 'date') + '</label><input id="c-date" type="date" data-k="date" value="' + esc(c.date) + '" max="' + TODAY + '"></div>' +
+        '<div class="' + fieldCls(x, 'station') + '"><label for="c-st">역·정류장' + aiTag(x, 'station') + '</label><input id="c-st" type="text" data-k="station" value="' + esc(c.station) + '" placeholder="예: 강남"></div>' +
+        '<div class="' + fieldCls(x, 'feats') + ' feat"><label for="c-feat">특징' + aiTag(x, 'feats') + '</label><input id="c-feat" type="text" data-k="feats" value="' + esc(c.feats.join(', ')) + '" placeholder="쉼표로 구분 · 예: 가죽, 반지갑"></div>' +
+      '</div>' +
+      (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘(' + md(TODAY) + ')까지 접수된 습득물</p></div></div>' : '') +
+    '</section>';
+  }
+  function vFind() {
+    var c = state.conds, all = ranked(), scored = hasCond(c);
+    var counts = { '전체': all.length, '지하철': 0, '버스': 0, '경찰서': 0 };
+    all.forEach(function (r) { counts[r.it.type]++; });
+    var list = state.tab === '전체' ? all : all.filter(function (r) { return r.it.type === state.tab; });
+    var tabs = ['전체', '지하철', '버스', '경찰서'].map(function (t) { return '<button type="button" role="tab" aria-selected="' + (state.tab === t) + '" data-t="' + t + '">' + t + ' ' + counts[t] + '</button>'; }).join('');
+    var cards = list.map(function (r) {
+      var st = storage(r.it), rank = all.indexOf(r) + 1, top = scored && rank === 1;
+      var lvl = !scored ? null : r.s >= 0.85 ? ['b-high', '닮음 높음'] : r.s >= 0.6 ? ['b-mid', '닮음 보통'] : ['b-low', '닮음 낮음'];
+      return '<button type="button" class="card' + (top ? ' top' : '') + '" data-open="' + esc(r.it.id) + '">' +
+        '<span class="thumb">' + pic(r.it) + '</span>' +
+        '<span class="cbody"><span class="tags">' + (lvl ? '<span class="badge ' + lvl[0] + '">' + (top ? I.ok : '') + lvl[1] + ' · ' + rank + '위 후보</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span></span>' +
+        '<span class="cname">' + esc(r.it.name) + ' (' + esc(r.it.color) + ')</span>' +
+        '<span class="small">' + md(r.it.date) + ' 습득 · ' + esc(r.it.found) + ' · ' + esc(r.it.org) + '</span>' +
+        (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</span>' +
+        (scored ? '<span class="score">점수 ' + r.s.toFixed(2) + '</span>' : '<span class="score">' + esc(r.it.type) + '</span>') + '</button>';
+    }).join('');
+    if (!list.length) cards = '<div class="empty panel"><b>이 조건에 맞는 습득물이 아직 없어요</b><p class="small">습득물 등록까지 보통 1~2일 걸려요. 조건을 저장하면 새로 올라올 때 알려 드려요.</p><a class="btn secondary" href="#track">이 조건으로 알림 받기</a></div>';
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>습득물 찾기</span></nav>' +
+      '<div class="view"><div class="head"><h2>습득물 찾기</h2><p class="small">지하철·버스·경찰서에 보관 중인 습득물이에요. 문장으로 찾거나 아래 조건을 직접 골라 보세요.</p></div>' +
+      aiSearchHtml(state, '예: 어제 2호선 강남역에서 검은 가죽 반지갑을 두고 내렸어요', '문장을 입력하면 AI가 분류·색상·날짜·노선을 찾아 아래 조건에 채워요.') +
+      filtersHtml(state, '잃어버린 날') +
+      '<section class="col" aria-label="습득물 목록">' +
+        '<div class="listhead"><h3 class="s">' + (scored ? '조건과 닮은 습득물 ' + all.length + '건' : '전체 습득물 ' + all.length + '건') + '</h3><span class="cap">' + (scored ? '닮은 순 정렬 · AI가 고른 후보이며, 내 물건인지는 보관 기관에서 확인해요' : '최근 습득 순 정렬') + '</span></div>' +
+        '<div class="tabs" role="tablist" aria-label="보관 위치">' + tabs + '</div>' +
+        '<div class="list">' + cards + '</div>' +
+        (scored ? '<div class="btns center"><a class="btn secondary" href="#track">' + I.bell + '이 조건으로 알림 받기</a></div>' : '') +
+      '</section></div>';
+  }
+
+  /* ================= 화면: 상세 ================= */
+  function vDetail() {
+    var it = ITEMS.filter(function (x) { return x.id === state.selected; })[0] || ITEMS[0];
+    if (!it) return '<p>습득물이 없어요.</p>';
+    var org = orgOf(it), st = storage(it), c = state.conds, scored = hasCond(c), s = score(it, c);
+    var deadline = it.type === '경찰서' ? addDays(it.date, 7 + 180) : addDays(it.date, 7);
+    var warn = st.warn ? '<div class="alert a-warn">' + I.warn + '<div><b>' + st.label + '</b><p>' + st.warn + '</p></div></div>' :
+      (it.type !== '경찰서' && it.status === '보관중' ? '<div class="alert a-warn">' + I.warn + '<div><b>' + md(deadline) + '이 지나면 경찰서로 옮겨져요</b><p>받는 곳이 바뀌니 그 전에 연락하세요. 습득 ' + st.age + '일째예요.</p></div></div>' : '');
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><a href="#find">습득물 찾기</a><span>›</span><span>습득물 상세</span></nav>' +
+      '<div class="view"><div class="head"><span class="tags"><span class="badge ' + st.cls + '">' + st.label + '</span>' + (scored ? '<span class="badge b-mid">AI 후보 · 점수 ' + s.total.toFixed(2) + '</span>' : '') + '</span><h2>' + esc(it.name) + ' (' + esc(it.color) + ')</h2></div>' +
+      '<div class="detail"><div class="col"><div class="photo" role="img" aria-label="' + esc(it.name) + ' 사진">' + pic(it) + '</div>' +
+        (scored ? '<div class="alert a-info">' + I.info + '<div><b>AI 일치 이유</b><p>' + esc(s.reason) + '</p></div></div>' : '') + '</div>' +
+      '<div class="col">' + warn +
+        '<div class="scroll"><table class="info"><tbody>' +
+          '<tr><th scope="row">관리번호</th><td>' + esc(it.id) + '</td></tr>' +
+          '<tr><th scope="row">물품 분류</th><td>' + esc(it.cat) + ' &gt; ' + esc(it.sub) + '</td></tr>' +
+          '<tr><th scope="row">습득일</th><td>' + it.date.replace(/-/g, '.') + '</td></tr>' +
+          '<tr><th scope="row">습득 장소</th><td>' + esc(it.found) + '</td></tr>' +
+          '<tr><th scope="row">보관 장소</th><td><div class="orgline"><span>' + esc(it.org) + (org.lines && org.lines !== '경찰서' ? ' (' + esc(org.lines) + ')' : '') + '</span><span class="tel" id="tel">' + esc(org.tel) + '</span><button class="btn secondary sm" type="button" id="b-tel">번호 복사</button><span class="toast" id="m-tel" aria-live="polite"></span></div></td></tr>' +
+          '<tr><th scope="row">운영 시간</th><td>' + esc(org.hours) + '</td></tr>' +
+          '<tr><th scope="row">보관 기한</th><td>' + (it.type === '경찰서' ? '경찰서 공고 후 6개월 (유실물법)' : md(deadline) + '까지 (이후 경찰서 이관)') + '</td></tr>' +
+        '</tbody></table></div>' +
+        '<p class="cap">전화할 때 관리번호 ' + esc(it.id) + '를 알려 주세요.</p>' +
+        '<h3 class="s">찾는 방법</h3><ol class="howto"><li><b>연락</b><span class="small">관리번호를 말하고 보관 여부를 확인해요</span></li><li><b>방문·배송</b><span class="small">' + (org.delivery ? '직접 방문하거나 보관함·집앞배송을 신청해요' : '보관 장소를 직접 방문해요') + '</span></li><li><b>본인 확인 후 수령</b><span class="small">신분증과 물건 특징을 확인해요</span></li></ol>' +
+      '</div></div>' +
+      '<div class="bottom-actions"><div class="btns center"><button class="btn primary" type="button" id="b-proxy">대리 수령 신청</button>' +
+          (org.delivery ? '<a class="btn tertiary" href="https://news.seoul.go.kr/traffic/archives/514397" target="_blank" rel="noopener">집앞배송·보관함 안내</a>' : '') +
+          '<a class="btn tertiary" href="#find">내 물건이 아니에요</a></div>' +
+        '<form class="panel proxy" id="f-proxy" hidden><h3 class="s">대리 수령 신청</h3><p class="small">가족·지인이 대신 받을 때 써요. 대리인 정보는 수령이 끝나면 바로 지워요.</p>' +
+          '<div class="form"><div class="f"><label for="p-name">대리인 이름</label><input id="p-name" type="text" required></div><div class="f"><label for="p-rel">관계</label><select id="p-rel"><option>가족</option><option>지인</option><option>기타</option></select></div>' +
+          '<div class="f full"><label for="p-tel">대리인 연락처</label><input id="p-tel" type="text" inputmode="tel" required></div>' +
+          '<label class="check full"><input id="p-agree" type="checkbox" required><span>위임 확인을 위해 기관이 정한 서류(위임장, 분실자 신분증 사본 등)가 필요하다는 안내를 확인했어요.</span></label></div>' +
+          '<div class="btns center"><button class="btn primary" type="submit">신청 내용 만들기</button></div><div id="proxy-out" aria-live="polite"></div></form>' +
+      '</div></div>';
+  }
+
+  /* ================= 화면: 당일 분실 ================= */
+  var STATIONS = ['시청', '을지로입구', '을지로3가', '을지로4가', '동대문역사문화공원', '신당', '상왕십리', '왕십리', '한양대', '뚝섬', '성수', '건대입구', '구의', '강변', '잠실나루', '잠실', '잠실새내', '종합운동장', '삼성', '선릉', '역삼', '강남', '교대', '서초', '방배', '사당', '낙성대', '서울대입구', '봉천', '신림', '신대방', '구로디지털단지', '대림', '신도림', '문래', '영등포구청', '당산', '합정', '홍대입구', '신촌', '이대', '아현', '충정로'];
+  // 시범 버스 노선 (가상 데이터 · 실제 정류장 순서·운수회사와 다를 수 있음)
+  var BUSES = {
+    '472': { company: '가상운수(주)', tel: '02-000-0472', depot: '개포동 차고지', org: '가상운수 차고지', color: '#3D5BAB', gap: 8, stops: ['개포동', '대치역', '한티역', '선릉역', '역삼역', '강남역', '신논현역', '논현역', '신사역', '한남대교', '한남오거리', '용산구청', '삼각지', '서울역', '명동입구', '을지로입구'] },
+    '143': { company: '가상교통(주)', tel: '02-000-0143', depot: '정릉 차고지', org: '', color: '#3D5BAB', gap: 7, stops: ['정릉', '아리랑고개', '성신여대입구', '혜화역', '종로5가', '종로3가', '을지로3가', '충무로역', '남산1호터널', '한남동', '신사역', '논현역', '강남역', '역삼역', '선릉역', '삼성역'] },
+    '6411': { company: '가상버스(주)', tel: '02-000-6411', depot: '구로 차고지', org: '', color: '#5BB025', gap: 10, stops: ['구로동', '신도림역', '대림역', '신대방역', '신림역', '봉천역', '서울대입구역', '사당역', '방배역', '서초역', '교대역', '강남역', '역삼역', '선릉역', '삼성역', '개포동'] }
+  };
+  var tState = { mode: '지하철', station: '강남', dir: '외선', time: '19:05', where: '뒤쪽 칸 선반', what: '검은 가죽 반지갑', bus: '472', busStop: '강남역', busDir: 0 };
+  function toMin(t) { var p = (t || '00:00').split(':'); return Number(p[0]) * 60 + Number(p[1]); }
+  function hhmm(m) { m = ((m % 1440) + 1440) % 1440; return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); }
+  function nowMin(alight) { var d = new Date(Date.now() + 9 * 36e5); var n = d.getUTCHours() * 60 + d.getUTCMinutes(); var e = n - alight; return (e >= 0 && e <= 50) ? n : alight + 6; }
+
+  function trainCands() {
+    var idx = STATIONS.indexOf(tState.station); if (idx < 0) idx = 21;
+    var m = toMin(tState.time), phase = (idx * 2 + (tState.dir === '외선' ? 0 : 1)) % 4;
+    var k0 = Math.round((m - phase) / 4), base = tState.dir === '외선' ? 2001 : 2002, list = [];
+    [k0, (m - (4 * k0 + phase)) >= 0 ? k0 + 1 : k0 - 1].forEach(function (k, i) {
+      var dep = 4 * k + phase;
+      list.push({ no: base + (((k % 50) + 50) % 50) * 2, dep: dep, best: i === 0 });
+    });
+    return { idx: idx, list: list, now: nowMin(m) };
+  }
+  function strip(opts) {
+    // opts: names[], meIndex, vehicles[{pos,label,best}], color, icon
+    var n = opts.names.length, span = n - 1;
+    var stations = opts.names.map(function (s, i) { return '<div class="st' + (i === opts.me ? ' me' : '') + '" style="left:' + (i / span * 100) + '%"><i></i><span>' + esc(s) + (i === opts.me ? '<br>(내린 곳)' : '') + '</span></div>'; }).join('');
+    var vehs = opts.vehicles.map(function (v) { var p = Math.max(0, Math.min(span, v.pos)); return '<div class="veh' + (v.best ? ' best' : '') + '" style="left:' + (p / span * 100) + '%;color:' + (v.best ? '#FFC83D' : '#9FB0C2') + '"><span class="pill">' + esc(v.label) + '</span>' + opts.icon + '</div>'; }).join('');
+    var donePct = (opts.me / span * 100);
+    return '<div class="track-wrap"><div class="track" style="--line-c:' + opts.color + '"><div class="rail"></div><div class="rail done" style="width:' + donePct + '%"></div>' + stations + vehs + '</div></div>';
+  }
+  function subwayView() {
+    var tc = trainCands(), dir = tState.dir === '외선' ? 1 : -1, L = STATIONS.length;
+    var names = []; for (var k = -1; k <= 6; k++) names.push(STATIONS[((tc.idx + dir * k) % L + L) % L]);
+    var vehicles = tc.list.map(function (c) { var pos = 1 + (tc.now - c.dep) / 2; return { pos: pos, label: c.no + (c.best ? ' · 탔던 열차?' : ''), best: c.best }; });
+    var cands = tc.list.map(function (c) {
+      var pos = Math.max(0, Math.min(names.length - 1, Math.round(1 + (tc.now - c.dep) / 2)));
+      return '<div class="cand' + (c.best ? ' best' : '') + '"><span><span class="no">' + c.no + ' 열차</span><br><span class="small">' + hhmm(c.dep) + ' ' + esc(tState.station) + ' 출발 · 지금 ' + esc(names[pos]) + ' 부근 (추정)</span></span><span class="badge ' + (c.best ? 's-soon' : 'b-low') + '">' + (c.best ? '가능성 높음' : '추정') + '</span></div>';
+    }).join('');
+    var facts = [['노선·방향', '2호선 ' + tState.dir], ['열차번호', tc.list.map(function (c) { return c.no; }).join(' 또는 ') + ' (추정)'], ['내린 역·시각', tState.station + '역 · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
+    return { screen: '<div class="screen" role="img" aria-label="2호선 ' + esc(tState.dir) + ' 열차 위치 추정 화면"><div class="hd"><b><span class="lineno">2</span>' + esc(tState.dir) + ' · ' + esc(names[2]) + ' 방면</b><span class="clock">' + hhmm(tc.now) + ' 기준 추정 위치</span></div>' +
+        strip({ names: names, me: 1, vehicles: vehicles, color: '#00A84D', icon: I.trainSide }) +
+        '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 열차</span><span><i style="background:#9FB0C2"></i>다른 후보</span><span>시간표 기준 추정이며 실제 위치와 다를 수 있어요</span></div></div>',
+      cands: cands, facts: facts, callName: '서울교통공사 고객센터', callTel: '1577-1234', callNote: '열차가 종착역에 닿기 전이면 역 직원이 열차 안을 확인해 줄 수 있어요.' };
+  }
+  function busView() {
+    var b = BUSES[tState.bus];
+    if (!b) return null;
+    var stops = tState.busDir === 0 ? b.stops : b.stops.slice().reverse();
+    var si = stops.indexOf(tState.busStop); if (si < 0) si = Math.min(5, stops.length - 1);
+    var start = Math.max(0, Math.min(si - 1, stops.length - 8)), names = stops.slice(start, start + 8), me = si - start;
+    var m = toMin(tState.time), now = nowMin(m), vehicles = [];
+    [0, -1, 1].forEach(function (k) { var dep = m + k * b.gap; var pos = me + (now - dep) / 3; if (pos >= -0.3 && pos <= names.length - 0.7) vehicles.push({ pos: pos, label: k === 0 ? '탔던 버스?' : hhmm(dep) + ' 통과', best: k === 0 }); });
+    var facts = [['노선·방향', tState.bus + '번 · ' + stops[stops.length - 1] + ' 방면'], ['내린 정류장·시각', stops[si] + ' · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
+    return { screen: '<div class="screen" role="img" aria-label="' + esc(tState.bus) + '번 버스 위치 추정 화면"><div class="hd"><b><span class="lineno" style="--line-c:' + b.color + ';background:' + b.color + ';width:auto;padding:0 8px;border-radius:6px">' + esc(tState.bus) + '</span>' + esc(stops[stops.length - 1]) + ' 방면</b><span class="clock">' + hhmm(now) + ' 기준 추정 위치</span></div>' +
+        strip({ names: names, me: me, vehicles: vehicles, color: b.color, icon: I.busSide }) +
+        '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 버스</span><span>배차 ' + b.gap + '분 기준 추정 · 시범 노선 데이터</span></div></div>',
+      cands: '', facts: facts, callName: b.company + ' (' + b.depot + ')', callTel: b.tel, callNote: '버스는 운행을 마치면 차고지에서 물건을 확인해요. 차량 번호를 알면 함께 알려 주세요.', stops: stops };
+  }
+  function vToday() {
+    var sub = tState.mode === '지하철';
+    var tabs = '<div class="modetabs" role="tablist" aria-label="교통수단"><button type="button" role="tab" data-mode="지하철" aria-selected="' + sub + '">' + I.train + '지하철</button><button type="button" role="tab" data-mode="버스" aria-selected="' + !sub + '">' + I.bus + '버스</button></div>';
+    var common = '<div class="f"><label for="t-time">내린 시각</label><input id="t-time" type="time" value="' + tState.time + '"></div>' +
+      '<div class="f"><label for="t-where">물건을 둔 곳</label><input id="t-where" type="text" value="' + esc(tState.where) + '"></div>' +
+      '<div class="f full"><label for="t-what">잃어버린 물건</label><input id="t-what" type="text" value="' + esc(tState.what) + '"></div>';
+    var form, v;
+    if (sub) {
+      v = subwayView();
+      form = '<div class="f"><label for="t-line">노선</label><select id="t-line"><option>2호선 (시범)</option></select></div>' +
+        '<div class="f"><label for="t-st">내린 역</label><select id="t-st">' + STATIONS.map(function (s) { return '<option' + (s === tState.station ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></div>' +
+        '<div class="f full"><span class="lbl" id="l-dir">열차 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-dir"><label><input type="radio" name="dir" value="외선"' + (tState.dir === '외선' ? ' checked' : '') + '>외선 (시계 방향 · 강남→교대)</label><label><input type="radio" name="dir" value="내선"' + (tState.dir === '내선' ? ' checked' : '') + '>내선 (반시계 방향 · 강남→역삼)</label></div></div>' + common;
+    } else {
+      v = busView();
+      var b = BUSES[tState.bus];
+      var stopOpts = b ? (tState.busDir === 0 ? b.stops : b.stops.slice().reverse()).map(function (s) { return '<option' + (s === tState.busStop ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') : '<option>노선 번호를 먼저 입력하세요</option>';
+      form = '<div class="f"><label for="t-bus">버스 노선 번호</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + Object.keys(BUSES).map(function (k) { return '<option value="' + k + '">'; }).join('') + '</datalist></div>' +
+        '<div class="f"><label for="t-stop">내린 정류장</label><select id="t-stop"' + (b ? '' : ' disabled') + '>' + stopOpts + '</select></div>' +
+        (b ? '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir"><label><input type="radio" name="bdir" value="0"' + (tState.busDir === 0 ? ' checked' : '') + '>' + esc(b.stops[b.stops.length - 1]) + ' 방면</label><label><input type="radio" name="bdir" value="1"' + (tState.busDir === 1 ? ' checked' : '') + '>' + esc(b.stops[0]) + ' 방면</label></div></div>' : '') + common;
+    }
+    var right;
+    if (!v) {
+      right = '<div class="alert a-warn">' + I.warn + '<div><b>시범 데이터에 없는 노선이에요</b><p>시범 서비스는 ' + Object.keys(BUSES).join('·') + '번만 안내해요. 서울 시내버스는 다산콜센터(120)에서 운수회사 연락처를 알려 줘요.</p></div></div>';
+    } else {
+      var factsText = v.facts.map(function (f) { return f[0] + ': ' + f[1]; }).join('\n');
+      right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 후보' : '탔던 버스 위치') + '</h3>' + v.screen + (v.cands ? '<div class="cands">' + v.cands + '</div>' : '') + '</section>' +
+        '<section class="panel" aria-labelledby="h-call"><h3 id="h-call" class="s">지금 연락하세요</h3>' +
+          '<div class="copyline"><span class="lbl">' + esc(v.callName) + '</span><span class="num" id="cc">' + esc(v.callTel) + '</span><button class="btn secondary sm" type="button" id="b-cc">번호 복사</button><span class="toast" id="m-cc" aria-live="polite"></span></div>' +
+          '<p class="small">' + esc(v.callNote) + '</p>' +
+          '<span class="lbl">문의할 때 알려 줄 정보</span><dl class="facts" id="facts">' + v.facts.map(function (f) { return '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl>' +
+          '<div class="copyline"><button class="btn tertiary sm" type="button" id="b-facts" data-text="' + esc(factsText) + '">정보 복사</button><span class="toast" id="m-facts" aria-live="polite"></span></div></section>' +
+        '<div class="alert a-info">' + I.info + '<div><b>못 찾으면 알림을 걸어 두세요</b><p>' + (sub ? '열차 종착 후 유실물센터(2호선은 시청)에 등록돼요.' : '운행을 마친 뒤 운수회사가 습득물로 등록해요.') + ' <a href="#track">비슷한 물건 알림 받기</a></p></div></div>';
+    }
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>당일 분실</span></nav>' +
+      '<div class="view"><div class="head"><h2>방금 두고 내렸나요?</h2><p class="small">아직 차 안에 있을 수 있어요. 온라인 등록 전이니, 지금 운영 기관에 바로 알리는 게 가장 빨라요.</p></div>' + tabs +
+      '<div class="today"><form class="panel" id="f-today"><h3 class="s">내린 정보</h3><div class="form">' + form + '</div>' +
+        '<button class="btn primary" type="submit">' + (sub ? '열차 다시 추정하기' : '버스 위치 다시 추정하기') + '</button></form>' +
+      '<div class="col">' + right + '</div></div></div>';
+  }
+
+  /* ================= 화면: 알림 ================= */
+  function vTrack() {
+    var c = hasCond(state.conds) ? state.conds : parse('어제 2호선에서 검은 가죽 반지갑을 잃어버렸어요');
+    var desc = [c.color, c.cat, c.line, md(c.date)].filter(Boolean).join(' · ');
+    var saved = state.saved.length ? state.saved.map(function (s, i) {
+      return '<div class="it"><div class="row"><b>' + esc(s.label) + '</b><span class="badge s-keep">하루 2회 자동 확인</span></div>' +
+        '<div class="prog" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span><span></span></div><div class="progl"><span>분실</span><span>등록 대기</span><span>이관 전후</span><span>수령</span></div>' +
+        '<div class="row"><span class="cap">' + (s.email ? '이메일 알림 · ' + esc(s.email) : '이 기기에서만 확인') + '</span><button class="btn tertiary sm" type="button" data-unsave="' + i + '">알림 해지</button></div></div>';
+    }).join('') : '<p class="small">저장한 조건이 없어요. 왼쪽에서 조건을 저장하세요.</p>';
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>비슷한 물건 알림</span></nav>' +
+      '<div class="view"><div class="head"><h2>비슷한 물건이 올라오면 알려 드려요</h2><p class="small">습득물은 등록까지 1~2일 걸려요. 하루 두 번(오전 9시·오후 6시) 새 습득물과 비교해, 닮음 점수 0.6 이상이면 알려 드려요.</p></div>' +
+      '<div class="track2"><form class="panel" id="f-save"><h3 class="s">알림 조건 저장</h3>' +
+        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" value="' + esc(desc) + '"></div>' +
+        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 주소"></div>' +
+        '<label class="check"><input id="s-agree" type="checkbox"><span>이메일로 알림을 받기 위해 주소를 저장하는 데 동의해요. 해지하면 바로 지워져요.</span></label>' +
+        '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button></form>' +
+      '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div></section>' +
+        '<section class="panel" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
+          '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · 10.25 09:02</p></div></div>' +
+          '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · 10.30</p></div></div>' +
+          '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요. · 10.31</p></div></div>' +
+        '</section></div></div></div>';
+  }
+
+  /* ================= 화면: 보관 기관 안내 ================= */
+  var GUIDE = [
+    { title: '서울 지하철 1~8호선 (서울교통공사)', note: '역 → 유실물센터 → 약 1주일 뒤 경찰서 순으로 옮겨져요. 대표 고객센터 1577-1234', rows: [
+      ['1·2호선', '시청 유실물센터', '02-6110-1122', '평일 09:00~18:00', '보관함·집앞배송'],
+      ['3·4호선', '충무로 유실물센터', '02-6110-3344', '평일 09:00~18:00', '보관함·집앞배송'],
+      ['5·8호선', '왕십리 유실물센터', '02-6311-5582', '평일 09:00~18:00', '보관함·집앞배송'],
+      ['6·7호선', '태릉입구 유실물센터', '02-6311-6765', '평일 09:00~18:00', '보관함·집앞배송']] },
+    { title: '그 밖의 도시철도·광역철도', note: '운영 기관마다 유실물 센터와 이관 기간이 달라요. 연락처는 운영 기관 공식 안내에서 확인하세요.', rows: [
+      ['9호선', '서울시메트로9호선 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요'],
+      ['신분당선', '신분당선 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요'],
+      ['공항철도', '공항철도 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요'],
+      ['코레일 광역전철 (경의중앙·수인분당 등)', '각 역 / 코레일 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요']] },
+    { title: '버스·택시', note: '시내버스는 노선별 운수회사가 보관해요. 운수회사를 모르면 다산콜센터(120)에 노선 번호를 말하세요.', rows: [
+      ['시내·마을버스', '노선별 운수회사 (차고지)', '120 다산콜센터', '회사별 상이', '-'],
+      ['택시', '택시 회사 또는 결제 카드사', '120 다산콜센터', '-', '-']] },
+    { title: '경찰서', note: '1주일이 지난 습득물은 관할 경찰서로 옮겨지고, 공고 후 6개월 보관돼요. 경찰청 유실물 통합포털(LOST112)에서도 조회할 수 있어요.', rows: [
+      ['전국', '관할 경찰서 유실물 담당', '182', '평일 09:00~18:00', '-']] }
+  ];
+  function vGuide() {
+    var blocks = GUIDE.map(function (g) {
+      return '<section class="panel" aria-label="' + esc(g.title) + '"><h3 class="s">' + esc(g.title) + '</h3><p class="small">' + esc(g.note) + '</p>' +
+        '<div class="scroll"><table class="queue"><thead><tr><th>구분</th><th>보관 장소</th><th>연락처</th><th>운영 시간</th><th>수령 지원</th></tr></thead><tbody>' +
+        g.rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td class="n">' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td><td>' + esc(r[4]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+    }).join('');
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>보관 기관 안내</span></nav>' +
+      '<div class="view"><div class="head"><h2>보관 기관 안내</h2><p class="small">어디서 잃어버렸는지에 따라 보관하는 곳이 달라요. 시간이 지나면 경찰서로 옮겨지니 빨리 연락하세요.</p></div>' + blocks +
+      '<p class="cap">지하철 유실물센터 연락처는 시연용 가상 번호예요. 실제 서비스에서는 운영 기관 공식 안내로 연결해요.</p></div>';
+  }
+
+  /* ================= 화면: 담당자 로그인 ================= */
+  function vLogin() {
+    return '<div class="view"><div class="login"><form class="panel" id="f-login"><div class="head"><h2>기관 담당자 로그인</h2><p class="small">유실물센터·운수회사·경찰서 담당자만 이용할 수 있어요.<br>시민은 로그인 없이 습득물을 찾을 수 있어요.</p></div>' +
+      '<div class="form"><div class="f full"><label for="l-email">업무용 이메일</label><input id="l-email" type="email" autocomplete="username"' + (LIVE ? ' required' : '') + '></div>' +
+      '<div class="f full"><label for="l-pw">비밀번호</label><input id="l-pw" type="password" autocomplete="current-password"' + (LIVE ? ' required' : '') + '></div></div>' +
+      '<p id="l-msg" aria-live="polite" class="small"></p>' +
+      '<button class="btn primary" type="submit">' + (LIVE ? '로그인' : '시연용 계정으로 들어가기') + '</button>' +
+      (LIVE ? '<p class="cap">계정은 기관 관리자가 발급해요. 비밀번호를 잊었다면 관리자에게 문의하세요.</p>' : '<p class="cap">시범 서비스라 입력 없이 "시청 유실물센터" 시연용 계정으로 들어가요.</p>') +
+      '</form></div></div>';
+  }
+  function subnav(h) {
+    var el = document.getElementById('subnav');
+    if (!state.staff) { el.hidden = true; el.innerHTML = ''; return; }
+    el.hidden = false;
+    el.innerHTML = '<div class="in"><span><b>' + esc(state.staff.org) + '</b> · ' + esc(state.staff.name) + '</span><nav aria-label="담당자 메뉴"><a href="#staff"' + (h === 'staff' ? ' aria-current="page"' : '') + '>습득물 등록</a><a href="#staff-items"' + (h === 'staff-items' ? ' aria-current="page"' : '') + '>보관 물품 조회·수정</a><button type="button" id="b-logout">로그아웃</button></nav></div>';
+    document.getElementById('b-logout').addEventListener('click', function () { DB.signOut().then(function () { go('home'); }); });
+  }
+
+  /* ================= 화면: 담당자 등록 ================= */
+  var TEMPLATES = {
+    '지갑': { fmt: '[색상] [재질] [종류] / 공개 특징 / 비공개: 내용물', points: ['종류: 반지갑·장지갑·카드지갑', '재질: 가죽·천·플라스틱', '공개 특징: 로고 유무, 해짐·얼룩', '비공개: 카드 장수, 현금 여부 (금액은 적지 않기)'], ex: '2호선 강남역 승강장, 검정 가죽 반지갑, 모서리 해짐 / 비공개: 카드 3장, 현금 있음' },
+    '휴대폰': { fmt: '[색상] [기기 종류] [케이스] / 공개 특징 / 비공개: 잠금화면', points: ['기기: 스마트폰·태블릿 (모델명은 확실할 때만)', '케이스: 색상·재질, 카드 수납 여부', '공개 특징: 액정 파손, 스티커', '비공개: 잠금화면 사진, 케이스 속 카드'], ex: '2호선 열차 내, 검정 스마트폰, 투명 케이스, 액정 오른쪽 금 / 비공개: 잠금화면 강아지 사진' },
+    '이어폰': { fmt: '[색상] [무선/유선] [케이스 형태] / 공개 특징 / 비공개: 각인', points: ['무선이면 충전케이스 유무', '케이스 커버 색상·무늬', '비공개: 각인·이니셜, 한쪽만 있는지'], ex: '3호선 열차 내, 흰색 무선 이어폰, 충전케이스, 분홍 실리콘 커버 / 비공개: 케이스 이니셜 각인' },
+    '가방': { fmt: '[색상] [종류] [재질] / 공개 특징 / 비공개: 내용물 목록', points: ['종류: 백팩·토트·서류가방·쇼핑백', '공개 특징: 키링, 로고, 크기', '비공개: 들어 있는 물건 (귀중품 여부 표시)'], ex: '4호선 열차 내, 검정 백팩 배낭, 노트북 칸 있음, 곰 키링 / 비공개: 노트북 1대, 충전기' },
+    '우산': { fmt: '[색상] [장우산/접이식] [자동 여부] / 공개 특징', points: ['손잡이 모양·재질', '무늬·글자', '대부분 비공개 항목 없음'], ex: '7호선 열차 내, 남색 장우산, 자동, 나무 손잡이' },
+    '의류': { fmt: '[색상] [종류] [길이·재질] / 공개 특징 / 비공개: 주머니 속 물건', points: ['종류: 패딩·코트·니트·모자', '공개 특징: 모자 유무, 사이즈 표기', '비공개: 주머니 속 물건'], ex: '1호선 시청역 대합실, 회색 패딩 점퍼, 모자 있음, L 사이즈 / 비공개: 주머니에 장갑' }
+  };
+  var reg = { step: 1, memo: '', img: '', file: null, out: null, tmpl: '지갑', saving: false, savedId: '' };
+  function aiRegisterLocal(memo) {
+    var parts = memo.split(/\/\s*비공개\s*:?/);
+    var pub = parts[0], hidden = (parts[1] || '').trim();
+    var c = parse(pub);
+    var privacy = /\d{4}[- ]?\d{4}|카드번호|신분증|주민|명함|이름|\d{6}-\d/.test(memo);
+    if (!hidden) { var m = pub.match(/카드\s*\d+\s*장|현금[^,]*|\d+\s*만\s*원/g); if (m) hidden = m.join(', '); }
+    var pieces = pub.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    var place = (pieces[0] && /호선|역|버스|정류장|열차/.test(pieces[0])) ? pieces.shift() : '확인 필요';
+    var cleaned = pieces.filter(function (p) { return !/카드\s*\d+\s*장|현금|\d{4}[- ]?\d{4}/.test(p); });
+    var nameGuess = cleaned[0] ? cleaned[0].replace(c.color, '').replace(/검은|하얀|흰|까만/, '').trim() : (c.cat || '물품');
+    var valuable = VALUABLE_CATS.indexOf(c.cat) > -1 || /노트북|현금|귀금속|시계|태블릿|카메라/.test(memo);
+    var line = c.line || '';
+    return { cat: c.cat || '확인 필요', name: nameGuess || c.cat || '물품', color: c.color || '확인 필요', feats: cleaned.slice(1).join(', ') || c.feats.join(', ') || '', place: place, line: line, inner: hidden, privacy: privacy, valuable: valuable };
+  }
+  function regScript(o) {
+    return '[' + o.cat + '] ' + [o.color, o.name].filter(function (x) { return x && x !== '확인 필요'; }).join(' ') + (o.feats ? '. ' + o.feats : '') + '. ' + o.place + ' 습득';
+  }
+  function vStaff() {
+    var st = reg.step;
+    var stepper = '<ol class="stepper" aria-label="등록 단계">' + ['담당자 입력', 'AI 정리 결과 확인', '등록 문안 확정'].map(function (s, i) { var n = i + 1; return '<li class="' + (st === n ? 'on' : st > n ? 'done' : '') + '"' + (st === n ? ' aria-current="step"' : '') + '><span class="n">' + (st > n ? '✓' : n) + '</span><span>' + s + '</span></li>'; }).join('') + '</ol>';
+    var body;
+    if (st === 1) {
+      var t = TEMPLATES[reg.tmpl];
+      body = '<section class="panel" aria-labelledby="h-s1"><div class="head"><h3 id="h-s1" class="s">1단계 · 사진과 메모를 넣어 주세요</h3><p class="small">생각나는 대로 짧게 적어도 돼요. 다음 단계에서 AI가 등록 항목으로 나눠 드려요.</p></div>' +
+        '<div class="drop"><div id="preview">' + (reg.img ? '<img src="' + reg.img + '" alt="올린 습득물 사진">' : '<span class="ph">사진 없음</span>') + '</div>' +
+          '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><label for="r-photo" class="lbl">습득물 사진</label><input id="r-photo" type="file" accept="image/*"><span class="cap">이름·번호가 보이는 면은 가리고 찍어 주세요.</span></div></div>' +
+        '<div class="memo-block"><label for="r-memo" class="lbl">메모 (습득 장소, 물품, 특징 / 비공개: 내용물)</label>' +
+          '<div class="memo-box"><div class="memo-guide" aria-label="특징 작성 예시">' +
+            '<div class="guide-tabs" role="tablist" aria-label="물품 분류">' + Object.keys(TEMPLATES).map(function (k) { return '<button type="button" role="tab" data-tmpl="' + k + '" aria-selected="' + (k === reg.tmpl) + '">' + k + '</button>'; }).join('') + '</div>' +
+            '<div class="mg-top"><span class="cap">작성 순서</span><span class="fmt">' + esc(t.fmt) + '</span></div>' +
+            '<div class="mg-ex"><span><b>예시</b> ' + esc(t.ex) + '</span><button class="btn tertiary sm" type="button" id="b-ex">↓ 예시를 아래 칸에 넣기</button></div>' +
+            '<details><summary>항목별 작성 요령 보기</summary><ul>' + t.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></details></div>' +
+          '<textarea id="r-memo" rows="4" placeholder="여기에 메모를 적으세요 · 예: ' + esc(t.ex) + '">' + esc(reg.memo) + '</textarea></div>' +
+          '<span class="cap" id="memo-msg" aria-live="polite">담당자마다 표현이 달라지지 않게, 위 순서대로 적어 주세요.</span></div>' +
+        '<div class="btns end"><button class="btn primary" type="button" id="b-ai">' + I.spark + 'AI로 정리하기</button></div></section>';
+    } else if (st === 2) {
+      var o = reg.out;
+      var mark = function (v) { return v && v !== '확인 필요' ? '<span class="ai-tag">AI</span>' : '<span class="badge s-soon">확인 필요</span>'; };
+      body = '<section class="panel" aria-labelledby="h-s2"><div class="head"><h3 id="h-s2" class="s">2단계 · AI가 정리한 내용을 확인하고 고쳐 주세요</h3><p class="small">왼쪽은 담당자가 입력한 원본, 오른쪽은 AI가 나눈 등록 항목이에요. 틀린 칸만 고치면 돼요.' + (reg.by === 'rule' ? ' (시범 서비스는 규칙 기반 정리)' : '') + '</p></div>' +
+        '<div class="cmp"><div class="srcbox"><span class="lbl">담당자가 입력한 내용</span>' + (reg.img ? '<img src="' + reg.img + '" alt="올린 습득물 사진" style="width:100%;max-width:240px;border-radius:6px">' : '<span class="cap">사진 없음</span>') + '<p class="memo">' + esc(reg.memo) + '</p></div>' +
+        '<div class="aibox"><div class="t">' + I.spark + '<b>AI가 정리한 등록 항목</b></div>' +
+          (o.privacy ? '<div class="alert a-error">' + I.warn + '<div><b>개인정보가 들어 있어요</b><p>메모에 이름·번호로 보이는 내용이 있어요. 공개 항목에는 넣지 않았어요. 사진도 가려졌는지 확인하세요.</p></div></div>' : '') +
+          '<div class="form"><div class="f"><label for="r-cat">분류 ' + mark(o.cat) + '</label><select id="r-cat">' + opt(CATS.map(function (x) { return x[0]; }).concat(['기타']), o.cat, '선택하세요') + '</select></div>' +
+          '<div class="f"><label for="r-color">색상 ' + mark(o.color) + '</label><select id="r-color">' + opt(COLORS.map(function (x) { return x[0]; }).concat(['기타']), o.color, '선택하세요') + '</select></div>' +
+          '<div class="f"><label for="r-name">물품명 ' + mark(o.name) + '</label><input id="r-name" type="text" value="' + esc(o.name) + '"></div>' +
+          '<div class="f"><label for="r-place">습득 장소 ' + mark(o.place) + '</label><input id="r-place" type="text" value="' + esc(o.place === '확인 필요' ? '' : o.place) + '" placeholder="예: 2호선 강남역 승강장"></div>' +
+          '<div class="f full"><label for="r-feat">공개 특징 ' + mark(o.feats) + '</label><input id="r-feat" type="text" value="' + esc(o.feats) + '"></div>' +
+          '<div class="f full"><label for="r-inner">주인 확인용 메모 (비공개) ' + mark(o.inner) + '</label><input id="r-inner" type="text" value="' + esc(o.inner) + '"><span class="cap">시민 화면에는 보이지 않고, 수령 때 주인 확인에만 써요.</span></div>' +
+          '<label class="check full"><input id="r-val" type="checkbox"' + (o.valuable ? ' checked' : '') + '><span><b>고액·귀중품</b>으로 표시 (수령 때 본인 확인을 더 꼼꼼히 해요)</span></label></div></div></div>' +
+        '<div class="btns end"><button class="btn tertiary" type="button" id="b-back1">메모 다시 쓰기</button><button class="btn primary" type="button" id="b-next">확인했어요, 등록 문안 만들기</button></div></section>';
+    } else {
+      var o3 = reg.out;
+      body = '<section class="panel" aria-labelledby="h-s3"><div class="head"><h3 id="h-s3" class="s">3단계 · 등록 문안을 확정하세요</h3><p class="small">' + (LIVE ? '"보관 물품에 등록"을 누르면 데이터베이스에 저장되고 시민 검색에 바로 나타나요.' : '"보관 물품에 등록"을 누르면 보관 물품 목록과 시민 검색에 추가돼요. 기존 등록 시스템에는 문안을 복사해 붙여 넣으세요.') + '</p></div>' +
+        '<div class="tags">' + (o3.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge b-mid">' + esc(o3.cat) + '</span><span class="badge b-low">' + esc(o3.color) + '</span></div>' +
+        '<span class="lbl">공개 등록 문안</span><div class="script" id="script">' + esc(regScript(o3)) + '</div>' +
+        (o3.inner ? '<p class="small"><b>비공개 메모:</b> ' + esc(o3.inner) + '</p>' : '') +
+        '<p id="save-msg" aria-live="polite"></p>' +
+        '<div class="btns end"><button class="btn tertiary" type="button" id="b-back2">항목 다시 고치기</button><button class="btn secondary" type="button" id="b-script">문안 복사</button><button class="btn primary" type="button" id="b-save"' + (reg.savedId ? ' disabled' : '') + '>' + (reg.savedId ? '등록 완료' : '보관 물품에 등록') + '</button></div>' +
+        '<span class="toast" id="m-script" aria-live="polite"></span>' +
+        (reg.savedId ? '<div class="alert a-ok">' + I.ok + '<div><b>관리번호 ' + esc(reg.savedId) + '로 등록했어요</b><p><a href="#staff-items">보관 물품에서 확인</a>하거나 <a href="#staff" id="a-new">새 습득물을 등록</a>하세요.</p></div></div>' : '') + '</section>';
+    }
+    return '<div class="view"><div class="head"><h2>습득물 등록</h2><p class="small">사진과 메모만 넣으면 AI가 등록 항목을 정리해요. 확인하고 고친 뒤 등록하세요.</p></div>' + stepper + body + '</div>';
+  }
+
+  /* ================= 화면: 담당자 보관 물품 ================= */
+  var inv = { conds: emptyConds(), aiKeys: {}, query: '', aiMsg: '', tab: '보관중' };
+  function myItems() { return ITEMS.filter(function (it) { return !state.staff || it.org === state.staff.org; }); }
+  var INV_TABS = [
+    ['보관중', '보관 중', function (it) { return it.status === '보관중'; }],
+    ['고액', '고액·귀중품', function (it) { return it.status === '보관중' && it.valuable; }],
+    ['임박', '기한 임박', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age === 7; }],
+    ['이관', '이관 대상', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age > 7; }],
+    ['수령완료', '수령 완료', function (it) { return it.status === '수령완료'; }],
+    ['전체', '전체', function () { return true; }]
+  ];
+  function vStaffItems() {
+    var mine = myItems(), c = inv.conds, scored = hasCond(c);
+    var tabDef = INV_TABS.filter(function (t) { return t[0] === inv.tab; })[0] || INV_TABS[0];
+    var all = rankItems(mine, c);
+    var tabs = INV_TABS.map(function (t) {
+      var n = all.filter(function (r) { return t[2](r.it); }).length;
+      return '<button type="button" role="tab" aria-selected="' + (inv.tab === t[0]) + '" data-it="' + t[0] + '"' + (t[0] === '고액' ? ' class="tab-val"' : '') + '>' + t[1] + ' ' + n + '</button>';
+    }).join('');
+    var list = all.filter(function (r) { return tabDef[2](r.it); });
+    if (!scored) list.sort(function (a, b) { return a.it.date < b.it.date ? -1 : 1; });
+    var cards = list.map(function (r) {
+      var it = r.it, st = storage(it), done = it.status === '수령완료', val = it.valuable && !done;
+      return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + '">' +
+        '<span class="thumb">' + pic(it) + '</span>' +
+        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
+          '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
+          '<span class="small">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · ' + esc(it.found) + '</span>' +
+          '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
+          (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
+        '<div class="sacts"><button class="btn tertiary sm" type="button" data-edit="' + esc(it.id) + '">수정</button>' +
+          (done ? '' : '<button class="btn ' + (val ? 'danger' : 'primary') + ' sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') + '</div></div>';
+    }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
+    return '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <b class="val-text">빨간색</b>은 고액·귀중품이라 수령 때 본인 확인을 더 꼼꼼히 해야 해요.</p></div>' +
+      aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
+      filtersHtml(inv, '분실한 날') +
+      '<section class="col" aria-label="보관 물품 목록">' +
+        '<div class="listhead"><h3 class="s">' + tabDef[1] + ' ' + list.length + '건</h3><span class="cap">' + (scored ? '조건과 닮은 순 정렬' : '습득일이 오래된 순 정렬') + '</span></div>' +
+        '<div class="tabs" role="tablist" aria-label="물품 상태">' + tabs + '</div>' +
+        '<div class="list">' + cards + '</div></section></div>';
+  }
+
+  /* ---------- 팝업 ---------- */
+  var lastFocus = null;
+  function openModal(html, cls) {
+    lastFocus = document.activeElement;
+    var root = document.getElementById('modal-root');
+    root.innerHTML = '<div class="modal" id="modal"><div class="box ' + (cls || '') + '" role="dialog" aria-modal="true" aria-labelledby="m-title">' + html + '</div></div>';
+    var m = document.getElementById('modal');
+    m.addEventListener('click', function (e) { if (e.target === m) closeModal(); });
+    m.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeModal); });
+    var f = m.querySelector('input, select, button'); if (f) f.focus();
+  }
+  function closeModal() { document.getElementById('modal-root').innerHTML = ''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.getElementById('modal')) closeModal(); });
+
+  function pickupModal(id) {
+    var it = ITEMS.filter(function (x) { return x.id === id; })[0]; if (!it) return;
+    var v = it.valuable;
+    openModal('<div class="mh"><div class="head"><span class="tags">' + (v ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="cap">' + esc(it.id) + '</span></span><h3 id="m-title" class="s">수령 확인 · ' + esc(it.name) + ' (' + esc(it.color) + ')</h3></div><button class="x" type="button" data-close aria-label="닫기">×</button></div>' +
+      (v ? '<p class="valnote">고액·귀중품이에요. 신분증 사진과 얼굴을 대조하고, 주인만 아는 특징을 2가지 이상 직접 말하게 하세요.</p>' : '') +
+      '<form id="f-pick" class="col"><div class="checklist">' +
+        '<label class="check' + (v ? ' strong' : '') + '"><input type="checkbox" id="c1"><span>신분증으로 본인 확인' + (v ? ' (사진·이름 대조)' : '') + '</span></label>' +
+        '<label class="check' + (v ? ' strong' : '') + '"><input type="checkbox" id="c2"><span>주인만 아는 특징 확인' + (it.inner ? ' · 비공개 메모: ' + esc(it.inner) : '') + '</span></label>' +
+        (v ? '<label class="check strong"><input type="checkbox" id="c4"><span>특징을 먼저 묻고 답을 들은 뒤 메모와 대조함 (메모를 먼저 알려 주지 않기)</span></label>' : '') +
+        '<label class="check"><input type="checkbox" id="c3"><span>대리 수령이에요</span></label>' +
+        '<label class="check" id="c5wrap" hidden><input type="checkbox" id="c5"><span>위임 확인 서류(위임장, 분실자 신분증 사본) 확인</span></label></div>' +
+        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="c-note" class="lbl">메모 (선택)</label><input id="c-note" type="text" placeholder="예: 본인 방문, 카드 3장 일치"></div>' +
+        '<p id="pick-msg" aria-live="polite" class="small"></p>' +
+        '<div class="btns end"><button class="btn tertiary" type="button" data-close>닫기</button><button class="btn primary" type="submit">수령 완료 기록</button></div></form>', v ? 'val' : '');
+    document.getElementById('c3').addEventListener('change', function (e) { document.getElementById('c5wrap').hidden = !e.target.checked; });
+    document.getElementById('f-pick').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var g = function (id) { var el = document.getElementById(id); return !!(el && el.checked); };
+      var need = ['c1', 'c2'].concat(v ? ['c4'] : []).concat(g('c3') ? ['c5'] : []);
+      var msg = document.getElementById('pick-msg');
+      if (!need.every(g)) { msg.style.color = 'var(--error-fg)'; msg.textContent = '체크하지 않은 확인 항목이 있어요. 모두 확인한 뒤 기록할 수 있어요.'; return; }
+      msg.style.color = ''; msg.textContent = '기록하는 중…';
+      DB.recordPickup(id, { id: true, feat: true, proxy: g('c3'), doc: g('c5'), note: document.getElementById('c-note').value }).then(function () { closeModal(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '기록하지 못했어요: ' + (err.message || err); });
+    });
+  }
+  function editModal(id) {
+    var it = ITEMS.filter(function (x) { return x.id === id; })[0]; if (!it) return;
+    openModal('<div class="mh"><div class="head"><span class="cap">' + esc(it.id) + '</span><h3 id="m-title" class="s">습득물 정보 수정</h3></div><button class="x" type="button" data-close aria-label="닫기">×</button></div>' +
+      '<form id="f-edit" class="col"><div class="form">' +
+        '<div class="f"><label for="e-name">물품명</label><input id="e-name" type="text" value="' + esc(it.name) + '" required></div>' +
+        '<div class="f"><label for="e-cat">분류</label><select id="e-cat">' + opt(CATS.map(function (x) { return x[0]; }).concat(['기타']), it.cat, '선택하세요') + '</select></div>' +
+        '<div class="f"><label for="e-color">색상</label><select id="e-color">' + opt(COLORS.map(function (x) { return x[0]; }).concat(['기타']), it.color, '선택하세요') + '</select></div>' +
+        '<div class="f"><label for="e-status">상태</label><select id="e-status">' + ['보관중', '경찰서이관', '수령완료'].map(function (s) { return '<option' + (it.status === s ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></div>' +
+        '<div class="f full"><label for="e-found">습득 장소</label><input id="e-found" type="text" value="' + esc(it.found) + '"></div>' +
+        '<div class="f full"><label for="e-desc">공개 특징 (검색어)</label><input id="e-desc" type="text" value="' + esc(it.desc) + '"></div>' +
+        '<div class="f full"><label for="e-inner">주인 확인용 메모 (비공개)</label><input id="e-inner" type="text" value="' + esc(it.inner) + '"></div>' +
+        '<label class="check full"><input id="e-val" type="checkbox"' + (it.valuable ? ' checked' : '') + '><span><b>고액·귀중품</b>으로 표시</span></label></div>' +
+        '<p id="edit-msg" aria-live="polite" class="small"></p>' +
+        '<div class="btns end"><button class="btn tertiary" type="button" data-close>취소</button><button class="btn primary" type="submit">저장</button></div></form>');
+    document.getElementById('f-edit').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var g = function (x) { return document.getElementById(x).value.trim(); };
+      var msg = document.getElementById('edit-msg'); msg.textContent = '저장하는 중…';
+      DB.updateItem(id, { name: g('e-name'), cat: g('e-cat'), color: g('e-color'), status: g('e-status'), found: g('e-found'), desc: g('e-desc'), inner: g('e-inner'), valuable: document.getElementById('e-val').checked })
+        .then(function () { closeModal(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '저장하지 못했어요: ' + (err.message || err); });
+    });
+  }
+
+  /* ================= 라우팅 ================= */
+  var VIEWS = { home: vHome, find: vFind, detail: vDetail, today: vToday, track: vTrack, guide: vGuide, 'staff-login': vLogin, staff: vStaff, 'staff-items': vStaffItems };
+  var phTimer = null;
+  function route() {
+    var h = (location.hash || '#home').slice(1); if (h === 'results') h = 'find'; if (!VIEWS[h]) h = 'home';
+    if ((h === 'staff' || h === 'staff-items') && !state.staff) h = 'staff-login';
+    if (h === 'staff-login' && state.staff) h = 'staff';
+    if (phTimer) { clearInterval(phTimer); phTimer = null; }
+    app.innerHTML = VIEWS[h]();
+    var navKey = (h === 'detail') ? 'find' : (h.indexOf('staff') === 0 ? 'staff' : h);
+    document.querySelectorAll('[data-nav]').forEach(function (a) { if (a.getAttribute('data-nav') === navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    var sl = document.getElementById('staff-link'); sl.href = state.staff ? '#staff' : '#staff-login'; sl.querySelector('span').textContent = state.staff ? '담당자 화면' : '기관 담당자';
+    subnav(h);
+    bind(h);
+  }
+  function go(h) { if (location.hash === '#' + h) route(); else location.hash = h; window.scrollTo(0, 0); }
+
+  function runAi(text, x, after) {
+    x.query = text;
+    var btn = document.getElementById('b-ai'), msg = document.getElementById('ai-msg');
+    if (btn) btn.disabled = true; if (msg) msg.textContent = 'AI가 문장에서 조건을 찾고 있어요…';
+    return DB.ai(text, 'search').then(function (r) {
+      var c = r.out; if (!c.date && x === state) c.date = addDays(TODAY, -1);
+      x.conds = c; x.aiKeys = {};
+      ['cat', 'color', 'date', 'line', 'station'].forEach(function (k) { if (c[k]) x.aiKeys[k] = 1; });
+      if (c.feats.length) x.aiKeys.feats = 1;
+      var found = Object.keys(x.aiKeys).length;
+      x.aiMsg = found ? 'AI가 조건 ' + found + '개를 찾아 아래에 채웠어요. 틀린 조건은 바로 고치세요.' : '조건을 찾지 못했어요. 물건 종류나 색상을 넣어 다시 적어 보세요.';
+      if (x === state) state.tab = '전체';
+      after();
+    });
+  }
+  function bindSearch(x) {
+    document.getElementById('f-ai').addEventListener('submit', function (e) {
+      e.preventDefault(); var t = document.getElementById('aiq').value.trim(); if (!t) { document.getElementById('ai-msg').textContent = '찾을 물건을 문장으로 적어 주세요.'; return; }
+      runAi(t, x, route);
+    });
+    app.querySelectorAll('[data-k]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var k = el.getAttribute('data-k');
+        if (k === 'feats') x.conds.feats = el.value.split(/[,，]/).map(function (v) { return v.trim(); }).filter(Boolean);
+        else x.conds[k] = el.value.trim();
+        delete x.aiKeys[k]; route();
+      });
+    });
+    document.getElementById('b-reset').addEventListener('click', function () { x.conds = emptyConds(); x.aiKeys = {}; x.query = ''; x.aiMsg = ''; route(); });
+  }
+
+  function bind(h) {
+    if (h === 'home') {
+      var q = document.getElementById('q'), dots = document.querySelectorAll('#ph-dots span'), pi = 0;
+      phTimer = setInterval(function () {
+        if (!document.body.contains(q)) { clearInterval(phTimer); return; }
+        pi = (pi + 1) % EXAMPLES.length; q.setAttribute('placeholder', EXAMPLES[pi]);
+        dots.forEach(function (d, i) { d.className = i === pi ? 'on' : ''; });
+      }, 3500);
+      document.getElementById('f-search').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var text = q.value.trim() || q.getAttribute('placeholder');
+        runAi(text, state, function () { go('find'); });
+      });
+      app.querySelectorAll('[data-tab]').forEach(function (a) { a.addEventListener('click', function () { state.tab = a.getAttribute('data-tab'); }); });
+    }
+    if (h === 'find') {
+      bindSearch(state);
+      app.querySelectorAll('[data-t]').forEach(function (b) { b.addEventListener('click', function () { state.tab = b.getAttribute('data-t'); route(); }); });
+      app.querySelectorAll('[data-open]').forEach(function (b) { b.addEventListener('click', function () { state.selected = b.getAttribute('data-open'); go('detail'); }); });
+    }
+    if (h === 'detail') {
+      var bt = document.getElementById('b-tel');
+      if (bt) bt.addEventListener('click', function () { copy(document.getElementById('tel').textContent, document.getElementById('m-tel'), document.getElementById('tel')); });
+      var bp = document.getElementById('b-proxy');
+      if (bp) bp.addEventListener('click', function () { var f = document.getElementById('f-proxy'); f.hidden = !f.hidden; if (!f.hidden) document.getElementById('p-name').focus(); });
+      var fp = document.getElementById('f-proxy');
+      if (fp) fp.addEventListener('submit', function (e) {
+        e.preventDefault();
+        document.getElementById('proxy-out').innerHTML = '<div class="alert a-ok">' + I.ok + '<div><b>신청 내용을 만들었어요</b><p>보관 기관에 연락할 때 대리인 ' + esc(document.getElementById('p-name').value) + '(' + esc(document.getElementById('p-rel').value) + ')이 받는다고 알려 주세요. 시범 서비스라 실제로 접수되지는 않아요.</p></div></div>';
+      });
+    }
+    if (h === 'today') {
+      app.querySelectorAll('[data-mode]').forEach(function (b) { b.addEventListener('click', function () { tState.mode = b.getAttribute('data-mode'); route(); }); });
+      function upd() {
+        var g = function (id) { var el = document.getElementById(id); return el ? el.value : null; };
+        tState.time = g('t-time') || tState.time; tState.where = g('t-where'); tState.what = g('t-what');
+        if (tState.mode === '지하철') {
+          tState.station = g('t-st'); var r = app.querySelector('input[name="dir"]:checked'); if (r) tState.dir = r.value;
+        } else {
+          var nb = (g('t-bus') || '').replace(/[^0-9]/g, ''), changed = nb !== tState.bus;
+          tState.bus = nb;
+          var br = app.querySelector('input[name="bdir"]:checked'); var nd = br ? Number(br.value) : 0;
+          if (nd !== tState.busDir) changed = true; tState.busDir = nd;
+          var stop = g('t-stop'); tState.busStop = changed ? (BUSES[nb] ? BUSES[nb].stops[nd === 0 ? 5 : BUSES[nb].stops.length - 6] : '') : stop;
+        }
+        route();
+      }
+      document.getElementById('f-today').addEventListener('submit', function (e) { e.preventDefault(); upd(); });
+      ['t-st', 't-stop', 't-bus'].forEach(function (id) { var el = document.getElementById(id); if (el) el.addEventListener('change', upd); });
+      app.querySelectorAll('input[name="dir"], input[name="bdir"]').forEach(function (r) { r.addEventListener('change', upd); });
+      var bc = document.getElementById('b-cc'); if (bc) bc.addEventListener('click', function () { copy(document.getElementById('cc').textContent, document.getElementById('m-cc'), document.getElementById('cc')); });
+      var bf = document.getElementById('b-facts'); if (bf) bf.addEventListener('click', function () { copy(bf.getAttribute('data-text'), document.getElementById('m-facts'), document.getElementById('facts')); });
+    }
+    if (h === 'track') {
+      document.getElementById('f-save').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('s-email').value.trim(), agree = document.getElementById('s-agree').checked;
+        var msg = document.getElementById('s-msg');
+        if (email && !agree) { msg.textContent = '이메일을 저장하려면 동의에 체크해 주세요. 이메일 없이도 저장할 수 있어요.'; msg.style.color = 'var(--error-fg)'; return; }
+        var a = { id: uuid(), label: document.getElementById('s-label').value || '찾는 물건', email: agree ? email : '', conds: hasCond(state.conds) ? state.conds : parse(document.getElementById('s-label').value) };
+        msg.style.color = ''; msg.textContent = '저장하는 중…';
+        DB.saveAlert(a).then(function () { state.saved.unshift({ id: a.id, label: a.label, email: a.email }); persist(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '저장하지 못했어요: ' + (err.message || err); });
+      });
+      app.querySelectorAll('[data-unsave]').forEach(function (b) { b.addEventListener('click', function () { var i = Number(b.getAttribute('data-unsave')), s = state.saved[i]; DB.cancelAlert(s.id).then(function () { state.saved.splice(i, 1); persist(); route(); }); }); });
+    }
+    if (h === 'staff-login') {
+      document.getElementById('f-login').addEventListener('submit', function (e) {
+        e.preventDefault(); var msg = document.getElementById('l-msg'); msg.style.color = ''; msg.textContent = '확인하는 중…';
+        DB.signIn(document.getElementById('l-email').value.trim(), document.getElementById('l-pw').value).then(function () { go('staff'); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = err.message; });
+      });
+    }
+    if (h === 'staff') {
+      if (reg.step === 1) {
+        document.getElementById('r-photo').addEventListener('change', function (e) {
+          var f = e.target.files && e.target.files[0]; if (!f) return; reg.file = f;
+          var rd = new FileReader(); rd.onload = function () { reg.img = rd.result; document.getElementById('preview').innerHTML = '<img src="' + reg.img + '" alt="올린 습득물 사진">'; }; rd.readAsDataURL(f);
+        });
+        document.getElementById('r-memo').addEventListener('input', function (e) { reg.memo = e.target.value; });
+        app.querySelectorAll('[data-tmpl]').forEach(function (b) { b.addEventListener('click', function () { reg.memo = document.getElementById('r-memo').value; reg.tmpl = b.getAttribute('data-tmpl'); route(); }); });
+        document.getElementById('b-ex').addEventListener('click', function () { reg.memo = TEMPLATES[reg.tmpl].ex; document.getElementById('r-memo').value = reg.memo; });
+        document.getElementById('b-ai').addEventListener('click', function () {
+          reg.memo = document.getElementById('r-memo').value.trim();
+          if (!reg.memo) { document.getElementById('memo-msg').textContent = '메모를 한 줄 이상 적어 주세요. 오른쪽 예시를 넣어 볼 수도 있어요.'; return; }
+          var b = document.getElementById('b-ai'); b.disabled = true; b.textContent = 'AI가 정리하는 중…';
+          DB.ai(reg.memo, 'register').then(function (r) { reg.out = r.out; reg.by = r.by; reg.step = 2; route(); });
+        });
+      } else if (reg.step === 2) {
+        document.getElementById('b-back1').addEventListener('click', function () { reg.step = 1; route(); });
+        document.getElementById('b-next').addEventListener('click', function () {
+          var g = function (x) { return document.getElementById(x).value.trim(); };
+          reg.out = Object.assign(reg.out, { cat: g('r-cat') || '기타', color: g('r-color') || '기타', name: g('r-name') || g('r-cat') || '물품', place: g('r-place') || '습득 장소 미기재', feats: g('r-feat'), inner: g('r-inner'), valuable: document.getElementById('r-val').checked });
+          reg.step = 3; reg.savedId = ''; route();
+        });
+      } else {
+        document.getElementById('b-back2').addEventListener('click', function () { reg.step = 2; route(); });
+        document.getElementById('b-script').addEventListener('click', function () { copy(document.getElementById('script').textContent, document.getElementById('m-script'), document.getElementById('script')); });
+        var an = document.getElementById('a-new'); if (an) an.addEventListener('click', function (e) { e.preventDefault(); reg = { step: 1, memo: '', img: '', file: null, out: null, tmpl: '지갑', savedId: '' }; route(); });
+        var bs = document.getElementById('b-save');
+        bs.addEventListener('click', function () {
+          if (reg.savedId) return;
+          var o = reg.out, org = ORGS[state.staff.org] || { kind: '지하철' };
+          var id = (org.kind === '버스' ? 'B' : org.kind === '경찰서' ? 'P' : 'F') + TODAY.replace(/-/g, '') + String(Math.floor(Math.random() * 1e5)).padStart(5, '0');
+          var lm = o.place.match(/(\d)\s*호선/);
+          var it = { id: id, type: org.kind || '지하철', name: o.name, cat: o.cat, sub: o.name, color: o.color, date: TODAY, line: o.line || (lm ? lm[1] + '호선' : ''), found: o.place, org: state.staff.org, desc: [o.color, o.name, o.feats].join(' ').replace(/,/g, ' '), photo: CAT_ICON[o.cat] || 'bag', photoUrl: LIVE ? '' : reg.img, valuable: o.valuable, status: '보관중', inner: o.inner };
+          bs.disabled = true; bs.textContent = '등록하는 중…';
+          DB.createItem(it, reg.file).then(function () { reg.savedId = id; route(); }, function (err) { bs.disabled = false; bs.textContent = '보관 물품에 등록'; var m = document.getElementById('save-msg'); m.style.color = 'var(--error-fg)'; m.textContent = '등록하지 못했어요: ' + (err.message || err); });
+        });
+      }
+    }
+    if (h === 'staff-items') {
+      bindSearch(inv);
+      app.querySelectorAll('[data-it]').forEach(function (b) { b.addEventListener('click', function () { inv.tab = b.getAttribute('data-it'); route(); }); });
+      app.querySelectorAll('[data-pick]').forEach(function (b) { b.addEventListener('click', function () { pickupModal(b.getAttribute('data-pick')); }); });
+      app.querySelectorAll('[data-edit]').forEach(function (b) { b.addEventListener('click', function () { editModal(b.getAttribute('data-edit')); }); });
+    }
+  }
+
+  document.querySelectorAll('[data-zoom]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var z = Number(b.getAttribute('data-zoom')); state.zoom = z === 0 ? 0 : Math.max(-1, Math.min(2, state.zoom + z));
+      document.documentElement.style.zoom = String(1 + state.zoom * 0.1);
+    });
+  });
+  window.addEventListener('hashchange', route);
+  app.innerHTML = '<p class="small">불러오는 중…</p>';
+  DB.init().then(route, route);
+})();
+</script>
+
+</body>
+</html>
