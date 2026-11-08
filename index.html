@@ -143,6 +143,14 @@ textarea::placeholder, input::placeholder { color: var(--fg-3); }
 .aisearch .bar { display: flex; gap: 8px; }
 .aisearch .bar input { flex: 1; min-width: 0; }
 .aisearch .msg { font-size: 15px; opacity: .92; min-height: 22px; }
+/* #김다영 수정 시작: 물건 탭 */
+.itemtabs { display: flex; flex-direction: column; gap: 8px; }
+.itemtabs .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.itemtabs button { border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); border-radius: 999px; min-height: 44px; padding: 0 18px; font-size: 17px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.itemtabs button .n { font-size: 13px; font-weight: 700; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.itemtabs button[aria-selected="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.itemtabs button[aria-selected="true"] .n { color: var(--on-primary); opacity: .85; }
+/* #김다영 수정 끝 */
 .filters { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 16px; background: var(--surface); }
 .filters .top { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
 .fgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
@@ -368,6 +376,13 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 }
 @media (max-width: 420px) { .quick { grid-template-columns: minmax(0, 1fr); } .quick a { min-height: 0; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+/* #서유석 수정 시작 */
+.stop { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line, #e5e5e5); font-size: 14px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line, #ccc); flex: none; }
+.dot.bus { background: #FFC83D; box-shadow: 0 0 0 3px rgba(255,200,61,.35); }
+.tag { margin-left: auto; font-size: 12px; color: var(--ink-3, #666); }
+.bus-tag { background: #FFC83D; color: #111; border-radius: 6px; padding: 1px 6px; font-size: 12px; margin-left: 4px; }
+/* #서유석 수정 끝 */
 </style>
 </head>
 <body>
@@ -422,10 +437,10 @@ var CONFIG = {
 
   /* ---------- 기본 데이터 (시연용) ---------- */
   var ORGS = {
-    '시청 유실물센터': { tel: '02-6110-1122', hours: '평일 09:00~18:00', lines: '1·2호선', delivery: true, kind: '지하철' },
-    '충무로 유실물센터': { tel: '02-6110-3344', hours: '평일 09:00~18:00', lines: '3·4호선', delivery: true, kind: '지하철' },
-    '왕십리 유실물센터': { tel: '02-6311-5582', hours: '평일 09:00~18:00', lines: '5·8호선', delivery: true, kind: '지하철' },
-    '태릉입구 유실물센터': { tel: '02-6311-6765', hours: '평일 09:00~18:00', lines: '6·7호선', delivery: true, kind: '지하철' },
+    '시청 유실물센터': { tel: '02-6110-1122', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '1·2호선 시청역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
+    '충무로 유실물센터': { tel: '02-6110-3344', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '3·4호선 충무로역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
+    '왕십리 유실물센터': { tel: '02-6311-6765', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '5·8호선 왕십리역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
+    '태릉입구 유실물센터': { tel: '02-6311-6766', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '6·7호선 태릉입구역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
     '가상운수 차고지': { tel: '02-000-0472', hours: '평일 09:00~17:00', lines: '472번 버스', delivery: false, kind: '버스' },
     '강남경찰서 유실물': { tel: '182', hours: '평일 09:00~18:00', lines: '경찰서', delivery: false, kind: '경찰서' },
     '서초경찰서 유실물': { tel: '182', hours: '평일 09:00~18:00', lines: '경찰서', delivery: false, kind: '경찰서' }
@@ -450,7 +465,7 @@ var CONFIG = {
   var ITEMS = DEMO_ITEMS.slice();
 
   var COLORS = [['검정', ['검정', '검은', '까만', '블랙', '흑색']], ['흰색', ['흰', '하얀', '화이트', '흰색']], ['남색', ['남색', '네이비']], ['파랑', ['파란', '파랑', '블루']], ['빨강', ['빨간', '빨강', '레드']], ['회색', ['회색', '그레이']], ['갈색', ['갈색', '브라운']], ['분홍', ['분홍', '핑크']], ['베이지', ['베이지']]];
-  var CATS = [['지갑', ['반지갑', '장지갑', '카드지갑', '지갑']], ['휴대폰', ['휴대폰', '핸드폰', '스마트폰', '아이폰', '갤럭시', '폰']], ['이어폰', ['이어폰', '에어팟', '버즈']], ['가방', ['백팩', '배낭', '쇼핑백', '가방']], ['우산', ['우산']], ['의류', ['패딩', '점퍼', '코트', '자켓', '옷']]];
+  var CATS = [['지갑', ['반지갑', '장지갑', '카드지갑', '지갑']], ['이어폰', ['이어폰', '에어팟', '버즈']], ['휴대폰', ['휴대폰', '핸드폰', '스마트폰', '아이폰', '갤럭시', '폰']], ['가방', ['백팩', '배낭', '쇼핑백', '가방']], ['우산', ['우산']], ['의류', ['패딩', '점퍼', '코트', '자켓', '옷']]]; // #김다영 수정: 이어폰을 휴대폰보다 먼저 ('이어폰'이 '폰'에 걸리지 않게)
   var FEATS = ['가죽', '반지갑', '장지갑', '카드지갑', '카드', '무선', '충전케이스', '백팩', '배낭', '노트북', '장우산', '자동', '스마트폰', '케이스', '패딩', '쇼핑백', '얇은'];
   var LINES = ['1호선', '2호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '9호선', '472번 버스'];
   var VALUABLE_CATS = ['지갑', '휴대폰', '이어폰'];
@@ -467,7 +482,7 @@ var CONFIG = {
   try { var sv = JSON.parse(localStorage.getItem('eeum-saved') || '[]'); if (Array.isArray(sv)) state.saved = sv; } catch (e) {}
   function persist() { try { localStorage.setItem('eeum-saved', JSON.stringify(state.saved)); } catch (e) {} }
 
-  function emptyConds() { return { cat: '', color: '', date: '', line: '', station: '', feats: [] }; }
+  function emptyConds() { return { cat: '', color: '', date: '', line: '', lines: [], station: '', feats: [] }; } // #김다영 수정: lines 추가
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function days(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 864e5); }
   function addDays(d, n) { var t = new Date(Date.parse(d) + n * 864e5); return t.toISOString().slice(0, 10); }
@@ -487,6 +502,21 @@ var CONFIG = {
     var bm = text.match(/(\d{2,4})\s*번/); if (bm && /버스/.test(text)) c.line = bm[1] + '번 버스';
     var sm = text.match(/([가-힣]{1,6})역/); if (sm) c.station = sm[1];
     FEATS.forEach(function (f) { if (text.indexOf(f) > -1 && c.feats.indexOf(f) < 0) c.feats.push(f); });
+    // ===== #김다영 수정 시작: AI가 안 될 때도 노선·물건 여러 개를 나눔 =====
+    c.lines = [];
+    (text.match(/\d{1,2}\s*호선/g) || []).forEach(function (l) { l = Number(l.replace(/\D/g, '')) + '호선'; if (c.lines.indexOf(l) < 0) c.lines.push(l); });
+    if (/버스/.test(text)) (text.match(/\d{2,4}\s*번(?!\s*(?:출구|칸))/g) || []).forEach(function (b) { b = b.replace(/\D/g, '') + '번 버스'; if (c.lines.indexOf(b) < 0) c.lines.push(b); });
+    if (!c.line && c.lines.length) c.line = c.lines[0];
+    var parts = text.split(/이랑|랑|하고|그리고|및|,|와\s|과\s/), items = [];
+    parts.forEach(function (p) {
+      var cat = findIn(p, CATS); if (!cat) return;
+      var color = findIn(p, COLORS);
+      if (items.some(function (o) { return o.cat === cat && o.color === color; })) return;
+      items.push({ cat: cat, color: color, feats: FEATS.filter(function (f) { return p.indexOf(f) > -1; }) });
+    });
+    c.items = items.length >= 2 ? items : [];
+    if (c.items.length) { c.cat = items[0].cat; c.color = items[0].color; c.feats = items[0].feats.slice(); }
+    // ===== #김다영 수정 끝 =====
     return c;
   }
 
@@ -504,7 +534,7 @@ var CONFIG = {
       dateScore = (it.date >= c.date && gap <= 1) ? 1 : gap === 2 ? 0.5 : 0.2;
       if (it.date < c.date) dateScore = gap <= 1 ? 0.5 : 0.2;
     }
-    var lineOk = c.line && it.line === c.line ? 1 : 0;
+    var lineOk = c.line && (it.line === c.line || (c.lines || []).indexOf(it.line) > -1) ? 1 : 0; // #김다영 수정: 노선이 여러 개면 둘 중 하나만 맞아도 점수
     var catOk = c.cat && it.cat === c.cat ? 1 : 0;
     var total = 0.45 * sim + 0.20 * colorOk + 0.15 * dateScore + 0.10 * lineOk + 0.10 * catOk;
     var why = [];
@@ -597,7 +627,10 @@ var CONFIG = {
         var d = r.data && r.data.result;
         if (r.error || !d) return { out: local, by: 'rule' };
         if (mode === 'register') return { out: Object.assign(local, d), by: 'ai' };
-        return { out: { cat: d.cat || '', color: d.color || '', date: d.date || '', line: d.line || '', station: d.station || '', feats: Array.isArray(d.feats) ? d.feats.slice(0, 6) : [] }, by: 'ai' };
+        return { out: { cat: d.cat || '', color: d.color || '', date: d.date || '', line: d.line || '', station: d.station || '', feats: Array.isArray(d.feats) ? d.feats.slice(0, 6) : [],
+          // #김다영 수정: 서버가 준 물건 목록(items)·노선 목록(lines)
+          items: Array.isArray(d.items) ? d.items.slice(0, 4).map(function (o) { return { cat: o.cat || '', color: o.color || '', feats: Array.isArray(o.feats) ? o.feats.slice(0, 6) : [] }; }) : [],
+          lines: Array.isArray(d.lines) ? d.lines.slice(0, 4) : (d.line ? [d.line] : []) }, by: 'ai' };
       }, function () { return { out: local, by: 'rule' }; });
     },
     restoreStaff: function () {
@@ -702,6 +735,17 @@ var CONFIG = {
       '<div class="bar"><input id="aiq" type="search" value="' + esc(x.query) + '" placeholder="' + esc(ph) + '"><button class="btn primary" type="submit" id="b-ai">' + I.search + 'AI로 찾기</button></div>' +
       '<p class="msg" id="ai-msg" aria-live="polite">' + esc(x.aiMsg || hint) + '</p></form>';
   }
+  // ===== #김다영 수정 시작: 물건이 여러 개면 물건별 탭 =====
+  function itemLabel(c) { return [c.color, c.feats[0] || c.cat].filter(Boolean).join(' ') || '물건'; }
+  function itemTabsHtml(x) {
+    if (!x.multi || x.multi.length < 2) return '';
+    var base = x === inv ? myItems() : ITEMS.filter(function (it) { return it.status !== '수령완료'; });
+    var btns = x.multi.map(function (m, i) {
+      return '<button type="button" role="tab" data-mi="' + i + '" aria-selected="' + (x.mi === i) + '">' + esc(itemLabel(m.conds)) + '<span class="n">' + rankItems(base, m.conds).length + '건</span></button>';
+    }).join('');
+    return '<section class="itemtabs" aria-label="찾는 물건"><span class="lbl">찾는 물건 ' + x.multi.length + '개 · 물건을 누르면 그 물건 기준으로 찾아요</span><div class="row" role="tablist">' + btns + '</div></section>';
+  }
+  // ===== #김다영 수정 끝 =====
   function filtersHtml(x, dateLabel) {
     var c = x.conds;
     return '<section class="filters" aria-labelledby="h-f"><div class="top"><h3 id="h-f" class="s">검색 조건</h3><div class="btns"><span class="cap" style="align-self:center">' + (Object.keys(x.aiKeys).length ? '<span class="ai-tag">AI</span> 표시는 AI가 채운 조건이에요. 틀리면 바로 고치세요.' : '조건을 바꾸면 목록이 바로 다시 정렬돼요.') + '</span><button type="button" class="btn tertiary sm" id="b-reset">조건 초기화</button></div></div>' +
@@ -713,6 +757,7 @@ var CONFIG = {
         '<div class="' + fieldCls(x, 'station') + '"><label for="c-st">역·정류장' + aiTag(x, 'station') + '</label><input id="c-st" type="text" data-k="station" value="' + esc(c.station) + '" placeholder="예: 강남"></div>' +
         '<div class="' + fieldCls(x, 'feats') + ' feat"><label for="c-feat">특징' + aiTag(x, 'feats') + '</label><input id="c-feat" type="text" data-k="feats" value="' + esc(c.feats.join(', ')) + '" placeholder="쉼표로 구분 · 예: 가죽, 반지갑"></div>' +
       '</div>' +
+      ((c.lines || []).length > 1 ? '<div class="alert a-info">' + I.info + '<div><b>노선 ' + c.lines.length + '개</b><p>' + c.lines.map(esc).join(', ') + ' 중 하나만 맞아도 찾아요</p></div></div>' : '') + // #김다영 수정
       (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘(' + md(TODAY) + ')까지 접수된 습득물</p></div></div>' : '') +
     '</section>';
   }
@@ -737,6 +782,7 @@ var CONFIG = {
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>습득물 찾기</span></nav>' +
       '<div class="view"><div class="head"><h2>습득물 찾기</h2><p class="small">지하철·버스·경찰서에 보관 중인 습득물이에요. 문장으로 찾거나 아래 조건을 직접 골라 보세요.</p></div>' +
       aiSearchHtml(state, '예: 어제 2호선 강남역에서 검은 가죽 반지갑을 두고 내렸어요', '문장을 입력하면 AI가 분류·색상·날짜·노선을 찾아 아래 조건에 채워요.') +
+      itemTabsHtml(state) + // #김다영 수정
       filtersHtml(state, '잃어버린 날') +
       '<section class="col" aria-label="습득물 목록">' +
         '<div class="listhead"><h3 class="s">' + (scored ? '조건과 닮은 습득물 ' + all.length + '건' : '전체 습득물 ' + all.length + '건') + '</h3><span class="cap">' + (scored ? '닮은 순 정렬 · AI가 고른 후보이며, 내 물건인지는 보관 기관에서 확인해요' : '최근 습득 순 정렬') + '</span></div>' +
@@ -785,12 +831,58 @@ var CONFIG = {
   /* ================= 화면: 당일 분실 ================= */
   var STATIONS = ['시청', '을지로입구', '을지로3가', '을지로4가', '동대문역사문화공원', '신당', '상왕십리', '왕십리', '한양대', '뚝섬', '성수', '건대입구', '구의', '강변', '잠실나루', '잠실', '잠실새내', '종합운동장', '삼성', '선릉', '역삼', '강남', '교대', '서초', '방배', '사당', '낙성대', '서울대입구', '봉천', '신림', '신대방', '구로디지털단지', '대림', '신도림', '문래', '영등포구청', '당산', '합정', '홍대입구', '신촌', '이대', '아현', '충정로'];
   // 시범 버스 노선 (가상 데이터 · 실제 정류장 순서·운수회사와 다를 수 있음)
-  var BUSES = {
-    '472': { company: '가상운수(주)', tel: '02-000-0472', depot: '개포동 차고지', org: '가상운수 차고지', color: '#3D5BAB', gap: 8, stops: ['개포동', '대치역', '한티역', '선릉역', '역삼역', '강남역', '신논현역', '논현역', '신사역', '한남대교', '한남오거리', '용산구청', '삼각지', '서울역', '명동입구', '을지로입구'] },
-    '143': { company: '가상교통(주)', tel: '02-000-0143', depot: '정릉 차고지', org: '', color: '#3D5BAB', gap: 7, stops: ['정릉', '아리랑고개', '성신여대입구', '혜화역', '종로5가', '종로3가', '을지로3가', '충무로역', '남산1호터널', '한남동', '신사역', '논현역', '강남역', '역삼역', '선릉역', '삼성역'] },
-    '6411': { company: '가상버스(주)', tel: '02-000-6411', depot: '구로 차고지', org: '', color: '#5BB025', gap: 10, stops: ['구로동', '신도림역', '대림역', '신대방역', '신림역', '봉천역', '서울대입구역', '사당역', '방배역', '서초역', '교대역', '강남역', '역삼역', '선릉역', '삼성역', '개포동'] }
-  };
-  var tState = { mode: '지하철', station: '강남', dir: '외선', time: '19:05', where: '뒤쪽 칸 선반', what: '검은 가죽 반지갑', bus: '472', busStop: '강남역', busDir: 0 };
+  // ===== #서유석 수정 시작 =====
+  var BUSES = {}; // 노선 정보는 서버(transit-locate)에서 노선 번호로 받아 채워요
+  var tState = { mode: '지하철', line: '2호선', station: '강남', dir: '외선', time: '19:05', where: '뒤쪽 칸 선반', what: '검은 가죽 반지갑', bus: '146', busStop: '', busDir: 0, region: '서울', gCands: [], gBuses: null, gLoading: false };
+  // 서울 지하철 노선 목록 (표시 이름 → 역 목록 키 · 실시간 열차 노선명). 역 목록은 함수 지하철역 모드에서 받아요.
+  var METRO_LINES = [
+    { label: '1호선', key: '1호선', rt: '1호선' }, { label: '2호선', key: '2호선', rt: '2호선' }, { label: '3호선', key: '3호선', rt: '3호선' },
+    { label: '4호선', key: '4호선', rt: '4호선' }, { label: '5호선', key: '5호선', rt: '5호선' }, { label: '6호선', key: '6호선', rt: '6호선' },
+    { label: '7호선', key: '7호선', rt: '7호선' }, { label: '8호선', key: '8호선', rt: '8호선' }, { label: '9호선', key: '9호선', rt: '9호선' },
+    { label: '경의중앙선', key: '경의선', rt: '경의중앙선' }, { label: '수인분당선', key: '수인분당선', rt: '수인분당선' },
+    { label: '신림선', key: '신림선', rt: '신림선' }, { label: '신분당선', key: '신분당선', rt: '신분당선' },
+    { label: '우이신설선', key: '우이신설경전철', rt: '우이신설선' }
+  ];
+  var SUBWAY_LINES = {}; // 키 → 역 이름 목록 (순서대로)
+  function metroOf(label) { return METRO_LINES.filter(function (m) { return m.label === label; })[0] || METRO_LINES[1]; }
+  // 서울 지하철 공식 노선 색
+  var LINE_COLORS = { '1호선': '#0C3C8C', '2호선': '#00A84D', '3호선': '#EF7C1C', '4호선': '#00A5DE', '5호선': '#996CAC', '6호선': '#CD7C2F', '7호선': '#747F00', '8호선': '#E6186C', '9호선': '#BDB092', '경의중앙선': '#77C4A3', '수인분당선': '#FABE00', '신림선': '#5E7DBE', '신분당선': '#D4003B', '우이신설선': '#B0CE18' }; // #서유석 수정 (2차)
+  function metroColor() { return LINE_COLORS[tState.line] || '#00A84D'; } // #서유석 수정 (2차)
+  function setLine(label) {
+    var m = metroOf(label), list = SUBWAY_LINES[m.key];
+    tState.line = m.label;
+    if (list && list.length) {
+      STATIONS = list;
+      if (STATIONS.indexOf(tState.station) < 0) tState.station = STATIONS[Math.floor(STATIONS.length / 2)];
+    }
+  }
+  function lineOptions() {
+    return METRO_LINES.map(function (m) { return '<option' + (m.label === tState.line ? ' selected' : '') + '>' + m.label + '</option>'; }).join('');
+  }
+  // 서울 버스 노선 전체 목록 (노선번호 자동완성용). 노선을 고르면 그때 정류소·차량 위치를 받아요.
+  var SEOUL_ROUTES = [];
+  function busListOptions() {
+    var names = SEOUL_ROUTES.length ? SEOUL_ROUTES : Object.keys(BUSES);
+    return names.map(function (k) { return '<option value="' + esc(k) + '">'; }).join('');
+  }
+  function loadSeoulRoutes() {
+    if (!LIVE) return;
+    sb.functions.invoke('transit-locate', { body: { mode: '서울노선' } }).then(function (r) {
+      if (r.error || !r.data || !r.data.routes) return;
+      SEOUL_ROUTES = r.data.routes.map(function (x) { return x.nm; });
+      if (location.hash === '#today') route();
+    });
+  }
+  function loadSubwayLines() {
+    if (!LIVE) return;
+    sb.functions.invoke('transit-locate', { body: { mode: '지하철역' } }).then(function (r) {
+      if (r.error || !r.data || !r.data.lines) return;
+      SUBWAY_LINES = r.data.lines;
+      setLine(tState.line);
+      if (location.hash === '#today') route();
+    });
+  }
+  // ===== #서유석 수정 끝 =====
   function toMin(t) { var p = (t || '00:00').split(':'); return Number(p[0]) * 60 + Number(p[1]); }
   function hhmm(m) { m = ((m % 1440) + 1440) % 1440; return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); }
   function nowMin(alight) { var d = new Date(Date.now() + 9 * 36e5); var n = d.getUTCHours() * 60 + d.getUTCMinutes(); var e = n - alight; return (e >= 0 && e <= 50) ? n : alight + 6; }
@@ -813,7 +905,9 @@ var CONFIG = {
     var donePct = (opts.me / span * 100);
     return '<div class="track-wrap"><div class="track" style="--line-c:' + opts.color + '"><div class="rail"></div><div class="rail done" style="width:' + donePct + '%"></div>' + stations + vehs + '</div></div>';
   }
-  function subwayView() {
+  // ===== #서유석 수정 시작 =====
+  function subwayDemo() {
+  // ===== #서유석 수정 끝 =====
     var tc = trainCands(), dir = tState.dir === '외선' ? 1 : -1, L = STATIONS.length;
     var names = []; for (var k = -1; k <= 6; k++) names.push(STATIONS[((tc.idx + dir * k) % L + L) % L]);
     var vehicles = tc.list.map(function (c) { var pos = 1 + (tc.now - c.dep) / 2; return { pos: pos, label: c.no + (c.best ? ' · 탔던 열차?' : ''), best: c.best }; });
@@ -821,15 +915,21 @@ var CONFIG = {
       var pos = Math.max(0, Math.min(names.length - 1, Math.round(1 + (tc.now - c.dep) / 2)));
       return '<div class="cand' + (c.best ? ' best' : '') + '"><span><span class="no">' + c.no + ' 열차</span><br><span class="small">' + hhmm(c.dep) + ' ' + esc(tState.station) + ' 출발 · 지금 ' + esc(names[pos]) + ' 부근 (추정)</span></span><span class="badge ' + (c.best ? 's-soon' : 'b-low') + '">' + (c.best ? '가능성 높음' : '추정') + '</span></div>';
     }).join('');
-    var facts = [['노선·방향', '2호선 ' + tState.dir], ['열차번호', tc.list.map(function (c) { return c.no; }).join(' 또는 ') + ' (추정)'], ['내린 역·시각', tState.station + '역 · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
-    return { screen: '<div class="screen" role="img" aria-label="2호선 ' + esc(tState.dir) + ' 열차 위치 추정 화면"><div class="hd"><b><span class="lineno">2</span>' + esc(tState.dir) + ' · ' + esc(names[2]) + ' 방면</b><span class="clock">' + hhmm(tc.now) + ' 기준 추정 위치</span></div>' +
-        strip({ names: names, me: 1, vehicles: vehicles, color: '#00A84D', icon: I.trainSide }) +
+    // ===== #서유석 수정 시작 =====
+    var facts = [['노선·방향', tState.line + ' ' + tState.dir], ['열차번호', tc.list.map(function (c) { return c.no; }).join(' 또는 ') + ' (추정)'], ['내린 역·시각', tState.station + '역 · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
+    return { screen: '<div class="screen" style="--line-c:' + metroColor() + '" role="img" aria-label="' + esc(tState.line) + ' ' + esc(tState.dir) + ' 열차 위치 추정 화면"><div class="hd"><b><span class="lineno">' + esc(tState.line.replace('호선', '')) + '</span>' + esc(tState.dir) + ' · ' + esc(names[2]) + ' 방면</b><span class="clock">' + hhmm(tc.now) + ' 기준 추정 위치</span></div>' + // #서유석 수정 (2차)
+    // ===== #서유석 수정 끝 =====
+        strip({ names: names, me: 1, vehicles: vehicles, color: metroColor(), icon: I.trainSide }) + // #서유석 수정 (2차)
         '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 열차</span><span><i style="background:#9FB0C2"></i>다른 후보</span><span>시간표 기준 추정이며 실제 위치와 다를 수 있어요</span></div></div>',
       cands: cands, facts: facts, callName: '서울교통공사 고객센터', callTel: '1577-1234', callNote: '열차가 종착역에 닿기 전이면 역 직원이 열차 안을 확인해 줄 수 있어요.' };
   }
-  function busView() {
+  // ===== #서유석 수정 시작 =====
+  function busDemo() {
+  // ===== #서유석 수정 끝 =====
     var b = BUSES[tState.bus];
-    if (!b) return null;
+    // ===== #서유석 수정 시작 =====
+    if (!b || !b.stops || !b.stops.length) return null;
+    // ===== #서유석 수정 끝 =====
     var stops = tState.busDir === 0 ? b.stops : b.stops.slice().reverse();
     var si = stops.indexOf(tState.busStop); if (si < 0) si = Math.min(5, stops.length - 1);
     var start = Math.max(0, Math.min(si - 1, stops.length - 8)), names = stops.slice(start, start + 8), me = si - start;
@@ -839,8 +939,178 @@ var CONFIG = {
     return { screen: '<div class="screen" role="img" aria-label="' + esc(tState.bus) + '번 버스 위치 추정 화면"><div class="hd"><b><span class="lineno" style="--line-c:' + b.color + ';background:' + b.color + ';width:auto;padding:0 8px;border-radius:6px">' + esc(tState.bus) + '</span>' + esc(stops[stops.length - 1]) + ' 방면</b><span class="clock">' + hhmm(now) + ' 기준 추정 위치</span></div>' +
         strip({ names: names, me: me, vehicles: vehicles, color: b.color, icon: I.busSide }) +
         '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 버스</span><span>배차 ' + b.gap + '분 기준 추정 · 시범 노선 데이터</span></div></div>',
-      cands: '', facts: facts, callName: b.company + ' (' + b.depot + ')', callTel: b.tel, callNote: '버스는 운행을 마치면 차고지에서 물건을 확인해요. 차량 번호를 알면 함께 알려 주세요.', stops: stops };
+      // ===== #서유석 수정 시작 =====
+      cands: '', facts: facts, callName: b.company + (b.depot ? ' (' + b.depot + ')' : ''), callTel: b.tel, callNote: '버스는 운행을 마치면 차고지에서 물건을 확인해요. 차량 번호를 알면 함께 알려 주세요.', stops: stops };
+      // ===== #서유석 수정 끝 =====
   }
+// ===== #서유석 수정 시작 =====
+
+  /* ================= 실시간 위치 (서버 함수 transit-locate: 지하철 열차 · 버스) ================= */
+  var TRACK = { key: '', result: null, loading: false };
+  var ROUTE_STATE = {};
+  function fetchRoute(no) {
+    if (!LIVE || !no || ROUTE_STATE[no]) return;
+    ROUTE_STATE[no] = 'loading';
+    sb.functions.invoke('transit-locate', { body: { mode: '노선', bus: no } }).then(function (r) {
+      var d = (!r.error && r.data) ? r.data : null;
+      if (d && d.source === 'live' && d.stops && d.stops.length) {
+        BUSES[no] = { company: '운수회사 (120에서 확인)', tel: '120', depot: '', org: '', color: '#3D5BAB', gap: 10, stops: d.stops.map(function (s) { return s.nm; }) };
+        ROUTE_STATE[no] = 'ok';
+      } else { ROUTE_STATE[no] = 'fail'; }
+      if (location.hash === '#today') route();
+    }, function () { ROUTE_STATE[no] = 'fail'; if (location.hash === '#today') route(); });
+  }
+  function liveKey() {
+    return tState.mode === '버스' ? ['버스', tState.bus, tState.busStop].join('|') : ['지하철', tState.line, tState.station, tState.dir].join('|');
+  }
+  function fetchTrack() {
+    if (!LIVE) return;
+    if (tState.mode === '버스' && tState.region !== '서울') { fetchNonSeoul(); return; }
+    if (tState.mode === '버스' && !tState.bus) return;
+    if (tState.mode === '버스' && !BUSES[tState.bus]) { fetchRoute(tState.bus); return; }
+    if (TRACK.loading || TRACK.key === liveKey()) return;
+    TRACK.loading = true; TRACK.key = liveKey();
+    var body = tState.mode === '버스'
+      ? { mode: '버스', bus: tState.bus, stop: tState.busStop }
+      : { mode: '지하철', station: tState.station, dir: tState.dir, stations: STATIONS };
+    sb.functions.invoke('transit-locate', { body: body }).then(function (r) {
+      TRACK.result = (!r.error && r.data) ? r.data : null;
+    }, function () { TRACK.result = null; }).then(function () {
+      TRACK.loading = false;
+      if (TRACK.key !== liveKey()) fetchTrack();
+      else if (location.hash === '#today') route();
+    });
+  }
+  function liveTrains() {
+    var r = TRACK.result;
+    if (!r || r.source !== 'live' || !r.trains || TRACK.key !== liveKey() || tState.mode !== '지하철') return null;
+    var a = STATIONS.indexOf(tState.station), dir = tState.dir === '외선' ? 1 : -1, L = STATIONS.length;
+    var rt = metroOf(tState.line).rt;
+    return r.trains.filter(function (t) { return t.idx >= 0 && t.line === rt; }).map(function (t) {
+      // 내린 역 기준 거리: 양수 = 진행 방향 앞, 음수 = 뒤 (노선 원형 기준으로 가장 가까운 쪽)
+      var off = ((((t.idx - a) * dir) % L) + L) % L; if (off > L / 2) off -= L; // #서유석 수정 (2차)
+      return { no: t.trainNo, station: t.station, off: off, status: t.status };
+    }).filter(function (t) { return Math.abs(t.off) <= 6; }).sort(function (x, y) { return (x.off < 0) - (y.off < 0) || Math.abs(x.off) - Math.abs(y.off); }); // #서유석 수정 (2차)
+  }
+  function subwayView() {
+    var live = liveTrains();
+    if (!live) return subwayDemo();
+    var L = STATIONS.length, dir = tState.dir === '외선' ? 1 : -1, a = STATIONS.indexOf(tState.station);
+    var names = []; for (var k = -6; k <= 6; k++) names.push(STATIONS[((a + dir * k) % L + L) % L]); // #서유석 수정 (2차)
+    var best = live[0];
+    var vehicles = live.map(function (t) { return { pos: 6 + t.off, label: t.no + (t === best ? ' · 탔던 열차?' : ''), best: t === best }; }); // #서유석 수정 (2차)
+    var cands = live.length ? live.slice(0, 4).map(function (t, i) {
+      return '<div class="cand' + (i === 0 ? ' best' : '') + '"><span><span class="no">' + esc(t.no) + ' 열차</span><br><span class="small">지금 ' + esc(t.station) + ' 부근 · 내린 역에서 ' + (t.off === 0 ? '같은 역' : t.off > 0 ? t.off + '정거장 앞' : (-t.off) + '정거장 뒤') + '</span></span><span class="badge ' + (i === 0 ? 's-soon' : 'b-low') + '">' + (i === 0 ? '가능성 높음' : '추정') + '</span></div>'; // #서유석 수정 (2차)
+    }).join('') : '<p class="small">지금 이 방향으로 달리는 열차를 찾지 못했어요. 역 직원에게 바로 문의하세요.</p>';
+    var facts = [['노선·방향', tState.line + ' ' + tState.dir], ['열차번호', best ? best.no + ' (추정)' : '-'], ['내린 역·시각', tState.station + '역 · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
+    return { screen: '<div class="screen" style="--line-c:' + metroColor() + '" role="img" aria-label="' + esc(tState.line) + ' ' + esc(tState.dir) + ' 실시간 열차 위치 화면"><div class="hd"><b><span class="lineno">' + esc(tState.line.replace('호선', '')) + '</span>' + esc(tState.dir) + ' · ' + esc(names[7]) + ' 방면</b><span class="clock">실시간 위치 기준</span></div>' + // #서유석 수정 (2차)
+        strip({ names: names, me: 6, vehicles: vehicles, color: metroColor(), icon: I.trainSide }) + // #서유석 수정 (2차)
+        '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 열차</span><span><i style="background:#9FB0C2"></i>다른 후보</span><span>실시간 위치로 추정했어요. 실제와 다를 수 있어요</span></div></div>',
+      cands: cands + allLinesHtml(), facts: facts, callName: '서울교통공사 고객센터', callTel: '1577-1234', callNote: '열차가 종착역에 닿기 전이면 역 직원이 열차 안을 확인해 줄 수 있어요.' };
+  }
+  // 서울 지하철 전체 노선 실시간 열차 (함수 응답의 trains: line·station·status·trainNo)
+  var SUBWAY_LINE_ORDER = ['1호선','2호선','3호선','4호선','5호선','6호선','7호선','8호선','9호선','경의중앙선','수인분당선','신림선','신분당선','우이신설선'];
+  function allLinesHtml() {
+    var r = TRACK.result;
+    if (!r || r.source !== 'live' || !r.trains || !r.trains.length || TRACK.key !== liveKey()) return '';
+    var by = {};
+    r.trains.forEach(function (t) { (by[t.line] = by[t.line] || []).push(t); });
+    var lines = SUBWAY_LINE_ORDER.filter(function (l) { return by[l]; });
+    var rows = lines.map(function (l) {
+      var list = by[l].slice(0, 3).map(function (t) {
+        return '<div class="small" style="margin-left:12px">' + esc(t.station) + '역 · ' + esc(t.status) + ' · 열차 ' + esc(t.trainNo) + '</div>';
+      }).join('');
+      return '<div style="margin-top:8px"><b>' + esc(l) + '</b> <span class="small">열차 ' + by[l].length + '대</span>' + list + '</div>';
+    }).join('');
+    return '<div style="margin-top:14px"><h3 class="s">전체 노선 실시간 열차</h3><p class="small">서울 지하철 ' + lines.length + '개 노선 · 방향 ' + esc(tState.dir) + ' 기준</p>' + rows + '</div>';
+  }
+  function liveBus() {
+    var r = TRACK.result;
+    if (!r || r.source !== 'live' || !r.stops || !r.stops.length || TRACK.key !== liveKey() || tState.mode !== '버스') return null;
+    return r;
+  }
+  var TRACK2 = { key: '' };
+  // 경기·인천 노선 정보 (서울 외 지역). 경기: 노선번호 → 노선 후보 → 첫 노선의 차량 위치. 인천: 자동 검색 불가 안내
+  function fetchNonSeoul() {
+    if (!LIVE || tState.region !== '경기' || !tState.bus) return;
+    var key = tState.region + '|' + tState.bus;
+    if (TRACK2.key === key) return;
+    TRACK2.key = key; tState.gCands = []; tState.gBuses = null; tState.gLoading = true;
+    sb.functions.invoke('transit-locate', { body: { mode: '경기노선', bus: tState.bus } }).then(function (r) {
+      var d = (!r.error && r.data) ? r.data : null;
+      tState.gCands = (d && d.routes) || [];
+      if (!tState.gCands.length) return null;
+      var rid = tState.gCands[0].routeId;
+      return Promise.all([
+        sb.functions.invoke('transit-locate', { body: { mode: '경기버스', routeId: rid } }),
+        sb.functions.invoke('transit-locate', { body: { mode: '경기정류소', routeId: rid } })
+      ]).then(function (rs) {
+        var d2 = (!rs[0].error && rs[0].data) ? rs[0].data : null;
+        var d3 = (!rs[1].error && rs[1].data) ? rs[1].data : null;
+        tState.gBuses = (d2 && d2.buses) || [];
+        tState.gStops = (d3 && d3.stops) || [];
+      });
+    }).then(function () { tState.gLoading = false; if (location.hash === '#today') route(); },
+      function () { tState.gLoading = false; tState.gCands = []; if (location.hash === '#today') route(); });
+  }
+  function nonSeoulView() {
+    var no = tState.bus, reg = tState.region, body;
+    var loading = LIVE && (tState.gLoading || (reg === '경기' && no && TRACK2.key !== reg + '|' + no));
+    if (reg === '인천') {
+      body = '<p class="small">인천 노선은 아직 자동으로 찾지 못해요. 노선 정보는 인천 버스 안내센터(032-440-1763) 또는 120에서 확인해 주세요.</p>';
+    } else if (!no) {
+      body = '<p class="small">노선 번호를 입력하면 같은 번호의 경기 노선을 찾아요.</p>';
+    } else if (loading) {
+      body = '<p class="small">경기 ' + esc(no) + '번 노선을 찾는 중이에요…</p>';
+    } else if (!tState.gCands.length) {
+      body = '<p class="small">경기 ' + esc(no) + '번 노선을 찾지 못했어요. 120에 문의해 주세요.</p>';
+    } else {
+      var cands = tState.gCands.map(function (c) { return '<div class="stop"><span class="dot"></span><span>' + esc(c.region) + ' · ' + esc(c.origin) + ' → ' + esc(c.dest) + '</span><span class="tag">' + esc(c.type) + '</span></div>'; }).join('');
+      var gb = tState.gBuses || [], gs = tState.gStops || [];
+      var stopsHtml = gs.map(function (s, i) {
+        var here = gb.filter(function (b) { return b.seq === s.seq; });
+        var tag = here.map(function (b) { return '<span class="bus-tag">' + esc(b.plainNo) + '</span>'; }).join('');
+        return '<div class="stop"><span class="dot' + (here.length ? ' bus' : '') + '"></span><span>' + (i + 1) + '. ' + esc(s.nm) + '</span>' + tag + '</div>';
+      }).join('');
+      body = '<p class="note">경기 ' + esc(no) + '번 · 같은 번호 노선 ' + tState.gCands.length + '개 (첫 번째 노선 기준)</p>' + cands +
+        '<p class="note">운행 중인 차량 ' + gb.length + '대' + (gs.length ? ' · 정류소 ' + gs.length + '개' : '') + '</p>' +
+        (gs.length ? stopsHtml : gb.map(function (b) { return '<div class="stop"><span class="dot bus"></span><span>' + esc(b.plainNo) + '</span><span class="tag">정류소 순번 ' + b.seq + '</span></div>'; }).join(''));
+    }
+    return { screen: '<div class="screen" role="img" aria-label="경기 ' + esc(no) + '번 노선 정보">' + body + '</div>', cands: '',
+      facts: [['노선·방향', reg + ' ' + (no || '-') + '번'], ['내린 정류장·시각', tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']],
+      callName: '120 다산콜센터', callTel: '120', callNote: '경기·인천 버스는 운수회사에서 차량 번호를 확인해 주세요.' };
+  }
+  function busView() {
+    if (tState.region && tState.region !== '서울') return nonSeoulView();
+    var r = liveBus();
+    if (!r) return busDemo();
+    var stops = r.stops, si = -1;
+    stops.forEach(function (s, i) { if (si < 0 && s.nm === tState.busStop) si = i; });
+    if (si < 0) return busDemo(); // 내린 정류장이 이 노선에 없으면 시연 계산
+    var start = Math.max(0, Math.min(si - 1, stops.length - 8)), n = Math.min(8, stops.length);
+    var names = stops.slice(start, start + n).map(function (s) { return s.nm; }), me = si - start;
+    var cur = (r.buses || []).filter(function (b) { return b.idx >= 0; });
+    var ahead = cur.filter(function (b) { return b.idx >= si; }).map(function (b) {
+      return { no: b.plainNo, idx: b.idx, off: b.idx - si, station: stops[b.idx].nm };
+    }).sort(function (x, y) { return x.off - y.off; });
+    var best = ahead[0];
+    var vehicles = cur.filter(function (b) { return b.idx >= start && b.idx < start + n; }).map(function (b) {
+      var isBest = !!best && b.plainNo === best.no && b.idx === best.idx;
+      return { pos: b.idx - start, label: b.plainNo + (isBest ? ' · 탔던 버스?' : ''), best: isBest };
+    });
+    var cands = ahead.length ? ahead.slice(0, 4).map(function (b, i) {
+      return '<div class="cand' + (i === 0 ? ' best' : '') + '"><span><span class="no">' + esc(b.no) + '</span><br><span class="small">지금 ' + esc(b.station) + ' 부근 · 내린 정류장에서 ' + (b.off === 0 ? '같은 정류장' : b.off + '정류장 앞') + '</span></span><span class="badge ' + (i === 0 ? 's-soon' : 'b-low') + '">' + (i === 0 ? '가능성 높음' : '추정') + '</span></div>';
+    }).join('') : '<p class="small">내린 정류장 뒤쪽으로 가는 버스를 찾지 못했어요. 운수회사나 120에 문의하세요.</p>';
+    var last = stops[stops.length - 1].nm;
+    var facts = [['노선·방향', tState.bus + '번 · ' + last + ' 방면'], ['내린 정류장·시각', tState.busStop + ' · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
+    var color = BUSES[tState.bus] ? BUSES[tState.bus].color : '#3D5BAB';
+    return { screen: '<div class="screen" role="img" aria-label="' + esc(tState.bus) + '번 버스 실시간 위치 화면"><div class="hd"><b><span class="lineno" style="--line-c:' + color + ';background:' + color + ';width:auto;padding:0 8px;border-radius:6px">' + esc(tState.bus) + '</span>' + esc(last) + ' 방면</b><span class="clock">실시간 위치 기준</span></div>' +
+        strip({ names: names, me: me, vehicles: vehicles, color: color, icon: I.busSide }) +
+        '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 버스</span><span>실시간 위치로 추정했어요. 실제와 다를 수 있어요</span></div></div>',
+      cands: cands, facts: facts, callName: '120 다산콜센터 (운수회사 확인)', callTel: '120', callNote: '버스는 운행을 마치면 차고지에서 물건을 확인해요. 차량 번호를 알면 함께 알려 주세요.' };
+  }
+
+// ===== #서유석 수정 끝 =====
   function vToday() {
     var sub = tState.mode === '지하철';
     var tabs = '<div class="modetabs" role="tablist" aria-label="교통수단"><button type="button" role="tab" data-mode="지하철" aria-selected="' + sub + '">' + I.train + '지하철</button><button type="button" role="tab" data-mode="버스" aria-selected="' + !sub + '">' + I.bus + '버스</button></div>';
@@ -850,14 +1120,19 @@ var CONFIG = {
     var form, v;
     if (sub) {
       v = subwayView();
-      form = '<div class="f"><label for="t-line">노선</label><select id="t-line"><option>2호선 (시범)</option></select></div>' +
+      // ===== #서유석 수정 시작 =====
+      form = '<div class="f"><label for="t-line">노선</label><select id="t-line">' + lineOptions() + '</select></div>' +
+      // ===== #서유석 수정 끝 =====
         '<div class="f"><label for="t-st">내린 역</label><select id="t-st">' + STATIONS.map(function (s) { return '<option' + (s === tState.station ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></div>' +
         '<div class="f full"><span class="lbl" id="l-dir">열차 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-dir"><label><input type="radio" name="dir" value="외선"' + (tState.dir === '외선' ? ' checked' : '') + '>외선 (시계 방향 · 강남→교대)</label><label><input type="radio" name="dir" value="내선"' + (tState.dir === '내선' ? ' checked' : '') + '>내선 (반시계 방향 · 강남→역삼)</label></div></div>' + common;
     } else {
       v = busView();
       var b = BUSES[tState.bus];
       var stopOpts = b ? (tState.busDir === 0 ? b.stops : b.stops.slice().reverse()).map(function (s) { return '<option' + (s === tState.busStop ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') : '<option>노선 번호를 먼저 입력하세요</option>';
-      form = '<div class="f"><label for="t-bus">버스 노선 번호</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + Object.keys(BUSES).map(function (k) { return '<option value="' + k + '">'; }).join('') + '</datalist></div>' +
+      // ===== #서유석 수정 시작 =====
+      form = '<div class="f"><label for="t-region">지역</label><select id="t-region">' + ['서울', '경기', '인천'].map(function (r) { return '<option' + (r === tState.region ? ' selected' : '') + '>' + r + '</option>'; }).join('') + '</select></div>' +
+        '<div class="f"><label for="t-bus">버스 노선 번호</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + busListOptions() + '</datalist></div>' +
+      // ===== #서유석 수정 끝 =====
         '<div class="f"><label for="t-stop">내린 정류장</label><select id="t-stop"' + (b ? '' : ' disabled') + '>' + stopOpts + '</select></div>' +
         (b ? '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir"><label><input type="radio" name="bdir" value="0"' + (tState.busDir === 0 ? ' checked' : '') + '>' + esc(b.stops[b.stops.length - 1]) + ' 방면</label><label><input type="radio" name="bdir" value="1"' + (tState.busDir === 1 ? ' checked' : '') + '>' + esc(b.stops[0]) + ' 방면</label></div></div>' : '') + common;
     }
@@ -907,16 +1182,20 @@ var CONFIG = {
 
   /* ================= 화면: 보관 기관 안내 ================= */
   var GUIDE = [
-    { title: '서울 지하철 1~8호선 (서울교통공사)', note: '역 → 유실물센터 → 약 1주일 뒤 경찰서 순으로 옮겨져요. 대표 고객센터 1577-1234', rows: [
+    // ===== #서유석 수정 시작 =====
+    { title: '서울 지하철 1~8호선 (서울교통공사)', note: '역 → 유실물센터 → 약 1주일 뒤 경찰서 순으로 옮겨져요. 서울교통공사 대표 고객센터 1577-1234', rows: [
+    // ===== #서유석 수정 끝 =====
       ['1·2호선', '시청 유실물센터', '02-6110-1122', '평일 09:00~18:00', '보관함·집앞배송'],
       ['3·4호선', '충무로 유실물센터', '02-6110-3344', '평일 09:00~18:00', '보관함·집앞배송'],
-      ['5·8호선', '왕십리 유실물센터', '02-6311-5582', '평일 09:00~18:00', '보관함·집앞배송'],
-      ['6·7호선', '태릉입구 유실물센터', '02-6311-6765', '평일 09:00~18:00', '보관함·집앞배송']] },
-    { title: '그 밖의 도시철도·광역철도', note: '운영 기관마다 유실물 센터와 이관 기간이 달라요. 연락처는 운영 기관 공식 안내에서 확인하세요.', rows: [
-      ['9호선', '서울시메트로9호선 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요'],
-      ['신분당선', '신분당선 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요'],
-      ['공항철도', '공항철도 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요'],
-      ['코레일 광역전철 (경의중앙·수인분당 등)', '각 역 / 코레일 유실물센터', '공식 안내 확인', '확인 필요', '확인 필요']] },
+      // ===== #서유석 수정 시작 =====
+      ['5·8호선', '왕십리 유실물센터', '02-6311-6765', '평일 09:00~18:00', '보관함·집앞배송'],
+      ['6·7호선', '태릉입구 유실물센터', '02-6311-6766', '평일 09:00~18:00', '보관함·집앞배송']] },
+    { title: '그 밖의 도시철도·광역철도', note: '운영 기관마다 유실물 센터와 이관 기간이 달라요. 확인된 곳만 번호를 적었어요.', rows: [
+      ['9호선', '서울시메트로9호선 유실물센터 (동작역)', '02-2656-0009', '확인 필요', '확인 필요'],
+      ['신분당선', '신분당선 유실물센터', '운영 기관 공식 안내 확인', '확인 필요', '확인 필요'],
+      ['공항철도', '공항철도 유실물센터', '운영 기관 공식 안내 확인', '확인 필요', '확인 필요'],
+      ['코레일 광역전철 (경의중앙·수인분당 등)', '각 역 / 코레일 유실물센터', '철도고객센터 1544-7788', '확인 필요', '확인 필요']] },
+      // ===== #서유석 수정 끝 =====
     { title: '버스·택시', note: '시내버스는 노선별 운수회사가 보관해요. 운수회사를 모르면 다산콜센터(120)에 노선 번호를 말하세요.', rows: [
       ['시내·마을버스', '노선별 운수회사 (차고지)', '120 다산콜센터', '회사별 상이', '-'],
       ['택시', '택시 회사 또는 결제 카드사', '120 다산콜센터', '-', '-']] },
@@ -931,7 +1210,9 @@ var CONFIG = {
     }).join('');
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>보관 기관 안내</span></nav>' +
       '<div class="view"><div class="head"><h2>보관 기관 안내</h2><p class="small">어디서 잃어버렸는지에 따라 보관하는 곳이 달라요. 시간이 지나면 경찰서로 옮겨지니 빨리 연락하세요.</p></div>' + blocks +
-      '<p class="cap">지하철 유실물센터 연락처는 시연용 가상 번호예요. 실제 서비스에서는 운영 기관 공식 안내로 연결해요.</p></div>';
+      // ===== #서유석 수정 시작 =====
+      '<p class="cap">연락처와 운영 시간은 기관 공식 안내 자료 기준이에요. 방문 전에 한 번 더 확인하세요.</p></div>';
+      // ===== #서유석 수정 끝 =====
   }
 
   /* ================= 화면: 담당자 로그인 ================= */
@@ -1061,6 +1342,7 @@ var CONFIG = {
     }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
     return '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <b class="val-text">빨간색</b>은 고액·귀중품이라 수령 때 본인 확인을 더 꼼꼼히 해야 해요.</p></div>' +
       aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
+      itemTabsHtml(inv) + // #김다영 수정
       filtersHtml(inv, '분실한 날') +
       '<section class="col" aria-label="보관 물품 목록">' +
         '<div class="listhead"><h3 class="s">' + tabDef[1] + ' ' + list.length + '건</h3><span class="cap">' + (scored ? '조건과 닮은 순 정렬' : '습득일이 오래된 순 정렬') + '</span></div>' +
@@ -1152,12 +1434,22 @@ var CONFIG = {
     var btn = document.getElementById('b-ai'), msg = document.getElementById('ai-msg');
     if (btn) btn.disabled = true; if (msg) msg.textContent = 'AI가 문장에서 조건을 찾고 있어요…';
     return DB.ai(text, 'search').then(function (r) {
-      var c = r.out; if (!c.date && x === state) c.date = addDays(TODAY, -1);
-      x.conds = c; x.aiKeys = {};
-      ['cat', 'color', 'date', 'line', 'station'].forEach(function (k) { if (c[k]) x.aiKeys[k] = 1; });
-      if (c.feats.length) x.aiKeys.feats = 1;
+      var c = r.out; // #고현 수정: 날짜를 못 찾으면 "어제"를 자동으로 넣던 기능 제거
+      // ===== #김다영 수정 시작: 물건이 여러 개면 물건마다 조건을 따로 만듦 =====
+      if (!c.lines) c.lines = c.line ? [c.line] : [];
+      var keysOf = function (k) { var a = {}; ['cat', 'color', 'date', 'line', 'station'].forEach(function (n) { if (k[n]) a[n] = 1; }); if (k.feats.length) a.feats = 1; return a; };
+      var list = (c.items || []).length >= 2 ? c.items : null;
+      x.multi = list ? list.map(function (o) {
+        var k = { cat: o.cat, color: o.color, feats: o.feats.slice(), date: c.date, line: c.line, lines: c.lines.slice(), station: c.station };
+        return { conds: k, aiKeys: keysOf(k) };
+      }) : null;
+      x.mi = 0;
+      if (x.multi) { x.conds = x.multi[0].conds; x.aiKeys = x.multi[0].aiKeys; }
+      else { delete c.items; x.conds = c; x.aiKeys = keysOf(c); }
       var found = Object.keys(x.aiKeys).length;
-      x.aiMsg = found ? 'AI가 조건 ' + found + '개를 찾아 아래에 채웠어요. 틀린 조건은 바로 고치세요.' : '조건을 찾지 못했어요. 물건 종류나 색상을 넣어 다시 적어 보세요.';
+      x.aiMsg = x.multi ? 'AI가 물건 ' + x.multi.length + '개를 찾았어요. 아래에서 물건을 골라 하나씩 확인하세요.' :
+        found ? 'AI가 조건 ' + found + '개를 찾아 아래에 채웠어요. 틀린 조건은 바로 고치세요.' : '조건을 찾지 못했어요. 물건 종류나 색상을 넣어 다시 적어 보세요.';
+      // ===== #김다영 수정 끝 =====
       if (x === state) state.tab = '전체';
       after();
     });
@@ -1172,10 +1464,13 @@ var CONFIG = {
         var k = el.getAttribute('data-k');
         if (k === 'feats') x.conds.feats = el.value.split(/[,，]/).map(function (v) { return v.trim(); }).filter(Boolean);
         else x.conds[k] = el.value.trim();
+        if (k === 'line') x.conds.lines = x.conds.line ? [x.conds.line] : []; // #김다영 수정: 노선을 직접 고르면 그 노선만
         delete x.aiKeys[k]; route();
       });
     });
-    document.getElementById('b-reset').addEventListener('click', function () { x.conds = emptyConds(); x.aiKeys = {}; x.query = ''; x.aiMsg = ''; route(); });
+    document.getElementById('b-reset').addEventListener('click', function () { x.conds = emptyConds(); x.aiKeys = {}; x.query = ''; x.aiMsg = ''; x.multi = null; route(); }); // #김다영 수정: 물건 탭도 지움
+    // #김다영 수정: 물건 탭 누르면 그 물건 조건으로 바꿈 (고친 조건은 물건마다 남음)
+    app.querySelectorAll('[data-mi]').forEach(function (b) { b.addEventListener('click', function () { var i = Number(b.getAttribute('data-mi')); x.mi = i; x.conds = x.multi[i].conds; x.aiKeys = x.multi[i].aiKeys; route(); }); });
   }
 
   function bind(h) {
@@ -1215,9 +1510,15 @@ var CONFIG = {
         var g = function (id) { var el = document.getElementById(id); return el ? el.value : null; };
         tState.time = g('t-time') || tState.time; tState.where = g('t-where'); tState.what = g('t-what');
         if (tState.mode === '지하철') {
+          // ===== #서유석 수정 시작 =====
+          var nl = g('t-line'); if (nl && nl !== tState.line) setLine(nl);
+          // ===== #서유석 수정 끝 =====
           tState.station = g('t-st'); var r = app.querySelector('input[name="dir"]:checked'); if (r) tState.dir = r.value;
         } else {
-          var nb = (g('t-bus') || '').replace(/[^0-9]/g, ''), changed = nb !== tState.bus;
+          // ===== #서유석 수정 시작 =====
+          var prevR = tState.region; tState.region = g('t-region') || '서울';
+          var nb = (g('t-bus') || '').replace(/[^0-9]/g, ''), changed = nb !== tState.bus || prevR !== tState.region;
+          // ===== #서유석 수정 끝 =====
           tState.bus = nb;
           var br = app.querySelector('input[name="bdir"]:checked'); var nd = br ? Number(br.value) : 0;
           if (nd !== tState.busDir) changed = true; tState.busDir = nd;
@@ -1226,8 +1527,13 @@ var CONFIG = {
         route();
       }
       document.getElementById('f-today').addEventListener('submit', function (e) { e.preventDefault(); upd(); });
-      ['t-st', 't-stop', 't-bus'].forEach(function (id) { var el = document.getElementById(id); if (el) el.addEventListener('change', upd); });
+      // ===== #서유석 수정 시작 =====
+      ['t-line', 't-st', 't-stop', 't-bus', 't-region'].forEach(function (id) { var el = document.getElementById(id); if (el) el.addEventListener('change', upd); });
+      // ===== #서유석 수정 끝 =====
       app.querySelectorAll('input[name="dir"], input[name="bdir"]').forEach(function (r) { r.addEventListener('change', upd); });
+      // ===== #서유석 수정 시작 =====
+      fetchTrack();
+      // ===== #서유석 수정 끝 =====
       var bc = document.getElementById('b-cc'); if (bc) bc.addEventListener('click', function () { copy(document.getElementById('cc').textContent, document.getElementById('m-cc'), document.getElementById('cc')); });
       var bf = document.getElementById('b-facts'); if (bf) bf.addEventListener('click', function () { copy(bf.getAttribute('data-text'), document.getElementById('m-facts'), document.getElementById('facts')); });
     }
@@ -1304,6 +1610,10 @@ var CONFIG = {
   window.addEventListener('hashchange', route);
   app.innerHTML = '<p class="small">불러오는 중…</p>';
   DB.init().then(route, route);
+  // ===== #서유석 수정 시작 =====
+  loadSubwayLines();
+  loadSeoulRoutes();
+  // ===== #서유석 수정 끝 =====
 })();
 </script>
 
