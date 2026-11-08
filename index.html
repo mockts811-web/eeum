@@ -465,13 +465,13 @@ var CONFIG = {
   var ITEMS = DEMO_ITEMS.slice();
 
   var COLORS = [['검정', ['검정', '검은', '까만', '블랙', '흑색']], ['흰색', ['흰', '하얀', '화이트', '흰색']], ['남색', ['남색', '네이비']], ['파랑', ['파란', '파랑', '블루']], ['빨강', ['빨간', '빨강', '레드']], ['회색', ['회색', '그레이']], ['갈색', ['갈색', '브라운']], ['분홍', ['분홍', '핑크']], ['베이지', ['베이지']]];
-  var CATS = [['지갑', ['반지갑', '장지갑', '카드지갑', '지갑']], ['이어폰', ['이어폰', '에어팟', '버즈']], ['휴대폰', ['휴대폰', '핸드폰', '스마트폰', '아이폰', '갤럭시', '폰']], ['가방', ['백팩', '배낭', '쇼핑백', '가방']], ['우산', ['우산']], ['의류', ['패딩', '점퍼', '코트', '자켓', '옷']]]; // #김다영 수정: 이어폰을 휴대폰보다 먼저 ('이어폰'이 '폰'에 걸리지 않게)
+  var CATS = [['지갑', ['반지갑', '장지갑', '카드지갑', '지갑']], ['이어폰', ['이어폰', '에어팟', '버즈', '헤드폰', '헤드셋']], ['전자기기', ['노트북', '태블릿', '아이패드', '갤럭시탭', '갤럭시 탭', '카메라', '충전기', '보조배터리', '스마트워치', '애플워치', '갤럭시워치', '갤럭시 워치', '전자기기']], ['휴대폰', ['휴대폰', '핸드폰', '스마트폰', '아이폰', '갤럭시', '폰']], ['카드', ['신용카드', '체크카드', '교통카드', '티머니', '기후동행', '카드']], ['현금', ['현금', '지폐', '외화', '달러', '엔화', '축의금', '돈봉투']], ['신분증', ['신분증', '주민등록증', '운전면허증', '면허증', '여권', '학생증', '사원증', '외국인등록증']], ['귀금속·시계', ['반지', '목걸이', '귀걸이', '팔찌', '귀금속', '시계']], ['가방', ['백팩', '배낭', '쇼핑백', '캐리어', '가방']], ['우산', ['우산']], ['의류', ['패딩', '점퍼', '코트', '자켓', '재킷', '목도리', '모자', '옷']]]; // #김다영 수정: 분류 6개 → 11개(+기타). 이어폰·전자기기를 휴대폰보다 먼저, 지갑을 카드보다 먼저
   var FEATS = ['가죽', '반지갑', '장지갑', '카드지갑', '카드', '무선', '충전케이스', '백팩', '배낭', '노트북', '장우산', '자동', '스마트폰', '케이스', '패딩', '쇼핑백', '얇은'];
   var LINES = ['1호선', '2호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '9호선', '버스', '경찰서']; // #김다영 수정: 버스 번호는 '버스'로 통일, '경찰서' 추가
   // #김다영 수정: 'N번 버스'는 '버스'로 묶고, 버스·경찰서는 보관 기관 종류로 맞춤
   function normLine(l) { return /버스$/.test(l || '') ? '버스' : (l || ''); }
   function lineMatch(it, l) { return l === '버스' ? it.type === '버스' : l === '경찰서' ? it.type === '경찰서' : it.line === l; }
-  var VALUABLE_CATS = ['지갑', '휴대폰', '이어폰'];
+  var VALUABLE_CATS = ['지갑', '휴대폰', '이어폰', '전자기기', '카드', '현금', '신분증', '귀금속·시계']; // #김다영 수정: 새 분류 중 본인 확인이 필요한 것
 
   var EXAMPLES = [
     '어제 저녁 7시쯤 2호선 강남역에서 내렸는데 검은 가죽 반지갑을 두고 내렸어요.',
@@ -570,7 +570,7 @@ var CONFIG = {
     umbrella: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0z"/><path d="M12 12v7a2 2 0 0 0 4 0"/></svg>',
     phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>'
   };
-  var CAT_ICON = { '지갑': 'wallet', '휴대폰': 'phone', '이어폰': 'earbuds', '가방': 'bag', '우산': 'umbrella', '의류': 'bag' };
+  var CAT_ICON = { '지갑': 'wallet', '휴대폰': 'phone', '이어폰': 'earbuds', '가방': 'bag', '우산': 'umbrella', '의류': 'bag', '전자기기': 'phone', '카드': 'wallet', '현금': 'wallet', '신분증': 'wallet', '귀금속·시계': 'bag' }; // #김다영 수정
   function pic(it) { return it.photoUrl ? '<img src="' + esc(it.photoUrl) + '" alt="">' : (ICONS[it.photo] || ICONS[CAT_ICON[it.cat]] || ICONS.bag); }
   var I = {
     info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
@@ -596,7 +596,8 @@ var CONFIG = {
   function fromRow(r) {
     var o = r.orgs || {};
     if (o.name && !ORGS[o.name]) ORGS[o.name] = { tel: o.tel || '-', hours: o.hours || '-', lines: o.lines || '', delivery: !!o.delivery, kind: o.kind };
-    return { id: r.id, type: r.kind, name: r.name, cat: r.category, sub: r.sub_category || '', color: r.color || '', date: r.found_on, line: r.line || '', found: r.found_place || '', org: o.name || '', orgId: r.org_id, desc: r.description || '', photo: CAT_ICON[r.category] || 'bag', photoUrl: r.photo_path ? sb.storage.from('item-photos').getPublicUrl(r.photo_path).data.publicUrl : '', valuable: !!r.valuable, status: r.status, inner: (r.item_private && r.item_private.owner_check_memo) || '' };
+    var cat = r.category === '기타' || !r.category ? (findIn((r.name || '') + ' ' + (r.sub_category || ''), CATS) || '기타') : r.category; // #김다영 수정: DB에 '기타'로 들어온 경찰청 물건을 이름으로 새 분류에 넣음 (DB는 그대로)
+    return { id: r.id, type: r.kind, name: r.name, cat: cat, sub: r.sub_category || '', color: r.color || '', date: r.found_on, line: r.line || '', found: r.found_place || '', org: o.name || '', orgId: r.org_id, desc: r.description || '', photo: CAT_ICON[cat] || 'bag', photoUrl: r.photo_path ? sb.storage.from('item-photos').getPublicUrl(r.photo_path).data.publicUrl : '', valuable: !!r.valuable || VALUABLE_CATS.indexOf(cat) > -1, status: r.status, inner: (r.item_private && r.item_private.owner_check_memo) || '' };
   }
   var DB = {
     init: function () {
@@ -753,7 +754,7 @@ var CONFIG = {
     var c = x.conds;
     return '<section class="filters" aria-labelledby="h-f"><div class="top"><h3 id="h-f" class="s">검색 조건</h3><div class="btns"><span class="cap" style="align-self:center">' + (Object.keys(x.aiKeys).length ? '<span class="ai-tag">AI</span> 표시는 AI가 채운 조건이에요. 틀리면 바로 고치세요.' : '조건을 바꾸면 목록이 바로 다시 정렬돼요.') + '</span><button type="button" class="btn tertiary sm" id="b-reset">조건 초기화</button></div></div>' +
       '<div class="fgrid">' +
-        '<div class="' + fieldCls(x, 'cat') + '"><label for="c-cat">분류' + aiTag(x, 'cat') + '</label><select id="c-cat" data-k="cat">' + opt(CATS.map(function (y) { return y[0]; }), c.cat, '전체 분류') + '</select></div>' +
+        '<div class="' + fieldCls(x, 'cat') + '"><label for="c-cat">분류' + aiTag(x, 'cat') + '</label><select id="c-cat" data-k="cat">' + opt(CATS.map(function (y) { return y[0]; }).concat(['기타']), c.cat, '전체 분류') + '</select></div>' +
         '<div class="' + fieldCls(x, 'color') + '"><label for="c-color">색상' + aiTag(x, 'color') + '</label><select id="c-color" data-k="color">' + opt(COLORS.map(function (y) { return y[0]; }), c.color, '전체 색상') + '</select></div>' +
         '<div class="' + fieldCls(x, 'line') + '"><label for="c-line">노선' + aiTag(x, 'line') + '</label><select id="c-line" data-k="line">' + opt(LINES.indexOf(c.line) < 0 && c.line ? LINES.concat([c.line]) : LINES, c.line, '전체 노선') + '</select></div>' +
         '<div class="' + fieldCls(x, 'date') + '"><label for="c-date">' + dateLabel + aiTag(x, 'date') + '</label><input id="c-date" type="date" data-k="date" value="' + esc(c.date) + '" max="' + TODAY + '"></div>' +
@@ -1162,7 +1163,10 @@ var CONFIG = {
   /* ================= 화면: 알림 ================= */
   function vTrack() {
     var c = hasCond(state.conds) ? state.conds : parse('어제 2호선에서 검은 가죽 반지갑을 잃어버렸어요');
-    var desc = [c.color, c.cat, c.line, md(c.date)].filter(Boolean).join(' · ');
+    // #김다영 수정: '검정 · 지갑 · 2호선 · 11.7' → '11월 7일 2호선에서 잃어버린 검정 지갑' (읽히는 문장으로)
+    var what = [c.color, c.cat].filter(Boolean).join(' ') || '물건';
+    var when = c.date ? Number(c.date.slice(5, 7)) + '월 ' + Number(c.date.slice(8, 10)) + '일' : '';
+    var desc = (when || c.line) ? [when, c.line ? c.line + '에서' : '', '잃어버린 ' + what].filter(Boolean).join(' ') : what;
     var saved = state.saved.length ? state.saved.map(function (s, i) {
       return '<div class="it"><div class="row"><b>' + esc(s.label) + '</b><span class="badge s-keep">하루 2회 자동 확인</span></div>' +
         '<div class="prog" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span><span></span></div><div class="progl"><span>분실</span><span>등록 대기</span><span>이관 전후</span><span>수령</span></div>' +
