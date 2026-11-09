@@ -441,7 +441,7 @@ var CONFIG = {
     '충무로 유실물센터': { tel: '02-6110-3344', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '3·4호선 충무로역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
     '왕십리 유실물센터': { tel: '02-6311-6765', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '5·8호선 왕십리역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
     '태릉입구 유실물센터': { tel: '02-6311-6766', hours: '평일 09:00~18:00 (토·일·공휴일 휴무)', lines: '6·7호선 태릉입구역', delivery: true, kind: '지하철' }, // #서유석 수정 (2차)
-    '가상운수 차고지': { tel: '02-000-0472', hours: '평일 09:00~17:00', lines: '472번 버스', delivery: false, kind: '버스' },
+    '120 다산콜센터 (버스 분실물)': { tel: '120', hours: '365일 24시간', lines: '서울 시내버스', delivery: false, kind: '버스' }, // #서유석 수정 (3차): 가상 차고지 → 120 (서울시 대중교통 분실물 안내)
     '강남경찰서 유실물': { tel: '182', hours: '평일 09:00~18:00', lines: '경찰서', delivery: false, kind: '경찰서' },
     '서초경찰서 유실물': { tel: '182', hours: '평일 09:00~18:00', lines: '경찰서', delivery: false, kind: '경찰서' }
   };
@@ -457,7 +457,7 @@ var CONFIG = {
     { id: 'F2026102400077', type: '지하철', name: '장우산', cat: '우산', sub: '장우산', color: '남색', date: '2026-10-24', line: '7호선', found: '7호선 열차 내', org: '태릉입구 유실물센터', desc: '장우산 남색 자동', photo: 'umbrella', valuable: false, status: '보관중', inner: '' },
     { id: 'F2026101800051', type: '지하철', name: '여성용 장지갑', cat: '지갑', sub: '여성용 지갑', color: '빨강', date: '2026-10-18', line: '5호선', found: '5호선 열차 내', org: '왕십리 유실물센터', desc: '장지갑 빨강 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'F2026102200015', type: '지하철', name: '패딩 점퍼', cat: '의류', sub: '점퍼', color: '회색', date: '2026-10-22', line: '4호선', found: '4호선 열차 내', org: '충무로 유실물센터', desc: '패딩 점퍼 회색', photo: 'bag', valuable: false, status: '보관중', inner: '' },
-    { id: 'B2026102400003', type: '버스', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '갈색', date: '2026-10-24', line: '472번 버스', found: '472번 버스 차내', org: '가상운수 차고지', desc: '반지갑 갈색 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
+    { id: 'B2026102400003', type: '버스', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '갈색', date: '2026-10-24', line: '472번 버스', found: '472번 버스 차내', org: '120 다산콜센터 (버스 분실물)', desc: '반지갑 갈색 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'P2026102400211', type: '경찰서', name: '장지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-24', line: '', found: '강남역 인근 (경찰서 접수)', org: '강남경찰서 유실물', desc: '장지갑 검정 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'P2026101700145', type: '경찰서', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-17', line: '2호선', found: '시청 유실물센터에서 이관', org: '강남경찰서 유실물', desc: '반지갑 검정 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'P2026102300302', type: '경찰서', name: '쇼핑백', cat: '가방', sub: '쇼핑백', color: '흰색', date: '2026-10-23', line: '', found: '서초역 인근 (경찰서 접수)', org: '서초경찰서 유실물', desc: '쇼핑백 흰색 의류', photo: 'bag', valuable: false, status: '보관중', inner: '' }
