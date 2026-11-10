@@ -902,7 +902,7 @@ var CONFIG = {
     var j = a + s; if (m.loop) j = (j + L) % L;
     return head + ' (' + (STATIONS[j] ? tState.station + '→' + STATIONS[j] : '여기가 종점') + ')';
   }
-  var ST_ALIAS = { '뚝섬유원지': '자양', '지제': '평택지제' }; // 실시간 자료와 역 목록의 이름이 다른 역
+  var ST_ALIAS = { '뚝섬유원지': '자양', '지제': '평택지제', '서울': '서울역', '총신대입구': '이수' }; // 실시간 자료와 역 목록의 이름이 다른 역 (#서유석 수정 6차: 1호선 서울, 7호선 총신대입구(이수) 추가)
   // #서유석 수정 (4차): 노선별 운영사 연락처 (번호를 모르는 운영사는 120 다산콜센터로 안내)
   function lineContact() {
     var l = tState.line;
@@ -1136,7 +1136,7 @@ var CONFIG = {
   var TRACK = { key: '', result: null, loading: false };
   var ROUTE_STATE = {};
   function fetchRoute(no) {
-    if (!LIVE || !no || ROUTE_STATE[no]) return;
+    if (!LIVE || !sb || !no || ROUTE_STATE[no]) return; // #서유석 수정 (6차): 연결(sb) 전이면 기다림
     ROUTE_STATE[no] = 'loading';
     sb.functions.invoke('transit-locate', { body: { mode: '노선', bus: no } }).then(function (r) {
       var d = (!r.error && r.data) ? r.data : null;
@@ -1153,7 +1153,7 @@ var CONFIG = {
   function fetchTrack() {
     // #서유석 수정 (4차): 버스 화면을 처음 열 때도 내린 정류장 기본값을 정해 실시간 화면이 바로 나오게 함
     if (tState.mode === '버스' && !tState.busStop && BUSES[tState.bus] && BUSES[tState.bus].stops && BUSES[tState.bus].stops.length) { var bs = BUSES[tState.bus].stops; tState.busStop = bs[tState.busDir === 0 ? Math.min(5, bs.length - 1) : Math.max(0, bs.length - 6)]; }
-    if (!LIVE) return;
+    if (!LIVE || !sb) return; // #서유석 수정 (6차): #today 주소로 바로 열면 Supabase 연결 전에 불려 멈추던 문제 (연결 뒤 화면을 다시 그릴 때 받아 옴)
     if (tState.mode === '버스' && tState.region !== '서울') { fetchNonSeoul(); return; }
     if (tState.mode === '버스' && !tState.bus) return;
     if (tState.mode === '버스' && !BUSES[tState.bus]) { fetchRoute(tState.bus); return; }
@@ -1175,12 +1175,13 @@ var CONFIG = {
     if (!r || r.source !== 'live' || !r.trains || TRACK.key !== liveKey() || tState.mode !== '지하철') return null;
     var m = metroOf(tState.line), dir = dirSign(), L = STATIONS.length, norm = STATIONS.map(normSt), a = norm.indexOf(normSt(tState.station));
     if (!dir || a < 0) return [];
+    var seen = {};
     // #서유석 수정 (5차): 내린 역에서 진행 방향으로 몇 정거장 지났는지(off). 2호선은 순환이라 0~L-1
     return r.trains.filter(function (t) { return t.line === m.rt; }).map(function (t) {
       var i = norm.indexOf(normSt(t.station)); if (i < 0) return null;
       var off = (i - a) * dir; if (m.loop) off = ((off % L) + L) % L;
       return { no: t.trainNo, station: t.station, off: off, status: t.status };
-    }).filter(function (t) { return t && t.off >= 0; });
+    }).filter(function (t) { if (!t || t.off < 0 || seen[t.no]) return false; seen[t.no] = 1; return true; }); // #서유석 수정 (6차): 같은 열차가 두 번 오면 한 번만
   }
   function subwayView() {
     if (!dirSign()) return lineListView(); // #서유석 수정 (4차)
