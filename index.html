@@ -597,7 +597,11 @@ var CONFIG = {
     var o = r.orgs || {};
     if (o.name && !ORGS[o.name]) ORGS[o.name] = { tel: o.tel || '-', hours: o.hours || '-', lines: o.lines || '', delivery: !!o.delivery, kind: o.kind };
     var cat = r.category === '기타' || !r.category ? (findIn((r.name || '') + ' ' + (r.sub_category || ''), CATS) || '기타') : r.category; // #김다영 수정: DB에 '기타'로 들어온 경찰청 물건을 이름으로 새 분류에 넣음 (DB는 그대로)
-    return { id: r.id, type: r.kind, name: r.name, cat: cat, sub: r.sub_category || '', color: r.color || '', date: r.found_on, line: r.line || '', found: r.found_place || '', org: o.name || '', orgId: r.org_id, desc: r.description || '', photo: CAT_ICON[cat] || 'bag', photoUrl: r.photo_path ? sb.storage.from('item-photos').getPublicUrl(r.photo_path).data.publicUrl : '', valuable: !!r.valuable || VALUABLE_CATS.indexOf(cat) > -1, status: r.status, inner: (r.item_private && r.item_private.owner_check_memo) || '' };
+    return { id: r.id, type: r.kind, name: r.name, cat: cat, sub: r.sub_category || '', color: r.color || '', date: r.found_on, line: r.line || '', found: r.found_place || '', org: o.name || '', orgId: r.org_id, desc: r.description || '', photo: CAT_ICON[cat] || 'bag',
+        // #준희 추가 시작: photo_path가 외부 이미지 URL인지 Storage 파일 경로인지 구분
+        photoUrl: r.photo_path ? (/^https?:\/\//i.test(r.photo_path) ? r.photo_path : sb.storage.from('item-photos').getPublicUrl(r.photo_path).data.publicUrl) : '',
+        // #준희 추가 끝
+        valuable: !!r.valuable || VALUABLE_CATS.indexOf(cat) > -1, status: r.status, inner: (r.item_private && r.item_private.owner_check_memo) || '' };
   }
   var DB = {
     init: function () {
