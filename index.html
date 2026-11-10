@@ -923,7 +923,7 @@ var CONFIG = {
   }
   function loadSeoulRoutes() {
     if (!LIVE || !sb) return;
-    sb.functions.invoke('transit-locate', { body: { mode: '서울노선' } }).then(function (r) {
+    sb.functions.invoke('transit-locate', { body: { mode: '서울노선', dir: '서울노선' } }).then(function (r) { // #서유석 수정 (6차): dir로 함수 캐시 칸을 나눔 (안 나누면 지하철역 목록과 뒤바뀔 수 있음)
       if (r.error || !r.data || !r.data.routes) return;
       SEOUL_ROUTES = r.data.routes.filter(function (x) { return ['7', '8'].indexOf(String(x.type)) < 0; }).map(function (x) { return x.nm; }); // #서유석 수정 (4차): 7 인천·8 경기 노선은 뺌
       if (location.hash === '#today') route();
@@ -931,7 +931,7 @@ var CONFIG = {
   }
   function loadSubwayLines() {
     if (!LIVE || !sb) return;
-    sb.functions.invoke('transit-locate', { body: { mode: '지하철역' } }).then(function (r) {
+    sb.functions.invoke('transit-locate', { body: { mode: '지하철역', dir: '지하철역' } }).then(function (r) { // #서유석 수정 (6차): dir로 함수 캐시 칸을 나눔 (안 나누면 서울 버스 노선 목록과 뒤바뀔 수 있음)
       if (r.error || !r.data || !r.data.lines) return;
       SUBWAY_LINES = r.data.lines;
       setLine(tState.line);
