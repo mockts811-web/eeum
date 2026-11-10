@@ -240,7 +240,7 @@ table.info th { width: 128px; background: var(--surface); color: var(--fg-2); fo
 .track-wrap::-webkit-scrollbar-thumb { background: #50606F; border-radius: 3px; }
 .track-wrap::-webkit-scrollbar-track { background: transparent; }
 .track .st span { overflow-wrap: anywhere; }
-.track { position: relative; min-width: 520px; height: 150px; margin: 0 24px; }
+.track { position: relative; min-width: 520px; height: 150px; margin: 0 40px; }
 .track .rail { position: absolute; left: 0; right: 0; top: 70px; height: 8px; border-radius: 4px; background: var(--line-c, #00A84D); }
 .track .rail.done { right: auto; background: #50606F; }
 .track .st { position: absolute; top: 64px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; width: 80px; }
@@ -252,6 +252,9 @@ table.info th { width: 128px; background: var(--surface); color: var(--fg-2); fo
 .track .veh .pill { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #2B3A4D; color: #F4F6F8; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .track .veh.best .pill { background: #FFC83D; color: #2A1E00; }
 .track .veh svg { width: 44px; height: 26px; }
+/* #서유석 수정 (6차): 그림 양 끝의 열차·버스는 이름표를 안쪽으로 펼쳐 잘리지 않게 */
+.track .veh.r { align-items: flex-end; transform: translateX(calc(-100% + 22px)); }
+.track .veh.l { align-items: flex-start; transform: translateX(-22px); }
 .screen .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: #B7C2CF; }
 .screen .legend span { display: inline-flex; gap: 6px; align-items: center; }
 .screen .legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
@@ -1088,7 +1091,7 @@ var CONFIG = {
     // opts: names[], meIndex, vehicles[{pos,label,best}], color, icon
     var n = opts.names.length, span = n - 1;
     var stations = opts.names.map(function (s, i) { return '<div class="st' + (i === opts.me ? ' me' : '') + '" style="left:' + (i / span * 100) + '%"><i></i><span>' + esc(s) + (i === opts.me ? '<br>(내린 곳)' : '') + '</span></div>'; }).join('');
-    var vehs = opts.vehicles.map(function (v) { var p = Math.max(0, Math.min(span, v.pos)); return '<div class="veh' + (v.best ? ' best' : '') + '" style="left:' + (p / span * 100) + '%;color:' + (v.best ? '#FFC83D' : '#9FB0C2') + '"><span class="pill">' + esc(v.label) + '</span>' + opts.icon + '</div>'; }).join('');
+    var vehs = opts.vehicles.map(function (v) { var p = Math.max(0, Math.min(span, v.pos)); return '<div class="veh' + (v.best ? ' best' : '') + (p / span >= 0.9 ? ' r' : p / span <= 0.1 ? ' l' : '') + '" style="left:' + (p / span * 100) + '%;color:' + (v.best ? '#FFC83D' : '#9FB0C2') + '"><span class="pill">' + esc(v.label) + '</span>' + opts.icon + '</div>'; }).join('');
     var donePct = opts.me < 0 ? 100 : (opts.me / span * 100); // #서유석 수정 (6차): 내린 곳이 그림 앞쪽 밖이면 모두 지나온 구간
     return '<div class="track-wrap"><div class="track" style="--line-c:' + opts.color + '"><div class="rail"></div><div class="rail done" style="width:' + donePct + '%"></div>' + stations + vehs + '</div></div>';
   }
