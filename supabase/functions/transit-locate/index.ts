@@ -94,7 +94,7 @@ async function busLive(key: string, route: string, withPositions = true) {
   // 2) 노선의 정류소 순서
   const stData = await getJson(`${BUS_BASE}/busRouteInfo/getStaionByRoute?${q}&busRouteId=${routeId}`);
   const stops = toArr(stData?.msgBody?.itemList)
-    .map((s: any, i: number) => ({ nm: String(s.stationNm), seq: Number(s.seq ?? i + 1) }))
+    .map((s: any, i: number) => ({ nm: String(s.stationNm), seq: Number(s.seq ?? i + 1), dist: Number(s.fullSectDist ?? 0), spd: Number(s.sectSpd ?? 0) })) // #서유석 수정 (6차): 정류장 사이 거리(m)·구간 속도(km/h) → 화면에서 탔던 버스 위치 계산
     .sort((a, b) => a.seq - b.seq);
   if (stops.length === 0) return demo('정류소 정보를 받지 못해 시연 계산을 써요.');
 
