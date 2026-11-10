@@ -1,0 +1,140 @@
+{
+ "src": "서울교통공사_서울 도시철도 열차운행시각표_20260901 (공공데이터포털 15098251, 이용허락범위 제한 없음)",
+ "fmt": "tr = [열차코드, 방향, 급행(1), 도착역, [역번호, 시각, 역번호, 시각, ...]] · 시각 = 분×10",
+ "files": {
+  "1": {
+   "DAY": "1_DAY.json",
+   "SAT": "1_END.json",
+   "END": "1_END.json"
+  },
+  "2": {
+   "DAY": "2_DAY.json",
+   "SAT": "2_SAT.json",
+   "END": "2_END.json"
+  },
+  "3": {
+   "DAY": "3_DAY.json",
+   "SAT": "3_SAT.json",
+   "END": "3_END.json"
+  },
+  "4": {
+   "DAY": "4_DAY.json",
+   "SAT": "4_END.json",
+   "END": "4_END.json"
+  },
+  "5": {
+   "DAY": "5_DAY.json",
+   "SAT": "5_END.json",
+   "END": "5_END.json"
+  },
+  "6": {
+   "DAY": "6_DAY.json",
+   "SAT": "6_END.json",
+   "END": "6_END.json"
+  },
+  "7": {
+   "DAY": "7_DAY.json",
+   "SAT": "7_END.json",
+   "END": "7_END.json"
+  },
+  "8": {
+   "DAY": "8_DAY.json",
+   "SAT": "8_END.json",
+   "END": "8_END.json"
+  },
+  "9": {
+   "DAY": "9_DAY.json",
+   "SAT": "9_END.json",
+   "END": "9_END.json"
+  }
+ },
+ "updn": {
+  "1": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "2": [
+   [
+    "OUT",
+    "UP"
+   ],
+   [
+    "IN",
+    "DOWN"
+   ]
+  ],
+  "3": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "4": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "5": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "6": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "7": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "8": [
+   [
+    "UP"
+   ],
+   [
+    "DOWN"
+   ]
+  ],
+  "9": [
+   [
+    "DOWN"
+   ],
+   [
+    "UP"
+   ]
+  ],
+  "note": "실시간 열차(updnLine 0/1)와 같은 방향의 시간표 방향"
+ },
+ "codeMatch": {
+  "1": 1,
+  "2": 0,
+  "3": 1,
+  "4": 1,
+  "5": 1,
+  "6": 1,
+  "7": 1,
+  "8": 1,
+  "9": 1,
+  "note": "실시간 열차번호와 시간표 열차코드의 숫자가 같은 노선"
+ }
+}
