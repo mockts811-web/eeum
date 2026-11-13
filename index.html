@@ -571,7 +571,28 @@ var CONFIG = {
     phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>'
   };
   var CAT_ICON = { '지갑': 'wallet', '휴대폰': 'phone', '이어폰': 'earbuds', '가방': 'bag', '우산': 'umbrella', '의류': 'bag', '전자기기': 'phone', '카드': 'wallet', '현금': 'wallet', '신분증': 'wallet', '귀금속·시계': 'bag' }; // #김다영 수정
-  function pic(it) { return it.photoUrl ? '<img src="' + esc(it.photoUrl) + '" alt="">' : (ICONS[it.photo] || ICONS[CAT_ICON[it.cat]] || ICONS.bag); }
+    // #준희 수정 시작: 사진을 못 불러오면 깨진 아이콘 대신 no_image.jpeg를 보여 줌
+  // 순서: 실제 사진 → (실패 시) no_image.jpeg → (그것도 실패 시) 분류 아이콘
+  var NO_IMAGE_URL = 'https://xhvthvxpwlaecizqlrrv.supabase.co/storage/v1/object/public/item-photos/no_image.jpeg';
+  window.__picFail = function (img) {
+    if (img.getAttribute('data-fallback') !== '1') {
+      img.setAttribute('data-fallback', '1');
+      img.src = NO_IMAGE_URL;
+      return;
+    }
+    var span = document.createElement('span');
+    span.style.cssText = 'display:grid;place-items:center;width:100%;height:100%';
+    span.innerHTML = ICONS[img.getAttribute('data-icon')] || ICONS.bag;
+    img.replaceWith(span);
+  };
+  function pic(it) {
+    var src = it.photoUrl;
+    if (!src || /no_img\.gif/i.test(src)) src = NO_IMAGE_URL;
+    var key = ICONS[it.photo] ? it.photo : (CAT_ICON[it.cat] || 'bag');
+    return '<img src="' + esc(src) + '" alt="" loading="lazy" referrerpolicy="no-referrer" data-icon="' + esc(key) + '"' +
+      (src === NO_IMAGE_URL ? ' data-fallback="1"' : '') + ' onerror="window.__picFail(this)">';
+  }
+  // #준희 수정 끝
   var I = {
     info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
     warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>',
