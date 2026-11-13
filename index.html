@@ -491,12 +491,27 @@ var CONFIG = {
   function addDays(d, n) { var t = new Date(Date.parse(d) + n * 864e5); return t.toISOString().slice(0, 10); }
   function md(d) { return d ? Number(d.slice(5, 7)) + '.' + Number(d.slice(8, 10)) : ''; }
   function findIn(text, table) { for (var i = 0; i < table.length; i++) { for (var j = 0; j < table[i][1].length; j++) { if (text.indexOf(table[i][1][j]) > -1) return table[i][0]; } } return ''; }
+  // ===== 고현: 담는 물건 우선 수정 시작 — "노트북이 든 백팩"이 전자기기로 분류되던 것 바로잡음 (서버 ai-parse 와 같은 기준) =====
+  var CONTAINER_CATS = ['가방', '지갑'];
+  var HOLD_CUE = /들어|들었|(?:^|[^모])든\s|안에|속에|담긴|담겨|넣|칸|수납/;
+  var COMPOUND_BAG = /(?:노트북|태블릿|카메라|서류|책|화장품|운동)\s*(?:가방|백팩|배낭)/;
+  function catIn(text) {
+    var first = findIn(text, CATS);
+    if (!first || CONTAINER_CATS.indexOf(first) > -1) return first;
+    if (!HOLD_CUE.test(text) && !COMPOUND_BAG.test(text)) return first;   // 담겨 있다는 단서가 없으면 기존 결과 그대로
+    for (var i = 0; i < CATS.length; i++) {
+      if (CONTAINER_CATS.indexOf(CATS[i][0]) < 0) continue;
+      for (var j = 0; j < CATS[i][1].length; j++) if (text.indexOf(CATS[i][1][j]) > -1) return CATS[i][0];
+    }
+    return first;
+  }
+  // ===== 고현: 담는 물건 우선 수정 끝 =====
   function orgOf(it) { return ORGS[it.org] || { tel: '-', hours: '-', lines: '', delivery: false }; }
   function hasCond(c) { return !!(c.cat || c.color || c.date || c.line || c.station || c.feats.length); }
 
   /* ---------- 문장 → 조건 (규칙 기반. 백엔드 연결 시 생성형 AI 결과로 대체) ---------- */
   function parse(text) {
-    var c = { cat: findIn(text, CATS), color: findIn(text, COLORS), date: '', line: '', station: '', feats: [] };
+    var c = { cat: catIn(text), color: findIn(text, COLORS), date: '', line: '', station: '', feats: [] }; // 고현: 담는 물건 우선 수정 — findIn → catIn
     if (/그저께|그제|엊그제/.test(text)) c.date = addDays(TODAY, -2);
     else if (/어제/.test(text)) c.date = addDays(TODAY, -1);
     else if (/오늘|방금|아까/.test(text)) c.date = TODAY;
