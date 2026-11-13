@@ -314,8 +314,11 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .memo-guide .mg-top .fmt { font-weight: 700; }
 .memo-guide .mg-ex { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; color: var(--fg-2); }
 .memo-guide .mg-ex span { flex: 1 1 260px; min-width: 0; }
-.memo-guide details summary { cursor: pointer; color: var(--fg-3); font-size: 13px; }
-.memo-guide details ul { margin: 6px 0 0; padding-left: 20px; color: var(--fg-2); display: flex; flex-direction: column; gap: 2px; }
+/* 고현: 메모 안내 수정 — 안내 전체를 접이식으로 바꿔 메모 칸을 넓힘 */
+.memo-guide > summary { cursor: pointer; color: var(--fg-2); font-size: 14px; font-weight: 500; }
+.memo-guide:not([open]) { padding: 10px 14px; }
+.memo-guide:not([open]) > summary { color: var(--fg-3); }
+.memo-guide .mg-points { margin: 2px 0 0; padding-left: 20px; color: var(--fg-2); display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
 .memo-box textarea { border: 0; border-radius: 0; min-height: 120px; }
 .memo-box textarea:focus-visible { outline: none; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
@@ -506,6 +509,26 @@ var CONFIG = {
     return first;
   }
   // ===== 고현: 담는 물건 우선 수정 끝 =====
+  // ===== 고현: A안 담당 노선 경고 수정 시작 — 담당 노선 밖 물건을 등록할 때 알려 줌 (막지는 않음) =====
+  function lineOwner(line) {            // '3호선' → 그 노선을 맡은 기관 이름
+    var n = (String(line || '').match(/(\d{1,2})\s*호선/) || [])[1];
+    if (!n) return '';
+    for (var name in ORGS) {
+      var o = ORGS[name];
+      if (o.kind !== '지하철' || !o.lines) continue;
+      if ((o.lines.match(/\d{1,2}/g) || []).indexOf(n) > -1) return name;
+    }
+    return '';
+  }
+  function lineWarn(line) {             // 내 담당이 아니면 {org, tel}, 맞거나 확인 불가면 null
+    if (!state.staff) return null;
+    var mine = ORGS[state.staff.org] || {};
+    if (mine.kind !== '지하철') return null;   // 버스·경찰서는 담당 노선이 따로 없어 검사하지 않음
+    var owner = lineOwner(line);
+    if (!owner || owner === state.staff.org) return null;
+    return { org: owner, tel: (ORGS[owner] || {}).tel || '' };
+  }
+  // ===== 고현: A안 담당 노선 경고 수정 끝 =====
   function orgOf(it) { return ORGS[it.org] || { tel: '-', hours: '-', lines: '', delivery: false }; }
   function hasCond(c) { return !!(c.cat || c.color || c.date || c.line || c.station || c.feats.length); }
 
@@ -639,10 +662,15 @@ var CONFIG = {
         ITEMS = r.data.map(fromRow); return ITEMS;
       });
     },
-    ai: function (text, mode) {
+    ai: function (text, mode, shot) {
       var local = mode === 'register' ? aiRegisterLocal(text) : parse(text);
       if (!LIVE) return new Promise(function (res) { setTimeout(function () { res({ out: local, by: 'rule' }); }, 350); });
-      return sb.functions.invoke('ai-parse', { body: { text: text, mode: mode, today: TODAY } }).then(function (r) {
+      var body = { text: text, mode: mode, today: TODAY };
+      // 고현: 사진 분석 수정 — 등록일 때만 사진(축소본)을 함께 보냄
+      if (mode === 'register' && shot && shot.base64) { body.imageBase64 = shot.base64; body.mimeType = shot.mime; }
+      // 고현: 경찰청 사진 분석 수정 — 바깥 주소 사진은 서버가 받아오게 주소만 보냄
+      if (mode === 'register' && shot && shot.url) { body.imageUrl = shot.url; }
+      return sb.functions.invoke('ai-parse', { body: body }).then(function (r) {
         var d = r.data && r.data.result;
         if (r.error || !d) return { out: local, by: 'rule' };
         if (mode === 'register') return { out: Object.assign(local, d), by: 'ai' };
@@ -1257,15 +1285,55 @@ var CONFIG = {
 
   /* ================= 화면: 담당자 등록 ================= */
   var TEMPLATES = {
-    '지갑': { fmt: '[색상] [재질] [종류] / 공개 특징 / 비공개: 내용물', points: ['종류: 반지갑·장지갑·카드지갑', '재질: 가죽·천·플라스틱', '공개 특징: 로고 유무, 해짐·얼룩', '비공개: 카드 장수, 현금 여부 (금액은 적지 않기)'], ex: '2호선 강남역 승강장, 검정 가죽 반지갑, 모서리 해짐 / 비공개: 카드 3장, 현금 있음' },
-    '휴대폰': { fmt: '[색상] [기기 종류] [케이스] / 공개 특징 / 비공개: 잠금화면', points: ['기기: 스마트폰·태블릿 (모델명은 확실할 때만)', '케이스: 색상·재질, 카드 수납 여부', '공개 특징: 액정 파손, 스티커', '비공개: 잠금화면 사진, 케이스 속 카드'], ex: '2호선 열차 내, 검정 스마트폰, 투명 케이스, 액정 오른쪽 금 / 비공개: 잠금화면 강아지 사진' },
-    '이어폰': { fmt: '[색상] [무선/유선] [케이스 형태] / 공개 특징 / 비공개: 각인', points: ['무선이면 충전케이스 유무', '케이스 커버 색상·무늬', '비공개: 각인·이니셜, 한쪽만 있는지'], ex: '3호선 열차 내, 흰색 무선 이어폰, 충전케이스, 분홍 실리콘 커버 / 비공개: 케이스 이니셜 각인' },
-    '가방': { fmt: '[색상] [종류] [재질] / 공개 특징 / 비공개: 내용물 목록', points: ['종류: 백팩·토트·서류가방·쇼핑백', '공개 특징: 키링, 로고, 크기', '비공개: 들어 있는 물건 (귀중품 여부 표시)'], ex: '4호선 열차 내, 검정 백팩 배낭, 노트북 칸 있음, 곰 키링 / 비공개: 노트북 1대, 충전기' },
-    '우산': { fmt: '[색상] [장우산/접이식] [자동 여부] / 공개 특징', points: ['손잡이 모양·재질', '무늬·글자', '대부분 비공개 항목 없음'], ex: '7호선 열차 내, 남색 장우산, 자동, 나무 손잡이' },
-    '의류': { fmt: '[색상] [종류] [길이·재질] / 공개 특징 / 비공개: 주머니 속 물건', points: ['종류: 패딩·코트·니트·모자', '공개 특징: 모자 유무, 사이즈 표기', '비공개: 주머니 속 물건'], ex: '1호선 시청역 대합실, 회색 패딩 점퍼, 모자 있음, L 사이즈 / 비공개: 주머니에 장갑' }
+    '지갑': { fmt: '[습득 장소], [색상] [재질] [종류], [공개 특징] / 비공개: [내용물]', points: ['종류: 반지갑·장지갑·카드지갑', '재질: 가죽·천·플라스틱', '공개 특징: 로고 유무, 해짐·얼룩', '비공개: 카드 장수, 현금 여부 (금액은 적지 않기)'], ex: '2호선 강남역 승강장, 검정 가죽 반지갑, 모서리 해짐 / 비공개: 카드 3장, 현금 있음' },
+    '휴대폰': { fmt: '[습득 장소], [색상] [기기 종류] [케이스], [공개 특징] / 비공개: [잠금화면]', points: ['기기: 스마트폰·태블릿 (모델명은 확실할 때만)', '케이스: 색상·재질, 카드 수납 여부', '공개 특징: 액정 파손, 스티커', '비공개: 잠금화면 사진, 케이스 속 카드'], ex: '2호선 열차 내, 검정 스마트폰, 투명 케이스, 액정 오른쪽 금 / 비공개: 잠금화면 강아지 사진' },
+    '이어폰': { fmt: '[습득 장소], [색상] [무선/유선] [케이스 형태], [공개 특징] / 비공개: [각인]', points: ['무선이면 충전케이스 유무', '케이스 커버 색상·무늬', '비공개: 각인·이니셜, 한쪽만 있는지'], ex: '3호선 열차 내, 흰색 무선 이어폰, 충전케이스, 분홍 실리콘 커버 / 비공개: 케이스 이니셜 각인' },
+    '가방': { fmt: '[습득 장소], [색상] [종류] [재질], [공개 특징] / 비공개: [내용물 목록]', points: ['종류: 백팩·토트·서류가방·쇼핑백', '공개 특징: 키링, 로고, 크기', '비공개: 들어 있는 물건 (귀중품 여부 표시)'], ex: '4호선 열차 내, 검정 백팩 배낭, 노트북 칸 있음, 곰 키링 / 비공개: 노트북 1대, 충전기' },
+    '우산': { fmt: '[습득 장소], [색상] [장우산/접이식] [자동 여부], [공개 특징]', points: ['손잡이 모양·재질', '무늬·글자', '대부분 비공개 항목 없음'], ex: '7호선 열차 내, 남색 장우산, 자동, 나무 손잡이' },
+    '의류': { fmt: '[습득 장소], [색상] [종류] [길이·재질], [공개 특징] / 비공개: [주머니 속 물건]', points: ['종류: 패딩·코트·니트·모자', '공개 특징: 모자 유무, 사이즈 표기', '비공개: 주머니 속 물건'], ex: '1호선 시청역 대합실, 회색 패딩 점퍼, 모자 있음, L 사이즈 / 비공개: 주머니에 장갑' },
+    // 고현: 메모 안내 수정 — 분류 목록에 없는 물건(텀블러·머그컵·보조배터리 등)용 예시 추가. 분류는 '기타'로 등록됨
+    '기타': { fmt: '[습득 장소], [색상] [재질] [물건 이름], [공개 특징] / 비공개: [내용물]', points: ['텀블러·머그컵·물병, 보조배터리, 장갑·우비처럼 위 분류에 없는 물건', '물건 이름은 시민이 쓰는 말로 (예: 텀블러, 머그컵, 돗자리)', '공개 특징: 무늬·로고·흠집처럼 겉에서 보이는 것', '비공개: 안에 든 것이 있으면 적기 (없으면 비워 두기)'], ex: '3호선 열차 내, 흰색 도자기 머그컵, 파란 줄무늬, 손잡이 있음' }
   };
-  var reg = { step: 1, memo: '', img: '', file: null, out: null, tmpl: '지갑', saving: false, savedId: '' };
-  function aiRegisterLocal(memo) {
+  var reg = { step: 1, memo: '', img: '', file: null, out: null, tmpl: '지갑', saving: false, savedId: '', shot: null, shotMsg: '' };
+  // ===== 고현: 사진 분석 수정 시작 — 사진을 1024px JPEG 로 줄여 AI에 보냄 (요청 크기·전송되는 정보량 줄이기) =====
+  function shrinkImage(file) {
+    return new Promise(function (res) {
+      if (!file || !/^image\//.test(file.type)) return res(null);
+      var url = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        try {
+          var max = 1024, r = Math.min(1, max / Math.max(im.width, im.height));
+          var cv = document.createElement('canvas');
+          cv.width = Math.round(im.width * r); cv.height = Math.round(im.height * r);
+          cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+          var d = cv.toDataURL('image/jpeg', 0.75);
+          res(d.length > 1300000 ? null : { base64: d.split(',')[1], mime: 'image/jpeg' });
+        } catch (e) { res(null); } finally { URL.revokeObjectURL(url); }
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); res(null); };
+      im.src = url;
+    });
+  }
+  // ===== 고현: 사진 분석 수정 끝 =====
+  // ===== 고현: 습득 장소 표기 정리 수정 시작 — 서버(ai-parse)와 같은 기준 =====
+  // 지하철 → "지하철 3호선 …" / 버스 → "버스 472번 …" / 그 밖 → 적힌 장소 그대로
+  function normPlace(raw) {
+    var t = String(raw || '').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    var sub = t.match(/(\d{1,2})\s*호선/);
+    if (sub) {
+      var rest = t.replace(/(\d{1,2})\s*호선/g, ' ').replace(/지하철|전철|도시철도|메트로/g, ' ').replace(/\s+/g, ' ').trim();
+      return '지하철 ' + Number(sub[1]) + '호선' + (rest ? ' ' + rest : '');
+    }
+    var bus = t.match(/(\d{1,4})\s*번/);
+    if (bus && /버스/.test(t)) {
+      var r2 = t.replace(/(\d{1,4})\s*번/g, ' ').replace(/버스/g, ' ').replace(/\s+/g, ' ').trim();
+      return '버스 ' + bus[1] + '번' + (r2 ? ' ' + r2 : '');
+    }
+    return t;
+  }
+  // ===== 고현: 습득 장소 표기 정리 수정 끝 =====
+function aiRegisterLocal(memo) {
     var parts = memo.split(/\/\s*비공개\s*:?/);
     var pub = parts[0], hidden = (parts[1] || '').trim();
     var c = parse(pub);
@@ -1277,11 +1345,19 @@ var CONFIG = {
     var nameGuess = cleaned[0] ? cleaned[0].replace(c.color, '').replace(/검은|하얀|흰|까만/, '').trim() : (c.cat || '물품');
     var valuable = VALUABLE_CATS.indexOf(c.cat) > -1 || /노트북|현금|귀금속|시계|태블릿|카메라/.test(memo);
     var line = c.line || '';
-    return { cat: c.cat || '확인 필요', name: nameGuess || c.cat || '물품', color: c.color || '확인 필요', feats: cleaned.slice(1).join(', ') || c.feats.join(', ') || '', place: place, line: line, inner: hidden, privacy: privacy, valuable: valuable };
+    return { cat: c.cat || '확인 필요', name: nameGuess || c.cat || '물품', color: c.color || '확인 필요', feats: cleaned.slice(1).join(', ') || c.feats.join(', ') || '', place: normPlace(place), line: line, inner: hidden, privacy: privacy, valuable: valuable };
   }
+  // ===== 고현: 사진 표시 정리 수정 시작 — "(사진 확인 필요)"는 담당자용 표시라 공개 문안·저장값에서는 뺌 =====
+  function stripPhotoMark(t) {
+    return String(t || '').replace(/\s*\(\s*사진\s*확인\s*필요\s*\)/g, '')
+      .replace(/\s*,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\s{2,}/g, ' ').trim();
+  }
+  function hasPhotoMark(t) { return /\(\s*사진\s*확인\s*필요\s*\)/.test(String(t || '')); }
   function regScript(o) {
-    return '[' + o.cat + '] ' + [o.color, o.name].filter(function (x) { return x && x !== '확인 필요'; }).join(' ') + (o.feats ? '. ' + o.feats : '') + '. ' + o.place + ' 습득';
+    var feats = stripPhotoMark(o.feats);
+    return '[' + o.cat + '] ' + [o.color, o.name].filter(function (x) { return x && x !== '확인 필요'; }).join(' ') + (feats ? '. ' + feats : '') + '. ' + o.place + ' 습득';
   }
+  // ===== 고현: 사진 표시 정리 수정 끝 =====
   function vStaff() {
     var st = reg.step;
     var stepper = '<ol class="stepper" aria-label="등록 단계">' + ['담당자 입력', 'AI 정리 결과 확인', '등록 문안 확정'].map(function (s, i) { var n = i + 1; return '<li class="' + (st === n ? 'on' : st > n ? 'done' : '') + '"' + (st === n ? ' aria-current="step"' : '') + '><span class="n">' + (st > n ? '✓' : n) + '</span><span>' + s + '</span></li>'; }).join('') + '</ol>';
@@ -1292,18 +1368,20 @@ var CONFIG = {
         '<div class="drop"><div id="preview">' + (reg.img ? '<img src="' + reg.img + '" alt="올린 습득물 사진">' : '<span class="ph">사진 없음</span>') + '</div>' +
           '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><label for="r-photo" class="lbl">습득물 사진</label><input id="r-photo" type="file" accept="image/*"><span class="cap">이름·번호가 보이는 면은 가리고 찍어 주세요.</span></div></div>' +
         '<div class="memo-block"><label for="r-memo" class="lbl">메모 (습득 장소, 물품, 특징 / 비공개: 내용물)</label>' +
-          '<div class="memo-box"><div class="memo-guide" aria-label="특징 작성 예시">' +
+          // 고현: 메모 안내 수정 시작 — 작성 순서에 습득 장소 추가(예시와 불일치했음), 안내는 기본으로 접어 메모 칸을 넓힘
+          '<div class="memo-box"><details class="memo-guide"' + (reg.guideOpen ? ' open' : '') + ' id="mg"><summary>작성 요령과 예시 보기</summary>' +
             '<div class="guide-tabs" role="tablist" aria-label="물품 분류">' + Object.keys(TEMPLATES).map(function (k) { return '<button type="button" role="tab" data-tmpl="' + k + '" aria-selected="' + (k === reg.tmpl) + '">' + k + '</button>'; }).join('') + '</div>' +
             '<div class="mg-top"><span class="cap">작성 순서</span><span class="fmt">' + esc(t.fmt) + '</span></div>' +
             '<div class="mg-ex"><span><b>예시</b> ' + esc(t.ex) + '</span><button class="btn tertiary sm" type="button" id="b-ex">↓ 예시를 아래 칸에 넣기</button></div>' +
-            '<details><summary>항목별 작성 요령 보기</summary><ul>' + t.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></details></div>' +
+            '<ul class="mg-points">' + t.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></details>' +
+          // 고현: 메모 안내 수정 끝
           '<textarea id="r-memo" rows="4" placeholder="여기에 메모를 적으세요 · 예: ' + esc(t.ex) + '">' + esc(reg.memo) + '</textarea></div>' +
           '<span class="cap" id="memo-msg" aria-live="polite">담당자마다 표현이 달라지지 않게, 위 순서대로 적어 주세요.</span></div>' +
         '<div class="btns end"><button class="btn primary" type="button" id="b-ai">' + I.spark + 'AI로 정리하기</button></div></section>';
     } else if (st === 2) {
       var o = reg.out;
       var mark = function (v) { return v && v !== '확인 필요' ? '<span class="ai-tag">AI</span>' : '<span class="badge s-soon">확인 필요</span>'; };
-      body = '<section class="panel" aria-labelledby="h-s2"><div class="head"><h3 id="h-s2" class="s">2단계 · AI가 정리한 내용을 확인하고 고쳐 주세요</h3><p class="small">왼쪽은 담당자가 입력한 원본, 오른쪽은 AI가 나눈 등록 항목이에요. 틀린 칸만 고치면 돼요.' + (reg.by === 'rule' ? ' (시범 서비스는 규칙 기반 정리)' : '') + '</p></div>' +
+      body = '<section class="panel" aria-labelledby="h-s2"><div class="head"><h3 id="h-s2" class="s">2단계 · AI가 정리한 내용을 확인하고 고쳐 주세요</h3><p class="small">왼쪽은 담당자가 입력한 원본, 오른쪽은 AI가 나눈 등록 항목이에요. 틀린 칸만 고치면 돼요.' + (reg.by === 'rule' ? ' (시범 서비스는 규칙 기반 정리)' : reg.shot ? ' 사진도 함께 봤어요. "(사진 확인 필요)"가 붙은 특징은 사진에서만 본 것이니 꼭 확인하세요.' : '') + '</p></div>' +
         '<div class="cmp"><div class="srcbox"><span class="lbl">담당자가 입력한 내용</span>' + (reg.img ? '<img src="' + reg.img + '" alt="올린 습득물 사진" style="width:100%;max-width:240px;border-radius:6px">' : '<span class="cap">사진 없음</span>') + '<p class="memo">' + esc(reg.memo) + '</p></div>' +
         '<div class="aibox"><div class="t">' + I.spark + '<b>AI가 정리한 등록 항목</b></div>' +
           (o.privacy ? '<div class="alert a-error">' + I.warn + '<div><b>개인정보가 들어 있어요</b><p>메모에 이름·번호로 보이는 내용이 있어요. 공개 항목에는 넣지 않았어요. 사진도 가려졌는지 확인하세요.</p></div></div>' : '') +
@@ -1319,7 +1397,15 @@ var CONFIG = {
       var o3 = reg.out;
       body = '<section class="panel" aria-labelledby="h-s3"><div class="head"><h3 id="h-s3" class="s">3단계 · 등록 문안을 확정하세요</h3><p class="small">' + (LIVE ? '"보관 물품에 등록"을 누르면 데이터베이스에 저장되고 시민 검색에 바로 나타나요.' : '"보관 물품에 등록"을 누르면 보관 물품 목록과 시민 검색에 추가돼요. 기존 등록 시스템에는 문안을 복사해 붙여 넣으세요.') + '</p></div>' +
         '<div class="tags">' + (o3.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge b-mid">' + esc(o3.cat) + '</span><span class="badge b-low">' + esc(o3.color) + '</span></div>' +
+        // 고현: A안 담당 노선 경고 수정 — 담당 노선 밖이면 어느 기관이 맡는지 함께 안내
+        (function () {
+          var w = lineWarn(o3.line || (o3.place.match(/\d{1,2}\s*호선/) || [])[0]);
+          return w ? '<div class="alert a-warn">' + I.warn + '<div><b>' + esc(state.staff.org) + ' 담당 노선이 아니에요</b>' +
+            '<p>이 물건은 <b>' + esc(w.org) + '</b>' + (w.tel ? ' (' + esc(w.tel) + ')' : '') + ' 담당이에요. 그 센터로 안내하거나, 이관받은 물건이면 그대로 등록하세요.</p></div></div>' : '';
+        })() +
         '<span class="lbl">공개 등록 문안</span><div class="script" id="script">' + esc(regScript(o3)) + '</div>' +
+        // 고현: 사진 표시 정리 수정 — 담당자용 표시가 공개 문안에서 빠진다는 안내
+        (hasPhotoMark(o3.feats) ? '<p class="cap">사진에서만 본 특징에 붙인 <b>(사진 확인 필요)</b> 표시는 담당자용이라, 위 문안과 저장되는 값에서는 자동으로 빠져요. 특징 자체가 틀렸다면 <b>항목 다시 고치기</b>에서 지워 주세요.</p>' : '') +
         (o3.inner ? '<p class="small"><b>비공개 메모:</b> ' + esc(o3.inner) + '</p>' : '') +
         '<p id="save-msg" aria-live="polite"></p>' +
         '<div class="btns end"><button class="btn tertiary" type="button" id="b-back2">항목 다시 고치기</button><button class="btn secondary" type="button" id="b-script">문안 복사</button><button class="btn primary" type="button" id="b-save"' + (reg.savedId ? ' disabled' : '') + '>' + (reg.savedId ? '등록 완료' : '보관 물품에 등록') + '</button></div>' +
@@ -1421,10 +1507,29 @@ var CONFIG = {
         '<div class="f"><label for="e-status">상태</label><select id="e-status">' + ['보관중', '경찰서이관', '수령완료'].map(function (s) { return '<option' + (it.status === s ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></div>' +
         '<div class="f full"><label for="e-found">습득 장소</label><input id="e-found" type="text" value="' + esc(it.found) + '"></div>' +
         '<div class="f full"><label for="e-desc">공개 특징 (검색어)</label><input id="e-desc" type="text" value="' + esc(it.desc) + '"></div>' +
+        // 고현: 경찰청 사진 분석 수정 — 사진이 있는 물품은 AI가 사진을 보고 특징을 덧붙여 줌
+        (it.photoUrl ? '<div class="f full"><button class="btn secondary sm" type="button" id="e-ai">' + I.spark + '사진으로 특징 보강</button><span class="cap" id="e-ai-msg"> AI가 사진에서 본 특징을 위 칸에 덧붙여요. 저장 전에 확인하세요.</span></div>' : '') +
         '<div class="f full"><label for="e-inner">주인 확인용 메모 (비공개)</label><input id="e-inner" type="text" value="' + esc(it.inner) + '"></div>' +
         '<label class="check full"><input id="e-val" type="checkbox"' + (it.valuable ? ' checked' : '') + '><span><b>고액·귀중품</b>으로 표시</span></label></div>' +
         '<p id="edit-msg" aria-live="polite" class="small"></p>' +
         '<div class="btns end"><button class="btn tertiary" type="button" data-close>취소</button><button class="btn primary" type="submit">저장</button></div></form>');
+    // ===== 고현: 경찰청 사진 분석 수정 시작 =====
+    var eai = document.getElementById('e-ai');
+    if (eai) eai.addEventListener('click', function () {
+      var msg = document.getElementById('e-ai-msg'), desc = document.getElementById('e-desc');
+      eai.disabled = true; msg.textContent = ' AI가 사진을 보는 중…';
+      DB.ai([it.name, it.color, it.found].filter(Boolean).join(', '), 'register', { url: it.photoUrl }).then(function (r) {
+        eai.disabled = false;
+        // 사진에서만 본 특징(photoFeats)만 씀. feats 에는 원래 설명에서 뽑은 말이 섞여 있어서 제외
+        var add = (r.out && Array.isArray(r.out.photoFeats)) ? r.out.photoFeats : [];
+        var fresh = add.map(function (x) { return String(x).trim(); })
+          .filter(function (x) { return x && desc.value.indexOf(x) < 0; });
+        if (r.by === 'rule' || !fresh.length) { msg.textContent = ' 사진에서 새로 찾은 특징이 없어요.'; return; }
+        desc.value = [desc.value.trim(), fresh.join(', ')].filter(Boolean).join(', ');
+        msg.textContent = ' 사진에서 ' + fresh.length + '개를 덧붙였어요. 맞는지 확인하고 저장하세요.';
+      }, function () { eai.disabled = false; msg.textContent = ' 사진을 분석하지 못했어요.'; });
+    });
+    // ===== 고현: 경찰청 사진 분석 수정 끝 =====
     document.getElementById('f-edit').addEventListener('submit', function (e) {
       e.preventDefault();
       var g = function (x) { return document.getElementById(x).value.trim(); };
@@ -1456,7 +1561,7 @@ var CONFIG = {
     var btn = document.getElementById('b-ai'), msg = document.getElementById('ai-msg');
     if (btn) btn.disabled = true; if (msg) msg.textContent = 'AI가 문장에서 조건을 찾고 있어요…';
     return DB.ai(text, 'search').then(function (r) {
-      var c = r.out; // #고현 수정: 날짜를 못 찾으면 "어제"를 자동으로 넣던 기능 제거
+      var c = r.out; // 고현: 날짜를 못 찾으면 "어제"를 자동으로 넣던 기능 제거
       // ===== #김다영 수정 시작: 물건이 여러 개면 물건마다 조건을 따로 만듦 =====
       if (!c.lines) c.lines = c.line ? [c.line] : [];
       c.line = normLine(c.line); c.lines = c.lines.map(normLine).filter(function (l, i, a) { return l && a.indexOf(l) === i; }); // #김다영 수정: 버스 번호 → '버스'
@@ -1583,34 +1688,50 @@ var CONFIG = {
         document.getElementById('r-photo').addEventListener('change', function (e) {
           var f = e.target.files && e.target.files[0]; if (!f) return; reg.file = f;
           var rd = new FileReader(); rd.onload = function () { reg.img = rd.result; document.getElementById('preview').innerHTML = '<img src="' + reg.img + '" alt="올린 습득물 사진">'; }; rd.readAsDataURL(f);
+          // 고현: 사진 분석 수정 — AI에 보낼 축소본을 미리 만들어 둠
+          var pmsg = document.getElementById('memo-msg');
+          if (pmsg) pmsg.textContent = '사진을 준비하는 중…';
+          shrinkImage(f).then(function (shot) {
+            reg.shot = shot;
+            reg.shotMsg = shot ? '사진도 함께 AI가 봅니다. 신분증·카드가 찍혔다면 올리지 마세요.' : '사진이 너무 크거나 읽지 못해, 메모만으로 정리해요.';
+            if (pmsg) pmsg.textContent = reg.shotMsg;
+          });
         });
         document.getElementById('r-memo').addEventListener('input', function (e) { reg.memo = e.target.value; });
-        app.querySelectorAll('[data-tmpl]').forEach(function (b) { b.addEventListener('click', function () { reg.memo = document.getElementById('r-memo').value; reg.tmpl = b.getAttribute('data-tmpl'); route(); }); });
+        app.querySelectorAll('[data-tmpl]').forEach(function (b) { b.addEventListener('click', function () { reg.memo = document.getElementById('r-memo').value; reg.tmpl = b.getAttribute('data-tmpl'); reg.guideOpen = true; route(); }); });
+        // 고현: 메모 안내 수정 — 펼쳐 둔 상태를 기억 (탭을 눌러 다시 그려도 닫히지 않게)
+        var mg = document.getElementById('mg');
+        if (mg) mg.addEventListener('toggle', function () { reg.guideOpen = mg.open; });
         document.getElementById('b-ex').addEventListener('click', function () { reg.memo = TEMPLATES[reg.tmpl].ex; document.getElementById('r-memo').value = reg.memo; });
         document.getElementById('b-ai').addEventListener('click', function () {
           reg.memo = document.getElementById('r-memo').value.trim();
           if (!reg.memo) { document.getElementById('memo-msg').textContent = '메모를 한 줄 이상 적어 주세요. 오른쪽 예시를 넣어 볼 수도 있어요.'; return; }
           var b = document.getElementById('b-ai'); b.disabled = true; b.textContent = 'AI가 정리하는 중…';
-          DB.ai(reg.memo, 'register').then(function (r) { reg.out = r.out; reg.by = r.by; reg.step = 2; route(); });
+          // 고현: 사진 분석 수정 — 메모와 사진을 함께 보냄 (사진 준비가 늦으면 그때 만들어서)
+          (reg.shot || !reg.file ? Promise.resolve(reg.shot) : shrinkImage(reg.file)).then(function (shot) {
+            reg.shot = shot || reg.shot;
+            return DB.ai(reg.memo, 'register', reg.shot);
+          }).then(function (r) { reg.out = r.out; reg.by = r.by; reg.step = 2; route(); },
+            function () { reg.out = aiRegisterLocal(reg.memo); reg.by = 'rule'; reg.step = 2; route(); });
         });
       } else if (reg.step === 2) {
         document.getElementById('b-back1').addEventListener('click', function () { reg.step = 1; route(); });
         document.getElementById('b-next').addEventListener('click', function () {
           var g = function (x) { return document.getElementById(x).value.trim(); };
-          reg.out = Object.assign(reg.out, { cat: g('r-cat') || '기타', color: g('r-color') || '기타', name: g('r-name') || g('r-cat') || '물품', place: g('r-place') || '습득 장소 미기재', feats: g('r-feat'), inner: g('r-inner'), valuable: document.getElementById('r-val').checked });
+          reg.out = Object.assign(reg.out, { cat: g('r-cat') || '기타', color: g('r-color') || '기타', name: g('r-name') || g('r-cat') || '물품', place: normPlace(g('r-place')) || '습득 장소 미기재', feats: g('r-feat'), inner: g('r-inner'), valuable: document.getElementById('r-val').checked });
           reg.step = 3; reg.savedId = ''; route();
         });
       } else {
         document.getElementById('b-back2').addEventListener('click', function () { reg.step = 2; route(); });
         document.getElementById('b-script').addEventListener('click', function () { copy(document.getElementById('script').textContent, document.getElementById('m-script'), document.getElementById('script')); });
-        var an = document.getElementById('a-new'); if (an) an.addEventListener('click', function (e) { e.preventDefault(); reg = { step: 1, memo: '', img: '', file: null, out: null, tmpl: '지갑', savedId: '' }; route(); });
+        var an = document.getElementById('a-new'); if (an) an.addEventListener('click', function (e) { e.preventDefault(); reg = { step: 1, memo: '', img: '', file: null, out: null, tmpl: '지갑', savedId: '', shot: null, shotMsg: '' }; route(); /* 고현: 사진 분석 수정 — 새 등록 시 사진 상태도 비움 */ });
         var bs = document.getElementById('b-save');
         bs.addEventListener('click', function () {
           if (reg.savedId) return;
           var o = reg.out, org = ORGS[state.staff.org] || { kind: '지하철' };
           var id = (org.kind === '버스' ? 'B' : org.kind === '경찰서' ? 'P' : 'F') + TODAY.replace(/-/g, '') + String(Math.floor(Math.random() * 1e5)).padStart(5, '0');
           var lm = o.place.match(/(\d)\s*호선/);
-          var it = { id: id, type: org.kind || '지하철', name: o.name, cat: o.cat, sub: o.name, color: o.color, date: TODAY, line: o.line || (lm ? lm[1] + '호선' : ''), found: o.place, org: state.staff.org, desc: [o.color, o.name, o.feats].join(' ').replace(/,/g, ' '), photo: CAT_ICON[o.cat] || 'bag', photoUrl: LIVE ? '' : reg.img, valuable: o.valuable, status: '보관중', inner: o.inner };
+          var it = { id: id, type: org.kind || '지하철', name: o.name, cat: o.cat, sub: o.name, color: o.color, date: TODAY, line: o.line || (lm ? lm[1] + '호선' : ''), found: o.place, org: state.staff.org, desc: stripPhotoMark([o.color, o.name, o.feats].join(' ')).replace(/,/g, ' '), photo: CAT_ICON[o.cat] || 'bag', photoUrl: LIVE ? '' : reg.img, valuable: o.valuable, status: '보관중', inner: o.inner };
           bs.disabled = true; bs.textContent = '등록하는 중…';
           DB.createItem(it, reg.file).then(function () { reg.savedId = id; route(); }, function (err) { bs.disabled = false; bs.textContent = '보관 물품에 등록'; var m = document.getElementById('save-msg'); m.style.color = 'var(--error-fg)'; m.textContent = '등록하지 못했어요: ' + (err.message || err); });
         });
