@@ -11,6 +11,7 @@
 
 ```
 index.html                              화면 전체
+data/timetable/                         1~9호선 열차 시간표 (당일 분실용, 자세한 설명은 폴더 README)   서유석
 supabase/
 ├─ 1_schema.sql                         표 · 권한 · 보안(RLS) · 사진 저장소
 ├─ 2_seed.sql                           시연용 기관 · 습득물
@@ -28,7 +29,7 @@ supabase/
 |---|---|---|
 | 문장으로 습득물 찾기 (물건·노선 여러 개, 분류 11종) | `index.html` | `ai-parse` |
 | 담당자 습득물 등록 (메모 → 항목 자동 정리, 개인정보 가림) | `index.html` | `ai-parse` |
-| 당일 분실 실시간 위치 (지하철·서울/경기/인천 버스) | `index.html` | `transit-locate` |
+| 당일 분실 실시간 위치 (지하철·서울 버스, 1~9호선은 시간표로 탔던 열차 계산) | `index.html` | `transit-locate` |
 | 실제 습득물 데이터 | — | `fetch-police-items` |
 | 닮음 점수 = 0.45 유사도 + 0.20 색상 + 0.15 날짜 + 0.10 노선 + 0.10 분류 | `index.html` `score()` | — |
 
