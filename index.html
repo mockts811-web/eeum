@@ -403,6 +403,11 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 /* #서유석 수정 끝 */
 .pager { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; margin-top: 16px; } /* #김다영 수정: 쪽 번호 */
 .pager .btn { min-width: 40px; }
+.scard .sacts .del { color: var(--error-fg); } /* #김다영 수정: 삭제 버튼 */
+.delbox { display: flex; gap: 12px; align-items: center; margin: 12px 0; }
+.delbox .thumb { width: 64px; height: 64px; flex: none; border-radius: 8px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; }
+.delbox .thumb img, .delbox .thumb svg { width: 100%; height: 100%; object-fit: cover; }
+.regphoto { display: block; max-width: 320px; max-height: 320px; width: auto; height: auto; object-fit: contain; border-radius: 12px; border: 1px solid var(--line, #D5DBE3); margin: 6px 0 16px; } /* #김다영 수정: 3단계 사진 */
 </style>
 </head>
 <body>
@@ -840,6 +845,19 @@ var CONFIG = {
         return it.inner ? sb.from('item_private').insert({ item_id: it.id, owner_check_memo: it.inner }) : {};
       }).then(function (r) { if (r && r.error) throw r.error; return DB.loadItems(); });
     },
+    // #김다영 수정 시작: 습득물 삭제 (담당자 자기 기관 물품만. 수령 기록이 있으면 DB가 막음)
+    deleteItem: function (id) {
+      var it = ITEMS.filter(function (x) { return x.id === id; })[0];
+      if (!LIVE) { ITEMS = ITEMS.filter(function (x) { return x.id !== id; }); return Promise.resolve(); }
+      var m = it && it.photoUrl ? it.photoUrl.match(/\/item-photos\/(.+)$/) : null;
+      var path = m && state.staff && m[1].indexOf(state.staff.orgId + '/') === 0 ? decodeURIComponent(m[1]) : ''; // 우리 기관이 올린 사진만 지움
+      return sb.from('items').delete().eq('id', id).select('id').then(function (r) {
+        if (r.error) throw (r.error.code === '23503' ? new Error('수령 기록이 있는 물품은 삭제할 수 없어요.') : r.error);
+        if (!r.data.length) throw new Error('삭제 권한이 없는 물품이에요.');
+        return path ? sb.storage.from('item-photos').remove([path]).then(function () {}, function () {}) : null;
+      }).then(function () { return DB.loadItems(); });
+    },
+    // #김다영 수정 끝
     updateItem: function (id, p) {
       var it = ITEMS.filter(function (x) { return x.id === id; })[0];
       if (!LIVE) { Object.assign(it, p); return Promise.resolve(it); }
@@ -1968,7 +1986,8 @@ var CONFIG = {
         // #고현 수정: 담당 노선 밖 물건은 등록을 막고 맡는 기관으로 안내 (버스·경찰서는 담당 노선이 없어 검사하지 않음)
         (offLine ? '<div class="alert a-error">' + I.warn + '<div><b>' + esc(offLine.org) + ' 담당 노선이에요</b>' +
           '<p>여기서는 등록할 수 없어요. <b>' + esc(offLine.org) + '</b>' + (offLine.tel ? ' (' + esc(offLine.tel) + ')' : '') + '로 안내해 주세요.</p></div></div>' : '') +
-        '<p class="cap">습득일 ' + esc(o3.date || TODAY) + (reg.file ? ' · 사진도 함께 등록해요' : '') + '</p>' + // #고현 수정: 사진 등록 여부 확인 // #고현 수정: 습득일 확인용
+        '<p class="cap">습득일 ' + esc(o3.date || TODAY) + (reg.file ? ' · 사진도 함께 등록해요' : '') + '</p>' +
+        (reg.img ? '<span class="lbl">등록할 사진</span><img class="regphoto" src="' + reg.img + '" alt="등록할 습득물 사진">' : '') + // #김다영 수정: 3단계에서도 올린 사진을 보여 줌 // #고현 수정: 사진 등록 여부 확인 // #고현 수정: 습득일 확인용
         '<span class="lbl">공개 등록 문안</span><div class="script" id="script">' + esc(regScript(o3)) + '</div>' +
         // #고현 수정: 사진 표시 정리 — 담당자용 표시가 공개 문안에서 빠진다는 안내
         
@@ -2012,7 +2031,9 @@ var CONFIG = {
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
         '<div class="sacts"><button class="btn tertiary sm" type="button" data-edit="' + esc(it.id) + '">수정</button>' +
-          (done ? '' : '<button class="btn ' + (val ? 'danger' : 'primary') + ' sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') + '</div></div>';
+          (done ? '' : '<button class="btn ' + (val ? 'danger' : 'primary') + ' sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') +
+          '<button class="btn tertiary sm del" type="button" data-del="' + esc(it.id) + '">삭제</button>' + // #김다영 수정: 삭제 버튼
+        '</div></div>';
     }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
     return '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <b class="val-text">빨간색</b>은 고액·귀중품이라 수령 때 본인 확인을 더 꼼꼼히 해야 해요.</p></div>' +
       aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
@@ -2080,6 +2101,23 @@ var CONFIG = {
       DB.recordPickup(id, { id: true, feat: true, proxy: g('c3'), doc: g('c5'), note: document.getElementById('c-note').value }).then(function () { closeModal(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '기록하지 못했어요: ' + (err.message || err); });
     });
   }
+  // #김다영 수정 시작: 삭제 확인 창
+  function deleteModal(id) {
+    var it = ITEMS.filter(function (x) { return x.id === id; })[0]; if (!it) return;
+    openModal('<div class="mh"><div class="head"><span class="cap">' + esc(it.id) + '</span><h3 id="m-title" class="s">이 습득물을 삭제할까요?</h3></div><button class="x" type="button" data-close aria-label="닫기">×</button></div>' +
+      '<div class="delbox"><span class="thumb">' + pic(it) + '</span><div><b>' + esc(it.name) + ' (' + esc(it.color) + ')</b><p class="small">' + md(it.date) + ' 습득 · ' + esc(it.found) + '</p></div></div>' +
+      '<div class="alert a-warn">' + I.warn + '<div><b>되돌릴 수 없어요</b><p>시민 검색에서도 바로 사라지고, 비공개 메모와 올린 사진도 함께 지워져요. 수령 기록이 있는 물품은 삭제할 수 없어요.</p></div></div>' +
+      '<p id="del-msg" aria-live="polite" class="small"></p>' +
+      '<div class="btns end"><button class="btn tertiary" type="button" data-close>취소</button><button class="btn danger" type="button" id="b-del">삭제</button></div>');
+    document.getElementById('b-del').addEventListener('click', function () {
+      var btn = this, msg = document.getElementById('del-msg');
+      btn.disabled = true; msg.textContent = '삭제하는 중…';
+      DB.deleteItem(id).then(function () { closeModal(); route(); }, function (e) {
+        btn.disabled = false; msg.textContent = (e && e.message) || '삭제하지 못했어요.'; msg.style.color = 'var(--error-fg)';
+      });
+    });
+  }
+  // #김다영 수정 끝
   function editModal(id) {
     var it = ITEMS.filter(function (x) { return x.id === id; })[0]; if (!it) return;
     openModal('<div class="mh"><div class="head"><span class="cap">' + esc(it.id) + '</span><h3 id="m-title" class="s">습득물 정보 수정</h3></div><button class="x" type="button" data-close aria-label="닫기">×</button></div>' +
@@ -2387,6 +2425,7 @@ var CONFIG = {
       app.querySelectorAll('[data-it]').forEach(function (b) { b.addEventListener('click', function () { inv.tab = b.getAttribute('data-it'); route(); }); });
       app.querySelectorAll('[data-pick]').forEach(function (b) { b.addEventListener('click', function () { pickupModal(b.getAttribute('data-pick')); }); });
       app.querySelectorAll('[data-edit]').forEach(function (b) { b.addEventListener('click', function () { editModal(b.getAttribute('data-edit')); }); });
+      app.querySelectorAll('[data-del]').forEach(function (b) { b.addEventListener('click', function () { deleteModal(b.getAttribute('data-del')); }); }); // #김다영 수정
     }
   }
 
