@@ -1928,7 +1928,7 @@ var CONFIG = {
         // #김다영 수정 시작: 이메일로 내 알림 불러오기 (확인 코드) — 다른 기기에서 저장한 알림도 실제 진행 상황과 함께
         '<div class="lookup"><b>📬 내 알림 불러오기</b><p class="small">알림을 저장할 때 쓴 이메일로 확인 코드를 받아, 다른 기기에서 저장한 알림과 진행 상황을 볼 수 있어요.</p>' +
           '<div class="lkrow"><input id="lk-email" type="email" maxlength="120" placeholder="알림을 저장한 이메일 주소를 입력해 주세요" value="' + esc(LOOKUP.email) + '"><button class="btn secondary" type="button" id="lk-send">코드 받기</button></div>' +
-          '<div class="lkrow" id="lk-coderow"' + (LOOKUP.sent ? '' : ' hidden') + '><input id="lk-code" inputmode="numeric" maxlength="6" placeholder="메일로 받은 6자리 코드"><button class="btn primary" type="button" id="lk-verify">확인</button></div>' +
+          '<div class="lkrow" id="lk-coderow"' + (LOOKUP.sent ? '' : ' hidden') + '><input id="lk-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="메일로 받은 6자리 코드"><button class="btn primary" type="button" id="lk-verify">확인</button></div>' + // #김다영 수정: 코드 칸에 type="text" — 이메일 칸과 같은 모서리·글자 크기·여백
           '<p class="cap" id="lk-msg" aria-live="polite">' + esc(LOOKUP.msg || '') + '</p></div>' +
         (LOOKUP.alerts ? '<div class="saved lkout"><span class="lbl">' + esc(LOOKUP.email) + '로 저장한 알림 ' + LOOKUP.alerts.length + '건</span>' + (LOOKUP.alerts.length ? LOOKUP.alerts.map(lookupAlertHtml).join('') : '<p class="small">이 이메일로 저장된 알림이 없어요.</p>') + '</div>' : '') +
         // #김다영 수정 끝
