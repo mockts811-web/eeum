@@ -398,8 +398,13 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 @media (max-width: 767px) {
   h1 { font-size: 28px; } h2 { font-size: 24px; } h3 { font-size: 20px; }
   .hero { padding: 24px 20px; } .hero .sub { font-size: 17px; } .wide-only { display: none; } /* #고현 수정: 줄바꿈 — 좁은 화면에서는 강제 줄바꿈 해제 */
-  nav.gnb { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
-  nav.gnb a { font-size: 15px; white-space: nowrap; }
+  nav.gnb { width: 100%; flex-wrap: wrap; gap: 0 2px; } /* #김다영 수정: 메뉴가 잘리지 않게 두 줄로 */
+  nav.gnb a { font-size: 15px; white-space: nowrap; padding: 8px 10px; }
+  table.orgtbl { min-width: 0; } table.orgtbl thead { display: none; } /* #김다영 수정: 보관 기관 표를 카드형으로 (전화번호 안 잘리게) */
+  table.orgtbl tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  table.orgtbl td { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; padding: 3px 0; border: 0; white-space: normal; }
+  table.orgtbl td::before { content: attr(data-l); color: var(--fg-3); font-size: 14px; }
+  table.orgtbl td:first-child { font-weight: 700; }
   .steps, .howto { grid-template-columns: minmax(0, 1fr); }
   .card { grid-template-columns: 80px minmax(0, 1fr); }
   .card .score { grid-column: 1 / -1; text-align: left; }
@@ -1842,7 +1847,7 @@ var CONFIG = {
     if (need.length) {
       right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 위치' : '탔던 버스 위치') /* #김다영 수정: 제목 통일 */ + '</h3>' +
         '<div class="empty-guide"><b>' + esc(need.join(', ')) + (/[가-힣]/.test(need[need.length - 1].slice(-1)) && ((need[need.length - 1].slice(-1).charCodeAt(0) - 0xAC00) % 28) ? '을' : '를') + ' 골라 주세요</b>' +
-        '<p class="small">왼쪽에서 ' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 정류장과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
+        '<p class="small">' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 정류장과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
       if (sub && tState.line && STATIONS.length) { // #김다영 수정: 노선을 고르면 그 노선의 노선도(7개 역)를 먼저 보여 줌. 내린 역을 고르면 그 역이 가운데
         var pa = STATIONS.indexOf(tState.station), pf = pa < 0 ? 0 : Math.max(0, Math.min(pa - 3, STATIONS.length - 7));
         var pn = STATIONS.slice(pf, pf + 7);
@@ -1910,7 +1915,7 @@ var CONFIG = {
         alertStagesHtml({ created_at: s.at || '', last_checked_at: null, hits: [] }) + // #김다영 수정: 예전엔 늘 두 칸이 칠해진 장식이었음 → 이 기기에서는 '조건 저장'까지만 확실함
         (s.email ? '<p class="cap">실제 비교 결과는 아래 \'내 알림 불러오기\'로 볼 수 있어요.</p>' : '') +
         '<div class="row"><span class="cap">' + (s.email ? '이메일 알림 · ' + esc(s.email) : '이 기기에서만 확인') + '</span><button class="btn tertiary sm" type="button" data-unsave="' + i + '">알림 해지</button></div></div>';
-    }).join('') : '<p class="small">저장한 조건이 없어요. 왼쪽에서 조건을 저장하세요.</p>';
+    }).join('') : '<p class="small">저장한 조건이 없어요. 알림 조건을 먼저 저장하세요.</p>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>비슷한 물건 알림</span></nav>' +
       '<div class="view"><div class="head"><h2>비슷한 물건이 올라오면 알려 드려요</h2><p class="small">습득물은 등록까지 1~2일 걸려요. 하루 두 번(오전 9시와 오후 6시) 새 습득물과 비교해, 닮음 점수 0.6 이상이면 알려 드려요.</p></div>' +
       '<div class="track2"><form class="panel" id="f-save"><h3 class="s">알림 조건 저장</h3>' +
@@ -1974,8 +1979,8 @@ var CONFIG = {
   function vGuide() {
     var blocks = GUIDE.map(function (g) {
       return '<section class="panel" aria-label="' + esc(g.title) + '"><h3 class="s">' + esc(g.title) + '</h3><p class="small">' + esc(g.note) + '</p>' +
-        '<div class="scroll"><table class="queue"><thead><tr><th>구분</th><th>보관 장소</th><th>연락처</th><th>운영 시간</th><th>수령 지원</th></tr></thead><tbody>' +
-        g.rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td class="n">' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td><td>' + esc(r[4]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+        '<div class="scroll"><table class="queue orgtbl"><thead><tr><th>구분</th><th>보관 장소</th><th>연락처</th><th>운영 시간</th><th>수령 지원</th></tr></thead><tbody>' +
+        g.rows.map(function (r) { return '<tr><td data-l="구분">' + esc(r[0]) + '</td><td data-l="보관 장소">' + esc(r[1]) + '</td><td class="n" data-l="연락처">' + esc(r[2]) + '</td><td data-l="운영 시간">' + esc(r[3]) + '</td><td data-l="수령 지원">' + esc(r[4]) + '</td></tr>'; /* #김다영 수정: 모바일 카드형용 항목 이름 */ }).join('') + '</tbody></table></div></section>';
     }).join('');
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>보관 기관 안내</span></nav>' +
       '<div class="view"><div class="head"><h2>보관 기관 안내</h2><p class="small">어디서 잃어버렸는지에 따라 보관하는 곳이 달라요. 시간이 지나면 경찰서로 옮겨지니 빨리 연락하세요.</p></div>' + blocks +
