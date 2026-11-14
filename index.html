@@ -1206,7 +1206,7 @@ var CONFIG = {
         '<span class="thumb">' + pic(r.it) + '</span>' +
         '<span class="cbody"><span class="tags">' + (lvl ? '<span class="badge ' + lvl[0] + '">' + (top ? I.ok : '') + lvl[1] + ' · ' + rank + '위 후보</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span></span>' +
         '<span class="cname">' + esc(r.it.name) + ' (' + esc(r.it.color) + ')</span>' +
-        '<span class="small">습득일자: ' + md(r.it.date) + ' / 습득 장소: ' + esc(r.it.found) + ' / 보관 장소: ' + esc(r.it.org) + '</span>' + // #김다영 수정: 담당자 목록과 같은 형식
+        '<span class="small">습득 날짜: ' + md(r.it.date) + ' / 습득 장소: ' + esc(r.it.found) + ' / 보관 장소: ' + esc(r.it.org) + '</span>' + // #김다영 수정: 담당자 목록과 같은 형식
         (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</span>' +
         (scored ? '<span class="score">점수 ' + r.s.toFixed(2) + '</span>' : '<span class="score">' + esc(r.it.type) + '</span>') + '</button>';
     }).join('');
@@ -1241,7 +1241,7 @@ var CONFIG = {
         '<div class="scroll"><table class="info"><tbody>' +
           '<tr><th scope="row">관리번호</th><td>' + esc(it.id) + '</td></tr>' +
           '<tr><th scope="row">물품 분류</th><td>' + esc(it.cat) + ' &gt; ' + esc(it.sub) + '</td></tr>' +
-          '<tr><th scope="row">습득일</th><td>' + md(it.date) + '</td></tr>' + // #김다영 수정: 요일 표시 ('2026-10-25 (일)')
+          '<tr><th scope="row">습득 날짜</th><td>' + md(it.date) + '</td></tr>' + // #김다영 수정: 요일 표시 ('2026-10-25 (일)')
           '<tr><th scope="row">습득 장소</th><td>' + esc(it.found) + '</td></tr>' +
           '<tr><th scope="row">보관 장소</th><td><div class="orgline"><span>' + esc(it.org) + (org.lines && org.lines !== '경찰서' ? ' (' + esc(org.lines) + ')' : '') + '</span><span class="tel" id="tel">' + esc(org.tel) + '</span><button class="btn secondary sm" type="button" id="b-tel">번호 복사</button><span class="toast" id="m-tel" aria-live="polite"></span></div></td></tr>' +
           '<tr><th scope="row">운영 시간</th><td>' + esc(org.hours) + '</td></tr>' +
@@ -2286,7 +2286,7 @@ var CONFIG = {
         '<span class="thumb">' + pic(it) + '</span>' +
         '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락 완료') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
-          '<span class="small">' + esc(it.id) + ' / 습득일자: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
+          '<span class="small">' + esc(it.id) + ' / 습득 날짜: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
           (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(mdt(rq0.at)) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + ' <a href="#staff-req">신청 보기 ›</a></span>' : '') + // #김다영 수정: '신청 보기'를 버튼 대신 링크로 // #김다영 수정: 신청 요약
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
