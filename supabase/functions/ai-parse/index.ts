@@ -79,7 +79,8 @@ const NEVER_PUBLIC = /카드\s*\d+\s*장|현금|\d+\s*만\s*원|\d{4}[- ]?\d{4}/
 const NEVER_PUBLIC_PHOTO = /사람|인물|얼굴|여성|남성|남자|여자|아이|어린이|증명\s*사진|사진\s*속|성명|이름|주소|생년|번호|홀로그램|면허|신분|여권|주민/;
 // ===== #고현 수정 끝 =====
 const PRIVACY_WORDS = /카드번호|신분증|주민|명함|이름|성명|소유자|연락처|전화번호|학생증|사원증|면허증|여권|\d{4}[- ]?\d{4}|\d{6}-\d/;
-const PLACE_WORDS = /호선|역|버스|정류장|열차/;
+const PLACE_WORDS = /호선|역|버스|정류장|열차|택시/; // #김다영 수정: 택시 추가
+const TAXI = /택시|\b(?:taxi|cab)s?\b/i; // #김다영 수정: 습득장소 '택시'
 
 // ── 2. 개인정보 가림: AI에 보내기 전 한 번, AI 결과에 한 번 더 ──
 const MASK = "[개인정보 가림]";
@@ -272,6 +273,7 @@ function lostDate(text: string, today: string): string {
 const NOT_BUS_NO = String.raw`(?!\s*번\s*(?:출구|칸|게이트|승강장|홈|플랫폼))`;
 function lineFromAi(v: unknown, src: string): string {
   const s = squash(str(v));
+  if (/^(?:택시|taxi|cab)$/i.test(s)) return TAXI.test(src) ? "택시" : ""; // #김다영 수정: 택시 (원문에 있을 때만)
   const sub = s.match(/^(?:서울)?(?:지하철|전철)?(\d{1,2})호선$/) ?? s.match(/^line(\d{1,2})$/i);
   if (sub) {
     const n = Number(sub[1]);
@@ -293,6 +295,7 @@ function lineByRule(src: string): string { // index.html parse()와 같은 규�
   if (bus && /버스/.test(src)) line = `${bus[1]}번 버스`;
   const busEn = src.match(/\bbus\s*(?:no\.?\s*|number\s*|#\s*)?(\d{2,4})\b/i) ?? src.match(/\b(\d{2,4})\s*bus\b/i);
   if (busEn) line = `${busEn[1]}번 버스`;
+  if (!line && TAXI.test(src)) line = "택시"; // #김다영 수정: 호선·버스가 없고 택시면 '택시'
   return line;
 }
 const STATION_STOP = new Set(["지하철", "전철", "기차", "열차", "다음", "이번", "어느", "무슨", "환승", "근처", "가까운", "버스"]);
@@ -331,6 +334,7 @@ function linesFrom(ai: Record<string, unknown>, src: string): string[] {
   for (const v of [ai.line, ...items(ai.lines)]) add(lineFromAi(v, src));
   for (const m of squash(src).matchAll(/(?<!\d)(\d{1,2})호선/g)) add(`${Number(m[1])}호선`);
   if (/버스/.test(src)) for (const m of src.matchAll(new RegExp(String.raw`(?<!\d)(\d{2,4})\s*번${NOT_BUS_NO}`, "g"))) add(`${m[1]}번 버스`);
+  if (TAXI.test(src)) add("택시"); // #김다영 수정
   return out.slice(0, 4);
 }
 // 물건 목록: AI가 물건별로 나눈 값 중 원문에 근거가 있는 것만. 같은 분류·색상은 하나로
@@ -541,7 +545,7 @@ function prompt(mode: Mode, text: string, hasImage = false): string { // #고현
 - name: 짧은 물품명(색상 제외, 예: "가죽 반지갑")
 - feats: 시민에게 공개해도 되는 외형 특징을 쉼표로 이은 문자열
 - place: 습득 장소. 지하철이면 "3호선 강남역 승강장"처럼 호선을 앞에 쓰고 "지하철"이라는 말은 빼세요. 버스면 "472번 버스 차내". 그 밖이면 적힌 장소 그대로
-- line: "2호선" 또는 "472번 버스" 형식, 없으면 ""
+- line: "2호선" 또는 "472번 버스" 형식, 택시면 "택시", 없으면 ""
 - inner: 주인 확인용 비공개 정보(내용물·수량 등)를 쉼표로 이은 문자열. '비공개:' 뒤 내용은 inner에만. 이름·번호·금액은 쓰지 마세요
 - privacy: 이름·연락처·신분증 같은 개인정보가 보이면 true
 - date: 물건을 주운 날. "3일 전", "어제", "11월 11일"처럼 적혀 있을 때만 그 날을 YYYY-MM-DD 로. 날짜 말이 없으면 ""
@@ -557,7 +561,7 @@ function prompt(mode: Mode, text: string, hasImage = false): string { // #고현
 - cat·color: 목록의 값 하나, 모르면 "" (반지갑·장지갑·카드지갑은 "지갑", 에어팟·버즈는 "이어폰", 신용·교통카드는 "카드", 여권·면허증은 "신분증", 반지·시계는 "귀금속·시계", 노트북·태블릿은 "전자기기")
 - 가방·지갑처럼 무언가를 담는 물건은 안에 든 것이 아니라 담는 물건으로 분류하세요. 예: "백팩을 두고 내렸어요. 노트북이 들어 있어요" → {"cat":"가방","feats":["백팩","노트북"]}
 - feats: 재질·모양·특징 단어 배열(최대 6개). 색상·날짜·노선·역 이름은 넣지 마세요
-- line: 문장에 처음 나온 노선. "2호선" 또는 "472번 버스" 형식, 모르면 ""
+- line: 문장에 처음 나온 노선. "2호선" 또는 "472번 버스" 형식, 택시면 "택시", 모르면 ""
 - lines: 문장에 나온 노선 전부(갈아탄 경우 등). 같은 형식의 배열, 없으면 []
 - station: 역 이름에서 "역"을 뺀 값, 모르면 ""
 - 입력이 영어 등 다른 언어여도 cat·color는 한국어 목록 값, line은 "2호선"·"472번 버스" 형식, station은 한국어 역 이름(예: Gangnam → "강남")으로 쓰세요. feats는 입력 표현 그대로
