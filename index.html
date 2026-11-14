@@ -2248,10 +2248,10 @@ var CONFIG = {
     var cards = list.map(function (x) {
       var it = x.it, c = x.c;
       return '<section class="panel reqcard' + (c.status === '접수' ? ' new' : '') + '"><div class="reqhead"><span class="thumb">' + pic(it) + '</span><div>' +
-        '<span class="tags"><span class="badge ' + (c.status === '접수' ? 's-soon' : 'b-mid') + '">' + (c.status === '접수' ? '새 신청' : '연락함') + '</span>' + (c.method === '대리' ? '<span class="badge s-val">대리 수령</span>' : '<span class="badge s-keep">본인 수령</span>') + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '</span>' +
+        '<span class="tags"><span class="badge ' + (c.status === '접수' ? 's-soon' : 'b-mid') + '">' + (c.status === '접수' ? '새 신청' : '연락 완료') + '</span>' + (c.method === '대리' ? '<span class="badge s-val">대리 수령</span>' : '<span class="badge s-keep">본인 수령</span>') + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '</span>' +
         '<h3 class="s">' + esc(it.name) + ' (' + esc(it.color) + ')</h3><p class="cap">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · 신청 ' + esc(c.at) + '</p></div></div>' +
         claimDetailHtml(it, c) +
-        '<div class="btns end">' + (c.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + esc(c.id) + '" data-st="연락함">연락 완료로 표시</button>' : '') +
+        '<div class="btns end">' + (c.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + esc(c.id) + '" data-st="연락함">연락 완료</button>' : '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="접수">연락 완료 취소</button>') + // #김다영 수정: 잘못 눌렀을 때 되돌리기
           '<button class="btn primary sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>' +
           '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="종료">신청 닫기</button></div></section>';
     }).join('') || '<div class="empty panel"><b>처리할 수령 신청이 없어요</b><p class="small">시민이 습득물 상세 화면에서 수령 신청을 보내면 여기에 나타나요.</p></div>';
@@ -2279,7 +2279,7 @@ var CONFIG = {
       var rq = done ? [] : openClaims(it.id), rq0 = rq[0]; // #김다영 수정: 이 물품에 들어온 수령 신청
       return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + (rq0 ? ' hasreq' : '') + '">' +
         '<span class="thumb">' + pic(it) + '</span>' +
-        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락함') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
+        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락 완료') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
           '<span class="small">' + esc(it.id) + ' / 습득일자: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
@@ -2340,8 +2340,8 @@ var CONFIG = {
                 (m.missed.length ? '<br><span class="cap">메모에만 있는 말: ' + esc(m.missed.join(', ')) + ' — 이걸 직접 물어보세요</span>' : '') + '</p>'
               : '') +
             '<p class="cap">낱말이 겹치는지만 기계가 세어 본 거예요. <b>맞는지 아닌지는 담당자가 판단</b>하세요.</p>' +
-            (cl.id ? '<div class="cstate"><span class="small"><b>신청 상태:</b> ' + (cl.status === '연락함' ? '신청자에게 연락함' : '새 신청 (아직 연락 안 함)') + '</span><div class="btns">' + (cl.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + cl.id + '" data-st="연락함">연락 완료로 표시</button>' : '') + '<button class="btn tertiary sm" type="button" data-claim="' + cl.id + '" data-st="종료">신청 닫기</button></div></div>' +
-              '<p class="cap">신청자에게 연락했으면 「연락 완료로 표시」, 주인이 아니면 「신청 닫기」를 눌러 주세요.</p>' : '') + // #김다영 수정: 버튼 뜻이 보이게
+            (cl.id ? '<div class="cstate"><span class="small"><b>신청 상태:</b> ' + (cl.status === '연락함' ? '연락 완료' : '새 신청 (아직 연락 안 함)') + '</span><div class="btns">' + (cl.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + cl.id + '" data-st="연락함">연락 완료</button>' : '<button class="btn tertiary sm" type="button" data-claim="' + cl.id + '" data-st="접수">연락 완료 취소</button>') + '<button class="btn tertiary sm" type="button" data-claim="' + cl.id + '" data-st="종료">신청 닫기</button></div></div>' +
+              '<p class="cap">신청자에게 연락했으면 「연락 완료」, 주인이 아니면 「신청 닫기」를 눌러 주세요.<br>「연락 완료」는 잘못 눌러도 「연락 완료 취소」로 되돌릴 수 있어요.</p>' : '') + // #김다영 수정: 버튼 뜻이 보이게
             '</section>';
         })() +
         // ===== #고현 수정 끝 =====
@@ -2354,6 +2354,7 @@ var CONFIG = {
     document.getElementById('c3').addEventListener('change', function (e) { document.getElementById('c5wrap').hidden = !e.target.checked; });
     var pcl = claimFor(id); if (pcl && pcl.method === '대리') { document.getElementById('c3').checked = true; document.getElementById('c5wrap').hidden = false; } // #김다영 수정: 대리 수령 신청이면 미리 체크
     document.querySelectorAll('#modal [data-claim]').forEach(function (b) { b.addEventListener('click', function () { // #김다영 수정: 확인 요청 상태 바꾸기
+      if (b.getAttribute('data-st') === '종료' && !b.hasAttribute('data-sure')) { b.setAttribute('data-sure', ''); b.textContent = '한 번 더 누르면 닫혀요'; b.classList.add('danger'); return; } // #김다영 수정: 신청 닫기는 연락처가 지워져 되돌릴 수 없으니 한 번 더 확인
       b.disabled = true;
       DB.setClaim(b.getAttribute('data-claim'), b.getAttribute('data-st')).then(function () { pickupModal(id); route(); }, function (e) { b.disabled = false; document.getElementById('pick-msg').textContent = '요청 상태를 바꾸지 못했어요 (' + ((e && e.message) || '오류') + ').'; });
     }); });
@@ -2802,6 +2803,7 @@ var CONFIG = {
     if (h === 'staff-req') { // #김다영 수정: 수령 신청 처리
       app.querySelectorAll('[data-pick]').forEach(function (b) { b.addEventListener('click', function () { pickupModal(b.getAttribute('data-pick')); }); });
       app.querySelectorAll('[data-claim]').forEach(function (b) { b.addEventListener('click', function () {
+        if (b.getAttribute('data-st') === '종료' && !b.hasAttribute('data-sure')) { b.setAttribute('data-sure', ''); b.textContent = '한 번 더 누르면 닫혀요'; b.classList.add('danger'); return; } // #김다영 수정: 신청 닫기는 연락처가 지워져 되돌릴 수 없으니 한 번 더 확인
         b.disabled = true;
         DB.setClaim(b.getAttribute('data-claim'), b.getAttribute('data-st')).then(function () { route(); }, function (e) { b.disabled = false; alertBar('신청 상태를 바꾸지 못했어요 (' + ((e && e.message) || '오류') + ').'); });
       }); });
