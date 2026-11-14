@@ -494,6 +494,8 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .hits li { padding: 8px 10px; border-radius: 8px; background: var(--surface, #F4F6F8); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .dirs label.off { color: var(--fg-3); cursor: not-allowed; } /* #김다영 수정: 아직 고를 수 없는 방향 */
+.tabs .tab-gap { margin-left: auto; } /* #김다영 수정: 보관 상태 탭과 처리할 일 탭 사이를 띄움 */
+@media (max-width: 720px) { .tabs .tab-gap { margin-left: 0; } }
 </style>
 </head>
 <body>
@@ -2206,9 +2208,10 @@ var CONFIG = {
     ['고액', '고액·귀중품', function (it) { return it.status === '보관중' && it.valuable; }],
     ['임박', '기한 임박', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age === 7; }],
     ['이관', '이관 대상', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age > 7; }],
-    ['요청', '📩 수령 신청', function (it) { return it.status === '보관중' && openClaims(it.id).length > 0; }], // #김다영 수정: 시민이 보낸 주인 확인 요청이 있는 물품
-    ['수령완료', '수령 완료', function (it) { return it.status === '수령완료'; }],
-    ['전체', '전체', function () { return true; }]
+    ['전체', '전체', function () { return true; }],
+    // #김다영 수정: 처리할 일(수령 신청·수령 완료)은 오른쪽에 따로 모음
+    ['요청', '📩 수령 신청', function (it) { return it.status === '보관중' && openClaims(it.id).length > 0; }],
+    ['수령완료', '✅ 수령 완료', function (it) { return it.status === '수령완료'; }]
   ];
   // ===== #김다영 수정 시작: 담당자 '수령 신청' 페이지 — 시민이 보낸 수령 신청을 모아 보고 처리 =====
   function vStaffReq() {
@@ -2234,7 +2237,7 @@ var CONFIG = {
     var all = rankItems(mine, c);
     var tabs = INV_TABS.map(function (t) {
       var n = all.filter(function (r) { return t[2](r.it); }).length;
-      return '<button type="button" role="tab" aria-selected="' + (inv.tab === t[0]) + '" data-it="' + t[0] + '"' + (t[0] === '고액' ? ' class="tab-val"' : '') + '>' + t[1] + ' ' + n + '</button>';
+      return '<button type="button" role="tab" aria-selected="' + (inv.tab === t[0]) + '" data-it="' + t[0] + '"' + (t[0] === '고액' ? ' class="tab-val"' : t[0] === '요청' ? ' class="tab-gap"' : '') + '>' + t[1] + ' ' + n + '</button>';
     }).join('');
     var list = all.filter(function (r) { return tabDef[2](r.it); });
     if (!scored) list.sort(function (a, b) { return a.it.date < b.it.date ? -1 : 1; });
