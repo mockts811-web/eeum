@@ -640,21 +640,26 @@ var CONFIG = {
     var extra = '';
     c.feats.forEach(function (f) { if (!extra && it.desc.indexOf(f) > -1 && f !== c.cat) extra = f; });
     var miss = [];
-    if (c.color && !colorOk) miss.push('색상이 ' + it.color);
-    if (c.cat && !catOk) miss.push('분류가 ' + it.cat);
-    if (c.date && dateScore < 1) miss.push(md(it.date) + ' 습득');
+    if (c.color && !colorOk) miss.push('색상은 ' + it.color); // #김다영 수정: '다만 …' 대신 사실만 알려 줌
+    if (c.cat && !catOk) miss.push('분류는 ' + it.cat);
+    if (c.date && dateScore < 1) miss.push('습득일은 ' + md(it.date));
     // ===== #고현 수정 시작: 일치 이유 문장 — "일치하는 조건이 적어요, '머그컵'까지 일치"처럼 앞뒤가 어긋나던 것 =====
     var reason;
     if (why.length) {
       var last = why[why.length - 1], code = last.charCodeAt(last.length - 1) - 0xAC00;
       reason = why.join('·') + ((code >= 0 && code <= 11171 && code % 28) ? '이' : '가') + ' 같아요';
-      if (extra) reason += " · 특징 '" + extra + "'도 같아요";
+      if (extra) reason += " / 특징 '" + extra + "'도 같아요"; // #김다영 수정: 구분 기호 · → /
     } else if (extra) {
       reason = "'" + extra + "'라는 말만 같아요";
     } else {
       reason = '일치하는 조건이 적어요';
     }
-    if (miss.length) reason += ' · 다만 ' + miss.join(', ');
+    // #김다영 수정: "다만 11.11 습득" → "습득일은 11.11이에요" (받침에 따라 이에요/예요)
+    if (miss.length) {
+      var tail = miss[miss.length - 1], ch = tail.charAt(tail.length - 1), k = ch.charCodeAt(0) - 0xAC00;
+      var batchim = (k >= 0 && k <= 11171) ? k % 28 > 0 : /[013678]/.test(ch); // 숫자는 읽는 소리(일·삼·육·칠·팔·영)로
+      reason += ' / ' + miss.join(', ') + (batchim ? '이에요' : '예요');
+    }
     // ===== #고현 수정 끝: 일치 이유 문장 =====
     return { total: Math.round(total * 100) / 100, reason: reason };
   }
