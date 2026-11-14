@@ -493,6 +493,7 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .hits { margin: 4px 0 0; padding-left: 0; list-style: none; display: grid; gap: 8px; font-size: 15px; }
 .hits li { padding: 8px 10px; border-radius: 8px; background: var(--surface, #F4F6F8); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dirs label.off { color: var(--fg-3); cursor: not-allowed; } /* #김다영 수정: 아직 고를 수 없는 방향 */
 </style>
 </head>
 <body>
@@ -1785,7 +1786,9 @@ var CONFIG = {
       form = '<div class="f"><label for="t-bus">버스 노선</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + busListOptions() + '</datalist></div>' + // #서유석 수정 (5차)
       // ===== #서유석 수정 끝 =====
         '<div class="f"><label for="t-stop">내린 정류장</label><select id="t-stop"' + (b ? '' : ' disabled') + '>' + stopOpts + '</select></div>' +
-        (b ? '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir"><label><input type="radio" name="bdir" value="0"' + (tState.busDir === 0 ? ' checked' : '') + '>' + esc(b.stops[b.stops.length - 1]) + ' 방면</label><label><input type="radio" name="bdir" value="1"' + (tState.busDir === 1 ? ' checked' : '') + '>' + esc(b.stops[0]) + ' 방면</label></div></div>' : '') + common;
+        (b ? '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir"><label><input type="radio" name="bdir" value="0"' + (tState.busDir === 0 ? ' checked' : '') + '>' + esc(b.stops[b.stops.length - 1]) + ' 방면</label><label><input type="radio" name="bdir" value="1"' + (tState.busDir === 1 ? ' checked' : '') + '>' + esc(b.stops[0]) + ' 방면</label></div></div>'
+          // #김다영 수정: 지하철처럼 '버스 방향' 칸을 처음부터 보여 줌 (번호를 넣기 전엔 비활성)
+          : '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir" aria-disabled="true"><label class="off"><input type="radio" name="bdir" value="0" disabled>번호를 입력하면 방면이 나와요</label><label class="off"><input type="radio" name="bdir" value="1" disabled>반대 방면</label></div></div>') + common;
     }
     var right;
     // #김다영 수정 시작: 노선(버스 번호)·역·방향을 고르기 전에는 노선도 대신 안내를 보여 줌
@@ -1819,7 +1822,7 @@ var CONFIG = {
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>당일 분실</span></nav>' +
       '<div class="view"><div class="head"><h2>방금 두고 내렸나요?</h2><p class="small">아직 차 안에 있을 수 있어요. 온라인 등록 전이니, 지금 운영 기관에 바로 알리는 게 가장 빨라요.</p></div>' + tabs +
       '<div class="today"><form class="panel" id="f-today"><h3 class="s">내린 정보</h3><div class="form">' + form + '</div>' +
-        '<button class="btn primary" type="submit">' + (sub ? '열차 다시 추정하기' : '버스 위치 다시 추정하기') + '</button>' +
+        '<button class="btn primary" type="submit">' + (sub ? '열차 위치 다시 추정하기' : '버스 위치 다시 추정하기') /* #김다영 수정: 이름 통일 */ + '</button>' +
         // #김다영 수정: 이 기능 설명
         '<div class="fhelp"><b>💡 이 기능은 이렇게 도와드려요</b><ol>' +
           '<li><b>' + (sub ? '🚇' : '🚌') + ' 탔던 ' + (sub ? '열차' : '버스') + '를 찾아요</b>' + (sub ? '내린 역·시각·방향으로 1~9호선은 열차 시간표에서,<br>다른 노선은 평균 운행 속도로 탔던 열차를 계산해요.' : '내린 정류장·시각과<br>정류장 사이 거리·구간 속도로 탔던 버스를 계산해요.') + '</li>' +
