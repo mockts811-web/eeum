@@ -355,10 +355,10 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .scard { cursor: default; grid-template-columns: 112px minmax(0, 1fr) auto; }
 .scard:hover { border-color: var(--line); }
 .scard .inner { font-size: 15px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm); padding: 4px 8px; width: fit-content; max-width: 100%; }
-.scard.val { border: 2px solid var(--error-fg); }
-.scard.val .cname { color: var(--error-fg); font-weight: 700; }
+/* #김다영 수정: 고액·귀중품은 배지로만 표시 (빨간 테두리·빨간 이름 뺌) */
 .scard.done { opacity: .7; }
-.sacts { display: flex; flex-direction: column; gap: 8px; }
+.sacts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: center; min-width: 150px; } /* #김다영 수정 */
+.sacts .pickb { grid-column: 1 / -1; }
 .tabs button.tab-val { color: var(--error-fg); }
 .tabs button.tab-val[aria-selected="true"] { border-bottom-color: var(--error-fg); color: var(--error-fg); }
 .val-text { color: var(--error-fg); }
@@ -400,7 +400,7 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
   .steps, .howto { grid-template-columns: minmax(0, 1fr); }
   .card { grid-template-columns: 80px minmax(0, 1fr); }
   .card .score { grid-column: 1 / -1; text-align: left; }
-  .sacts { grid-column: 1 / -1; flex-direction: row; }
+  .sacts { grid-column: 1 / -1; grid-template-columns: 2fr 1fr 1fr; } .sacts .pickb { grid-column: auto; }
   .sacts .btn { flex: 1; }
   .thumb { width: 80px; height: 80px; }
   .form, .fgrid { grid-template-columns: minmax(0, 1fr); }
@@ -422,7 +422,7 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 /* #서유석 수정 끝 */
 .pager { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; margin-top: 16px; } /* #김다영 수정: 쪽 번호 */
 .pager .btn { min-width: 40px; }
-.scard .sacts .del { color: var(--error-fg); } /* #김다영 수정: 삭제 버튼 */
+.scard .sacts .del { color: var(--fg-2); } /* #김다영 수정: 삭제 버튼 (색 줄임, 누르면 확인 창) */
 .delbox { display: flex; gap: 12px; align-items: center; margin: 12px 0; }
 .delbox .thumb { width: 64px; height: 64px; flex: none; border-radius: 8px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; }
 .delbox .thumb img, .delbox .thumb svg { width: 100%; height: 100%; object-fit: cover; }
@@ -464,9 +464,9 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .track2 > form.panel > .btn, .track2 > form.panel > .btns { margin-top: 8px; }
 .reqnote { margin: 12px 0 4px; padding: 12px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); } /* #김다영 수정: 수령 전 안내 */
 .reqnote p { margin: 0 0 6px; }
-.scard.hasreq { border-left: 5px solid #E5484D; } /* #김다영 수정: 수령 신청이 들어온 물품 */
-.reqbadge { background: #FDECEC; color: #B42318; border: 1px solid #F5B5B5; font-weight: 700; }
-.reqline { display: block; font-size: 14px; color: #B42318; background: #FFF5F5; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
+.scard.hasreq { border-left: 5px solid var(--primary, #2563EB); } /* #김다영 수정: 수령 신청이 들어온 물품 */
+.reqbadge { background: #EAF1FF; color: #1D4ED8; border: 1px solid #BFD3FB; font-weight: 700; }
+.reqline { display: block; font-size: 14px; color: #1E3A8A; background: #F1F5FF; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
 .alert.inline > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; } /* #김다영 수정: 제목 옆에 간격 두고 한 줄로 */
 .alert.inline > div > p { margin: 0; }
 /* #김다영 수정: 글자 크기 통일 — 당일 분실 '기능 설명'(본문 16px·보조 14px)을 기준으로 */
@@ -2285,15 +2285,16 @@ var CONFIG = {
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
           '<span class="small">' + esc(it.id) + ' / 습득일자: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
-          (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(rq0.at) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + '</span>' : '') + // #김다영 수정: 신청 요약
+          (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(rq0.at) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + ' <a href="#staff-req">신청 보기 ›</a></span>' : '') + // #김다영 수정: '신청 보기'를 버튼 대신 링크로 // #김다영 수정: 신청 요약
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
-        '<div class="sacts">' + (rq0 ? '<a class="btn secondary sm" href="#staff-req">신청 보기</a>' : '') /* #김다영 수정 */ + '<button class="btn tertiary sm" type="button" data-edit="' + esc(it.id) + '">수정</button>' +
-          (done ? '' : '<button class="btn ' + (val ? 'danger' : 'primary') + ' sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') +
+        '<div class="sacts">' + // #김다영 수정: 버튼 정리 — 수령 확인(파랑) 하나만 크게, 수정·삭제는 아래에 작게 나란히
+          (done ? '' : '<button class="btn primary sm pickb" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') +
+          '<button class="btn tertiary sm" type="button" data-edit="' + esc(it.id) + '">수정</button>' +
           '<button class="btn tertiary sm del" type="button" data-del="' + esc(it.id) + '">삭제</button>' + // #김다영 수정: 삭제 버튼
         '</div></div>';
     }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>보관 물품 조회·수정</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
-      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <b class="val-text">빨간색</b>은 고액·귀중품이라 수령 때 본인 확인을 더 꼼꼼히 해야 해요.</p></div>' +
+      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <span class="badge s-val">고액·귀중품</span> 표시가 있는 물품은 수령 때 본인 확인을 더 꼼꼼히 해 주세요.</p></div>' +
       aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
       itemTabsHtml(inv) + // #김다영 수정
       filtersHtml(inv, '분실한 날') +
