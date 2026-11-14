@@ -139,6 +139,13 @@ create policy "담당자 수정" on public.items for update
     select 1 from public.staff_members s
     where s.user_id = (select auth.uid()) and s.org_id = items.org_id));
 
+-- #김다영 수정: 담당자가 자기 기관 물품 삭제 (수령 기록이 있으면 pickups 외래키 때문에 삭제되지 않음)
+create policy "담당자 삭제" on public.items for delete
+  to authenticated
+  using (exists (
+    select 1 from public.staff_members s
+    where s.user_id = (select auth.uid()) and s.org_id = items.org_id));
+
 -- 비공개 메모 · 수령 기록: 그 물품을 가진 기관 담당자만
 create policy "담당자 비공개 메모" on public.item_private for all
   to authenticated
@@ -194,6 +201,13 @@ on conflict (id) do nothing;
 -- 담당자만 자기 기관 폴더(<org_id>/...)에 올릴 수 있음. 보기는 공개 URL로.
 create policy "담당자 사진 업로드" on storage.objects for insert
   to authenticated with check (
+    bucket_id = 'item-photos'
+    and (storage.foldername(name))[1] in (
+      select s.org_id::text from public.staff_members s where s.user_id = (select auth.uid())));
+
+-- #김다영 수정: 담당자가 자기 기관 폴더의 사진 삭제 (물품을 지울 때 사진도 같이 지움)
+create policy "담당자 사진 삭제" on storage.objects for delete
+  to authenticated using (
     bucket_id = 'item-photos'
     and (storage.foldername(name))[1] in (
       select s.org_id::text from public.staff_members s where s.user_id = (select auth.uid())));
