@@ -231,11 +231,15 @@ table.info th { width: 128px; background: var(--surface); color: var(--fg-2); fo
 .screen .hd { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: center; font-size: 15px; }
 .screen .hd b { font-size: 17px; }
 .screen .lineno.pill { width: auto; min-width: 28px; padding: 0 10px; border-radius: 999px; font-size: 13px; white-space: nowrap; } /* #김다영 수정: 이름 노선은 알약 모양 */
-.howto { display: block; margin-top: 16px; padding: 14px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); font-size: 14px; } /* #김다영 수정: 기능 설명 */
-.howto > b, .howto > p { display: block; }
-.howto li { margin: 0; padding: 0; }
-.howto ol { margin: 8px 0; padding-left: 20px; display: grid; gap: 6px; }
-.howto .cap { margin: 0; }
+.fhelp { display: block; margin-top: 16px; padding: 16px 18px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); font-size: 16px; line-height: 1.6; } /* #김다영 수정: 글씨 키움 */ /* #김다영 수정: 기능 설명 */
+.fhelp > b, .fhelp > p { display: block; }
+.fhelp li { margin: 0; padding: 0; }
+.fhelp li > b { display: block; margin-bottom: 2px; } /* 제목 한 줄, 설명은 다음 줄 */
+.fhelp .cap { font-size: 14px; }
+/* #김다영 수정: 두 칸으로 나란한 화면(당일 분실·알림)은 박스 아래 끝을 맞춤 */
+
+.fhelp ol { margin: 10px 0; padding-left: 0; display: grid; gap: 12px; list-style: none; }
+.fhelp .cap { margin: 0; }
 .empty-guide { padding: 28px 16px; text-align: center; border: 1px dashed var(--line, #D5DBE3); border-radius: var(--r-lg, 12px); } /* #김다영 수정: 고르기 전 안내 */
 .empty-guide p { margin: 6px 0 0; }
 .screen .lineno { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--line-c, #00A84D); color: #fff; font-weight: 700; font-size: 15px; margin-right: 8px; }
@@ -409,6 +413,12 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 .delbox .thumb { width: 64px; height: 64px; flex: none; border-radius: 8px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; }
 .delbox .thumb img, .delbox .thumb svg { width: 100%; height: 100%; object-fit: cover; }
 .regphoto { display: block; max-width: 320px; max-height: 320px; width: auto; height: auto; object-fit: contain; border-radius: 12px; border: 1px solid var(--line, #D5DBE3); margin: 6px 0 16px; } /* #김다영 수정: 3단계 사진 */
+/* #김다영 수정: 두 칸으로 나란한 화면(당일 분실·알림)은 박스 아래 끝을 맞춤 (앞의 align-items: start 보다 뒤에 둠) */
+.today, .track2 { align-items: stretch; }
+.today > .col > section.panel:last-of-type, .track2 > .col > section.panel:last-of-type { flex: 1 0 auto; }
+/* #김다영 수정: 줄이 끝에 한두 단어만 남지 않게 문단 줄바꿈을 고르게 */
+p, .small, .cap, li { text-wrap: pretty; }
+h1, h2, h3, .empty-guide b { text-wrap: balance; }
 </style>
 </head>
 <body>
@@ -1680,7 +1690,7 @@ var CONFIG = {
     if (need.length) {
       right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 후보' : '탔던 버스 위치') + '</h3>' +
         '<div class="empty-guide"><b>' + esc(need.join(', ')) + (/[가-힣]/.test(need[need.length - 1].slice(-1)) && ((need[need.length - 1].slice(-1).charCodeAt(0) - 0xAC00) % 28) ? '을' : '를') + ' 골라 주세요</b>' +
-        '<p class="small">왼쪽에서 ' + (sub ? '노선을 고르면 노선도가 나오고, 내린 역과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>';
+        '<p class="small">왼쪽에서 ' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 역과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
       if (sub && tState.line && STATIONS.length) { // #김다영 수정: 노선을 고르면 그 노선의 노선도(7개 역)를 먼저 보여 줌. 내린 역을 고르면 그 역이 가운데
         var pa = STATIONS.indexOf(tState.station), pf = pa < 0 ? 0 : Math.max(0, Math.min(pa - 3, STATIONS.length - 7));
         var pn = STATIONS.slice(pf, pf + 7);
@@ -1707,11 +1717,11 @@ var CONFIG = {
       '<div class="today"><form class="panel" id="f-today"><h3 class="s">내린 정보</h3><div class="form">' + form + '</div>' +
         '<button class="btn primary" type="submit">' + (sub ? '열차 다시 추정하기' : '버스 위치 다시 추정하기') + '</button>' +
         // #김다영 수정: 이 기능 설명
-        '<div class="howto"><b>이 기능은 이렇게 도와드려요</b><ol>' +
-          '<li><b>탔던 ' + (sub ? '열차' : '버스') + '를 찾아요.</b> ' + (sub ? '내린 역·시각·방향으로 1~9호선은 열차 시간표에서, 다른 노선은 평균 운행 속도로 탔던 열차를 계산해요.' : '내린 정류장·시각과 정류장 사이 거리·구간 속도로 탔던 버스를 계산해요.') + '</li>' +
-          '<li><b>지금 어디쯤인지 보여 줘요.</b> 실시간 ' + (sub ? '열차' : '버스') + ' 위치와 맞춰 가능성이 높은 순서로 알려 드려요.</li>' +
-          '<li><b>바로 연락할 곳을 알려 줘요.</b> ' + (sub ? '열차가 종착역에 닿기 전에 연락하면 역 직원이 열차 안을 확인해 줄 수 있어요.' : '운행을 마치기 전에 연락하면 차고지에서 바로 확인할 수 있어요.') + ' 문의할 때 쓸 정보도 한 번에 복사할 수 있어요.</li>' +
-        '</ol><p class="cap">계산값이라 실제와 다를 수 있어요. 내린 지 3시간이 넘으면 위치 추정 대신 연락처만 안내해요.</p></div></form>' +
+        '<div class="fhelp"><b>💡 이 기능은 이렇게 도와드려요</b><ol>' +
+          '<li><b>' + (sub ? '🚇' : '🚌') + ' 탔던 ' + (sub ? '열차' : '버스') + '를 찾아요</b>' + (sub ? '내린 역·시각·방향으로 1~9호선은 열차 시간표에서, 다른 노선은 평균 운행 속도로 탔던 열차를 계산해요.' : '내린 정류장·시각과 정류장 사이 거리·구간 속도로 탔던 버스를 계산해요.') + '</li>' +
+          '<li><b>📍 지금 어디쯤인지 보여 줘요</b>실시간 ' + (sub ? '열차' : '버스') + ' 위치와 맞춰 가능성이 높은 순서로 알려 드려요.</li>' +
+          '<li><b>📞 바로 연락할 곳을 알려 줘요</b>' + (sub ? '열차가 종착역에 닿기 전에 연락하면 역 직원이 열차 안을 확인해 줄 수 있어요.' : '운행을 마치기 전에 연락하면 차고지에서 바로 확인할 수 있어요.') + ' 문의할 때 쓸 정보도 한 번에 복사할 수 있어요.</li>' +
+        '</ol><p class="cap">⚠️ 계산값이라 실제와 다를 수 있어요. 내린 지 3시간이 넘으면 위치 추정 대신 연락처만 안내해요.</p></div></form>' +
       '<div class="col">' + right + '</div></div></div>';
   }
 
@@ -1736,9 +1746,9 @@ var CONFIG = {
         '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button></form>' +
       '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div></section>' +
         '<section class="panel" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
-          '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · 10.25 09:02</p></div></div>' +
-          '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · 10.30</p></div></div>' +
-          '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요. · 10.31</p></div></div>' +
+          '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · ' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일
+          '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · ' + md('2026-10-30') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
+          '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요. · ' + md('2026-10-31') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
         '</section></div></div></div>';
   }
 
@@ -2222,12 +2232,31 @@ var CONFIG = {
   /* ================= 라우팅 ================= */
   var VIEWS = { home: vHome, find: vFind, detail: vDetail, today: vToday, track: vTrack, guide: vGuide, 'staff-login': vLogin, staff: vStaff, 'staff-items': vStaffItems };
   var phTimer = null;
+  // ===== #김다영 수정 시작: 안내 문단에서 문장이 끝나는 곳("~요. ", "~다. ")마다 줄을 바꿈 =====
+  // 글자만 건드리고(태그·속성은 그대로), 표·카드·입력칸 안은 건드리지 않음
+  var SB_SEL = '.head > p, .alert p, .empty-guide p, .fhelp li, .fhelp > p, section.panel > p.small, section.panel > p.cap, .proxy p.small, form.panel > p.small';
+  function sentenceBreaks(root) {
+    root.querySelectorAll(SB_SEL).forEach(function (el) {
+      var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [], n;
+      while ((n = w.nextNode())) if (/[요다죠][.!?]\s+[^\s·]/.test(n.nodeValue)) nodes.push(n);
+      nodes.forEach(function (t) {
+        var parts = t.nodeValue.split(/([요다죠][.!?])\s+(?=[^\s·])/), frag = document.createDocumentFragment();
+        for (var i = 0; i < parts.length; i += 2) {
+          frag.appendChild(document.createTextNode(parts[i] + (parts[i + 1] || '')));
+          if (i + 2 < parts.length) frag.appendChild(document.createElement('br'));
+        }
+        t.parentNode.replaceChild(frag, t);
+      });
+    });
+  }
+  // ===== #김다영 수정 끝 =====
   function route() {
     var h = (location.hash || '#home').slice(1); if (h === 'results') h = 'find'; if (!VIEWS[h]) h = 'home';
     if ((h === 'staff' || h === 'staff-items') && !state.staff) h = 'staff-login';
     if (h === 'staff-login' && state.staff) h = 'staff';
     if (phTimer) { clearInterval(phTimer); phTimer = null; }
     app.innerHTML = VIEWS[h]();
+    sentenceBreaks(app); // #김다영 수정: 안내 문단을 문장 단위로 줄바꿈
     var navKey = (h === 'detail') ? 'find' : (h.indexOf('staff') === 0 ? 'staff' : h);
     document.querySelectorAll('[data-nav]').forEach(function (a) { if (a.getAttribute('data-nav') === navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     var sl = document.getElementById('staff-link'); sl.href = state.staff ? '#staff' : '#staff-login'; sl.querySelector('span').textContent = state.staff ? '담당자 화면' : '기관 담당자';
