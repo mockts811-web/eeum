@@ -442,6 +442,10 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .reqline { display: block; font-size: 14px; color: #B42318; background: #FFF5F5; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
 .alert.inline > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; } /* #김다영 수정: 제목 옆에 간격 두고 한 줄로 */
 .alert.inline > div > p { margin: 0; }
+/* #김다영 수정: 글자 크기 통일 — 당일 분실 '기능 설명'(본문 16px·보조 14px)을 기준으로 */
+.small, .alert p, .check, .dirs label, .form label, .lbl, .fgrid label, dl.facts dt, dl.facts dd, .valnote, .scard .inner, .mg-points, .memo-guide, .memo-guide .mg-points, table.queue, .steps .small, .howto .small { font-size: 16px; }
+.small, .alert p { line-height: 1.6; }
+.cap, .memo-guide > summary, .stop, .reqline { font-size: 14px; line-height: 1.55; }
 </style>
 </head>
 <body>
@@ -993,8 +997,8 @@ var CONFIG = {
         '<a href="#find" data-tab="경찰서"><span class="ic">' + I.shield + '</span><b>경찰서 보관 습득물</b><span class="small">1주일이 지나 경찰서로 옮겨진 물건</span></a>' +
         '<a href="#track"><span class="ic">' + I.bell + '</span><b>비슷한 물건 알림</b><span class="small">새로 등록되면 알려 드려요</span></a>' +
       '</div>' +
-      '<section class="panel soft" aria-labelledby="h-how"><h3 id="h-how">이용 방법</h3>' +
-        '<ol class="steps"><li><b>문장으로 입력</b><span class="small">물건, 시간, 노선을 아는 만큼 적어요</span></li><li><b>후보 확인</b><span class="small">AI가 찾은 조건을 고치고, 닮은 순 후보를 봐요</span></li><li><b>연락하고 받기</b><span class="small">보관 기관에 연락한 뒤 신분증을 들고 받아요</span></li></ol>' +
+      '<section class="panel soft" aria-labelledby="h-how"><h3 id="h-how">💡 이용 방법</h3>' +
+        '<ol class="steps"><li><b>✍️ 문장으로 입력</b><span class="small">물건, 시간, 노선을 아는 만큼 적어요</span></li><li><b>🔍 후보 확인</b><span class="small">AI가 찾은 조건을 고치고, 닮은 순 후보를 봐요</span></li><li><b>📞 연락하고 받기</b><span class="small">보관 기관에 연락한 뒤 신분증을 들고 받아요</span></li></ol>' +
       '</section></div>';
   }
 
@@ -1153,14 +1157,14 @@ var CONFIG = {
         '<div class="scroll"><table class="info"><tbody>' +
           '<tr><th scope="row">관리번호</th><td>' + esc(it.id) + '</td></tr>' +
           '<tr><th scope="row">물품 분류</th><td>' + esc(it.cat) + ' &gt; ' + esc(it.sub) + '</td></tr>' +
-          '<tr><th scope="row">습득일</th><td>' + it.date.replace(/-/g, '.') + '</td></tr>' +
+          '<tr><th scope="row">습득일</th><td>' + it.date.slice(0, 4) + '.' + md(it.date) + '</td></tr>' + // #김다영 수정: 요일 표시 ('2026.10.25 (일)')
           '<tr><th scope="row">습득 장소</th><td>' + esc(it.found) + '</td></tr>' +
           '<tr><th scope="row">보관 장소</th><td><div class="orgline"><span>' + esc(it.org) + (org.lines && org.lines !== '경찰서' ? ' (' + esc(org.lines) + ')' : '') + '</span><span class="tel" id="tel">' + esc(org.tel) + '</span><button class="btn secondary sm" type="button" id="b-tel">번호 복사</button><span class="toast" id="m-tel" aria-live="polite"></span></div></td></tr>' +
           '<tr><th scope="row">운영 시간</th><td>' + esc(org.hours) + '</td></tr>' +
           '<tr><th scope="row">보관 기한</th><td>' + (it.type === '경찰서' ? '경찰서 공고 후 6개월 (유실물법)' : md(deadline) + '까지 (이후 경찰서 이관)') + '</td></tr>' +
         '</tbody></table></div>' +
         '<p class="cap">전화할 때 관리번호 ' + esc(it.id) + '를 알려 주세요.</p>' +
-        '<h3 class="s">찾는 방법</h3><ol class="howto"><li><b>연락</b><span class="small">관리번호를 말하고 보관 여부를 확인해요</span></li><li><b>방문·배송</b><span class="small">' + (org.delivery ? '직접 방문하거나 보관함·집앞배송을 신청해요' : '보관 장소를 직접 방문해요') + '</span></li><li><b>본인 확인 후 수령</b><span class="small">신분증과 물건 특징을 확인해요</span></li></ol>' +
+        '<h3 class="s">💡 찾는 방법</h3><ol class="howto"><li><b>📞 연락</b><span class="small">관리번호를 말하고 보관 여부를 확인해요</span></li><li><b>🚶 방문·배송</b><span class="small">' + (org.delivery ? '직접 방문하거나 보관함·집앞배송을 신청해요' : '보관 장소를 직접 방문해요') + '</span></li><li><b>🪪 본인 확인 후 수령</b><span class="small">신분증과 물건 특징을 확인해요</span></li></ol>' +
       '</div></div>' +
       // ===== #김다영 수정 시작: 본인 수령·대리 수령을 '수령 신청' 하나로 합침 (주인 확인 → 받는 사람 선택 → 담당자에게 전달) =====
       // (예전: #고현 수정 '본인 수령 안내' 패널 + '대리 수령 신청' 폼을 따로 열던 구조)
@@ -1796,7 +1800,13 @@ var CONFIG = {
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" placeholder="찾는 물건을 입력해 주세요" required></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 이메일 주소를 입력해 주세요"></div>' + // #김다영 수정: 안내 글
         '<label class="check"><input id="s-agree" type="checkbox"><span>이메일로 알림을 받기 위해 주소를 저장하는 데 동의해요. 해지하면 바로 지워져요.</span></label>' +
-        '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button></form>' +
+        '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button>' +
+        // #김다영 수정: 당일 분실 화면과 같은 모양의 기능 설명
+        '<div class="fhelp"><b>💡 알림은 이렇게 도와드려요</b><ol>' +
+          '<li><b>🔍 하루 두 번 비교해요</b>오전 9시·오후 6시에 새로 올라온 습득물과 비교하고,<br>닮음 점수 0.6 이상이면 알려 드려요.</li>' +
+          '<li><b>✉️ 이메일로 알려 드려요</b>이메일을 남기면 비슷한 물건이 올라올 때 메일을 보내 드려요.<br>남기지 않으면 이 기기에서만 확인할 수 있어요.</li>' +
+          '<li><b>🗑️ 언제든 해지할 수 있어요</b>해지하면 저장한 조건과 이메일이 바로 지워져요.</li>' +
+        '</ol><p class="cap">⚠️ 습득물은 등록까지 1~2일 걸려요. 급하면 습득물 찾기에서 바로 찾아보세요.</p></div></form>' +
       '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div></section>' +
         '<section class="panel" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
           '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · ' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일
@@ -1808,23 +1818,23 @@ var CONFIG = {
   /* ================= 화면: 보관 기관 안내 ================= */
   var GUIDE = [
     // ===== #서유석 수정 시작 =====
-    { title: '서울 지하철 1~8호선 (서울교통공사)', note: '역 → 유실물센터 → 약 1주일 뒤 경찰서 순으로 옮겨져요. 서울교통공사 대표 고객센터 1577-1234', rows: [
+    { title: '🚇 서울 지하철 1~8호선 (서울교통공사)', note: '역 → 유실물센터 → 약 1주일 뒤 경찰서 순으로 옮겨져요. 서울교통공사 대표 고객센터 1577-1234', rows: [
     // ===== #서유석 수정 끝 =====
       ['1·2호선', '시청 유실물센터', '02-6110-1122', '평일 09:00~18:00', '보관함·집앞배송'],
       ['3·4호선', '충무로 유실물센터', '02-6110-3344', '평일 09:00~18:00', '보관함·집앞배송'],
       // ===== #서유석 수정 시작 =====
       ['5·8호선', '왕십리 유실물센터', '02-6311-6765', '평일 09:00~18:00', '보관함·집앞배송'],
       ['6·7호선', '태릉입구 유실물센터', '02-6311-6766', '평일 09:00~18:00', '보관함·집앞배송']] },
-    { title: '그 밖의 도시철도·광역철도', note: '운영 기관마다 유실물 센터와 이관 기간이 달라요. 확인된 곳만 번호를 적었어요.', rows: [
+    { title: '🚆 그 밖의 도시철도·광역철도', note: '운영 기관마다 유실물 센터와 이관 기간이 달라요. 확인된 곳만 번호를 적었어요.', rows: [
       ['9호선', '서울시메트로9호선 유실물센터 (동작역)', '02-2656-0009', '확인 필요', '확인 필요'],
       ['신분당선', '신분당선 유실물센터', '031-8018-7777', '평일 09:00~20:00 (주말·공휴일 휴무)', '확인 필요'], // #김다영 수정: 번호·운영시간 추가
       ['공항철도', '공항철도 유실물센터', '운영 기관 공식 안내 확인', '확인 필요', '확인 필요'],
       ['코레일 광역전철 (경의중앙·수인분당 등)', '각 역 / 코레일 유실물센터', '철도고객센터 1544-7788', '확인 필요', '확인 필요']] },
       // ===== #서유석 수정 끝 =====
-    { title: '버스·택시', note: '시내버스는 노선별 운수회사가 보관해요. 운수회사를 모르면 다산콜센터(120)에 노선 번호를 말하세요.', rows: [
+    { title: '🚌 버스·택시', note: '시내버스는 노선별 운수회사가 보관해요. 운수회사를 모르면 다산콜센터(120)에 노선 번호를 말하세요.', rows: [
       ['시내·마을버스', '노선별 운수회사 (차고지)', '120 다산콜센터', '회사별 상이', '-'],
       ['택시', '택시 회사 또는 결제 카드사', '120 다산콜센터', '-', '-']] },
-    { title: '경찰서', note: '1주일이 지난 습득물은 관할 경찰서로 옮겨지고, 공고 후 6개월 보관돼요. 경찰청 유실물 통합포털(LOST112)에서도 조회할 수 있어요.', rows: [
+    { title: '👮 경찰서', note: '1주일이 지난 습득물은 관할 경찰서로 옮겨지고, 공고 후 6개월 보관돼요. 경찰청 유실물 통합포털(LOST112)에서도 조회할 수 있어요.', rows: [
       ['전국', '관할 경찰서 유실물 담당', '182', '평일 09:00~18:00', '-']] }
   ];
   function vGuide() {
