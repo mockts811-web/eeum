@@ -271,3 +271,4 @@ create table public.alert_codes (
 create index alert_codes_email_idx on public.alert_codes (lower(email), created_at desc);
 alter table public.alert_codes enable row level security;
 revoke all on public.alert_codes from anon, authenticated;
+grant select, insert, update, delete on public.alert_codes to service_role; -- #김다영 수정: 서버(alert-lookup)가 코드를 저장·확인할 수 있게. 빠지면 permission denied로 코드가 저장 안 됨
