@@ -17,6 +17,7 @@
   --success-fg: #267337; --success-bg: #EAF6EC;
   --warning-fg: #8A5C00; --warning-bg: #FFF3DB;
   --error-fg: #BD2C0F; --error-bg: #FDEFEC;
+  --val-fg: #CC2F4A; --val-bg: #FDEEF1; /* #김다영 수정: 고액·귀중품 빨강 — 남색·파랑과 어울리게 주황기 없는 장미빛 빨강 */
   --info-fg: #096AB3; --info-bg: #E7F4FE;
   --shade: rgba(16, 20, 24, .55);
   --font: "Pretendard GOV", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
@@ -29,7 +30,7 @@
     --primary: #4C87F6; --primary-strong: #86AFF9; --primary-soft: #0D2456; --on-primary: #03163A;
     --navy: #0D2456; --on-navy: #F4F5F6; --line-2: #3CC77A;
     --success-fg: #8FD19E; --success-bg: #12351C; --warning-fg: #F2C46B; --warning-bg: #3A2A05;
-    --error-fg: #F5A08C; --error-bg: #3E1409; --info-fg: #8CC8F5; --info-bg: #072E4D;
+    --error-fg: #F5A08C; --error-bg: #3E1409; --info-fg: #8CC8F5; --info-bg: #072E4D; --val-fg: #F48FA2; --val-bg: #3D1220;
     --shade: rgba(0, 0, 0, .7);
     color-scheme: dark;
   }
@@ -40,7 +41,7 @@
   --primary: #4C87F6; --primary-strong: #86AFF9; --primary-soft: #0D2456; --on-primary: #03163A;
   --navy: #0D2456; --on-navy: #F4F5F6; --line-2: #3CC77A;
   --success-fg: #8FD19E; --success-bg: #12351C; --warning-fg: #F2C46B; --warning-bg: #3A2A05;
-  --error-fg: #F5A08C; --error-bg: #3E1409; --info-fg: #8CC8F5; --info-bg: #072E4D;
+  --error-fg: #F5A08C; --error-bg: #3E1409; --info-fg: #8CC8F5; --info-bg: #072E4D; --val-fg: #F48FA2; --val-bg: #3D1220;
   --shade: rgba(0, 0, 0, .7);
   color-scheme: dark;
 }
@@ -181,7 +182,7 @@ textarea::placeholder, input::placeholder { color: var(--fg-3); }
 .s-soon { background: var(--warning-bg); color: var(--warning-fg); }
 .s-moved { background: var(--surface-2); color: var(--fg); }
 .s-done { background: var(--success-bg); color: var(--success-fg); }
-.s-val { background: var(--error-bg); color: var(--error-fg); border: 1px solid currentColor; }
+.s-val { background: var(--val-bg); color: var(--val-fg); border: 1px solid currentColor; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 
@@ -355,13 +356,14 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .scard { cursor: default; grid-template-columns: 112px minmax(0, 1fr) auto; }
 .scard:hover { border-color: var(--line); }
 .scard .inner { font-size: 15px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm); padding: 4px 8px; width: fit-content; max-width: 100%; }
-/* #김다영 수정: 고액·귀중품은 배지로만 표시 (빨간 테두리·빨간 이름 뺌) */
+.scard.val { border: 2px solid var(--val-fg); } /* #김다영 수정: 고액·귀중품 테두리·이름 (남색과 어울리는 빨강) */
+.scard.val .cname { color: var(--val-fg); font-weight: 700; }
 .scard.done { opacity: .7; }
 .sacts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: center; min-width: 150px; } /* #김다영 수정 */
 .sacts .pickb { grid-column: 1 / -1; }
-.tabs button.tab-val { color: var(--error-fg); }
-.tabs button.tab-val[aria-selected="true"] { border-bottom-color: var(--error-fg); color: var(--error-fg); }
-.val-text { color: var(--error-fg); }
+.tabs button.tab-val { color: var(--val-fg); }
+.tabs button.tab-val[aria-selected="true"] { border-bottom-color: var(--val-fg); color: var(--val-fg); }
+.val-text { color: var(--val-fg); }
 tr.val td { background: var(--error-bg); }
 tr.val .iname { color: var(--error-fg); font-weight: 700; }
 tr.done td { color: var(--fg-3); }
@@ -380,7 +382,7 @@ tr.done td { color: var(--fg-3); }
 .claimbox .ctext { font-size: 16px; background: var(--surface-2, #F3F5F8); border-radius: 6px; padding: 10px 12px; }
 .claimbox .cstate { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line, #D5DBE3); }
 .claimbox .cstate .btns { margin: 0; }
-.valnote { background: var(--error-bg); color: var(--error-fg); border-radius: var(--r-md); padding: 12px 14px; font-weight: 700; font-size: 15px; }
+.valnote { background: var(--val-bg); color: var(--val-fg); border-radius: var(--r-md); padding: 12px 14px; font-weight: 700; font-size: 15px; }
 .checklist { display: flex; flex-direction: column; gap: 10px; }
 .checklist .check.strong span { color: var(--error-fg); font-weight: 700; }
 
@@ -682,7 +684,8 @@ var CONFIG = {
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function days(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 864e5); }
   function addDays(d, n) { var t = new Date(Date.parse(d) + n * 864e5); return t.toISOString().slice(0, 10); }
-  function md(d) { return d ? Number(d.slice(5, 7)) + '.' + Number(d.slice(8, 10)) + ' (' + '일월화수목금토'.charAt(new Date(d.slice(0, 10) + 'T00:00:00Z').getUTCDay()) + ')' : ''; } // #김다영 수정: '11.19' → '11.19 (목)'
+  function md(d) { return d ? d.slice(0, 10) + ' (' + '일월화수목금토'.charAt(new Date(d.slice(0, 10) + 'T00:00:00Z').getUTCDay()) + ')' : ''; } // #김다영 수정: 날짜는 모든 화면에서 '2026-11-13 (금)' 형식
+  function mdt(d) { return d ? md(d) + (String(d).length > 10 ? ' ' + String(d).slice(11, 16) : '') : ''; } // #김다영 수정: 날짜+시각 '2026-11-14 (토) 17:47'
   function josa(w, a, b) { var ch = String(w).replace(/[)\s]+$/, '').slice(-1), k = ch.charCodeAt(0) - 0xAC00; return w + ((k >= 0 && k <= 11171) ? (k % 28 ? a : b) : (/[013678]/.test(ch) ? a : b)); } // #김다영 수정: 받침에 맞는 조사 (괄호 속 요일 기준)
   function findIn(text, table) { for (var i = 0; i < table.length; i++) { for (var j = 0; j < table[i][1].length; j++) { if (text.indexOf(table[i][1][j]) > -1) return table[i][0]; } } return ''; }
   // ===== #고현 수정 시작: 담는 물건 우선 — "노트북이 든 백팩"이 전자기기로 분류되던 것 바로잡음 (서버 ai-parse 와 같은 기준) =====
@@ -1238,7 +1241,7 @@ var CONFIG = {
         '<div class="scroll"><table class="info"><tbody>' +
           '<tr><th scope="row">관리번호</th><td>' + esc(it.id) + '</td></tr>' +
           '<tr><th scope="row">물품 분류</th><td>' + esc(it.cat) + ' &gt; ' + esc(it.sub) + '</td></tr>' +
-          '<tr><th scope="row">습득일</th><td>' + it.date.slice(0, 4) + '.' + md(it.date) + '</td></tr>' + // #김다영 수정: 요일 표시 ('2026.10.25 (일)')
+          '<tr><th scope="row">습득일</th><td>' + md(it.date) + '</td></tr>' + // #김다영 수정: 요일 표시 ('2026-10-25 (일)')
           '<tr><th scope="row">습득 장소</th><td>' + esc(it.found) + '</td></tr>' +
           '<tr><th scope="row">보관 장소</th><td><div class="orgline"><span>' + esc(it.org) + (org.lines && org.lines !== '경찰서' ? ' (' + esc(org.lines) + ')' : '') + '</span><span class="tel" id="tel">' + esc(org.tel) + '</span><button class="btn secondary sm" type="button" id="b-tel">번호 복사</button><span class="toast" id="m-tel" aria-live="polite"></span></div></td></tr>' +
           '<tr><th scope="row">운영 시간</th><td>' + esc(org.hours) + '</td></tr>' +
@@ -2251,7 +2254,7 @@ var CONFIG = {
       var it = x.it, c = x.c;
       return '<section class="panel reqcard' + (c.status === '접수' ? ' new' : '') + '"><div class="reqhead"><span class="thumb">' + pic(it) + '</span><div>' +
         '<span class="tags"><span class="badge ' + (c.status === '접수' ? 's-soon' : 'b-mid') + '">' + (c.status === '접수' ? '새 신청' : '연락 완료') + '</span>' + (c.method === '대리' ? '<span class="badge s-val">대리 수령</span>' : '<span class="badge s-keep">본인 수령</span>') + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '</span>' +
-        '<h3 class="s">' + esc(it.name) + ' (' + esc(it.color) + ')</h3><p class="cap">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · 신청 ' + esc(c.at) + '</p></div></div>' +
+        '<h3 class="s">' + esc(it.name) + ' (' + esc(it.color) + ')</h3><p class="cap">' + esc(it.id) + ' / 습득 날짜: ' + md(it.date) + ' / 신청 일시: ' + esc(mdt(c.at)) + '</p></div></div>' +
         claimDetailHtml(it, c) +
         '<div class="btns end">' + (c.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + esc(c.id) + '" data-st="연락함">연락 완료</button>' : '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="접수">연락 완료 취소</button>') + // #김다영 수정: 잘못 눌렀을 때 되돌리기
           '<button class="btn primary sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>' +
@@ -2285,7 +2288,7 @@ var CONFIG = {
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
           '<span class="small">' + esc(it.id) + ' / 습득일자: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
-          (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(rq0.at) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + ' <a href="#staff-req">신청 보기 ›</a></span>' : '') + // #김다영 수정: '신청 보기'를 버튼 대신 링크로 // #김다영 수정: 신청 요약
+          (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(mdt(rq0.at)) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + ' <a href="#staff-req">신청 보기 ›</a></span>' : '') + // #김다영 수정: '신청 보기'를 버튼 대신 링크로 // #김다영 수정: 신청 요약
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
         '<div class="sacts">' + // #김다영 수정: 버튼 정리 — 수령 확인(파랑) 하나만 크게, 수정·삭제는 아래에 작게 나란히
           (done ? '' : '<button class="btn primary sm pickb" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') +
@@ -2331,7 +2334,7 @@ var CONFIG = {
           var cl = claimFor(it.id); // #김다영 수정: DB로 받은 요청을 먼저 봄
           if (!cl) return '<p class="cap">시민이 미리 적어 둔 안쪽 특징이 없어요. 전화·방문 때 직접 물어보세요.</p>';
           var m = claimMatch(it.inner, cl.text);
-          return '<section class="claimbox"><h4 class="s">시민이 적은 안쪽 특징 <span class="cap">' + esc(cl.at) + (cl.n > 1 ? ' · 신청 ' + cl.n + '건 중 최신' : '') + '</span></h4>' + // #김다영 수정: 색을 줄이고 여백 정리, 내용 → 비공개 메모 → 이메일 순
+          return '<section class="claimbox"><h4 class="s">시민이 적은 안쪽 특징 <span class="cap">' + esc(mdt(cl.at)) + (cl.n > 1 ? ' · 신청 ' + cl.n + '건 중 최신' : '') + '</span></h4>' + // #김다영 수정: 색을 줄이고 여백 정리, 내용 → 비공개 메모 → 이메일 순
             '<p class="ctext">' + esc(cl.text) + '</p>' +
             '<p class="small"><b>비공개 메모:</b> ' + esc(it.inner || '없음') + '</p>' +
             (cl.contact ? '<p class="small"><b>이메일:</b> ' + esc(cl.contact) + '</p>' : (cl.id ? '<p class="cap">연락처를 남기지 않았어요. 시민이 전화하면 이 내용과 맞춰 보세요.</p>' : '')) + // #김다영 수정
