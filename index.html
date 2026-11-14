@@ -466,7 +466,11 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .track2 > form.panel > .btn, .track2 > form.panel > .btns { margin-top: 8px; }
 .reqnote { margin: 12px 0 4px; padding: 12px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); } /* #김다영 수정: 수령 전 안내 */
 .reqnote p { margin: 0 0 6px; }
-.scard.hasreq { border-left: 5px solid var(--primary, #2563EB); } /* #김다영 수정: 수령 신청이 들어온 물품 */
+.scard.hasreq { border-left: 5px solid var(--primary, #2563EB); position: relative; }
+.reqflag { position: absolute; top: -16px; left: -16px; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 27px; line-height: 1; background: #fff; border: 2px solid var(--primary, #2563EB); box-shadow: 0 2px 6px rgba(13, 36, 86, .25); z-index: 1; }
+.reqflag.new { animation: ring 1.6s ease-in-out infinite; transform-origin: 50% 20%; }
+@keyframes ring { 0%, 60%, 100% { transform: rotate(0); } 10% { transform: rotate(14deg); } 20% { transform: rotate(-12deg); } 30% { transform: rotate(8deg); } 40% { transform: rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) { .reqflag.new { animation: none; } } /* #김다영 수정: 수령 신청이 들어온 물품 */
 .reqbadge { background: #EAF1FF; color: #1D4ED8; border: 1px solid #BFD3FB; font-weight: 700; }
 .reqline { display: block; font-size: 14px; color: #1E3A8A; background: #F1F5FF; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
 .alert.inline > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; } /* #김다영 수정: 제목 옆에 간격 두고 한 줄로 */
@@ -2283,6 +2287,7 @@ var CONFIG = {
       var it = r.it, st = storage(it), done = it.status === '수령완료', val = it.valuable && !done;
       var rq = done ? [] : openClaims(it.id), rq0 = rq[0]; // #김다영 수정: 이 물품에 들어온 수령 신청
       return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + (rq0 ? ' hasreq' : '') + '">' +
+        (rq0 ? '<span class="reqflag' + (rq0.status === '접수' ? ' new' : '') + '" title="수령 신청이 들어왔어요" aria-label="수령 신청 알림">🔔</span>' : '') + // #김다영 수정: 신청 알림이 눈에 띄게 왼쪽 위에 큰 종
         '<span class="thumb">' + pic(it) + '</span>' +
         '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락 완료') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
