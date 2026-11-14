@@ -1060,7 +1060,10 @@ var CONFIG = {
     },
     saveAlert: function (a) {
       if (!LIVE) return Promise.resolve();
-      return sb.from('alerts').insert({ id: a.id, label: a.label, conditions: a.conds, email: a.email || null, email_consent: !!a.email }).then(function (r) { if (r.error) throw r.error; });
+      return sb.from('alerts').insert({ id: a.id, label: a.label, conditions: a.conds, email: a.email || null, email_consent: !!a.email }).then(function (r) {
+        if (r.error) throw r.error;
+        if (a.email) sb.functions.invoke('alert-mail', { body: { id: a.id } }).catch(function () {}); // #김다영 수정: 알림 저장 확인 메일 (실패해도 저장은 그대로)
+      });
     },
     cancelAlert: function (id) { return LIVE ? sb.rpc('cancel_alert', { p_id: id }) : Promise.resolve(); }
   };

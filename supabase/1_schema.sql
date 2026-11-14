@@ -77,6 +77,7 @@ create table public.alerts (
   email           text,
   email_consent   boolean not null default false,
   last_checked_at timestamptz,
+  saved_mailed_at timestamptz, -- #김다영 수정: 알림 저장 확인 메일 보낸 시각 (alert-mail, 한 번만)
   created_at      timestamptz not null default now(),
   constraint alerts_email_needs_consent check (email is null or email_consent)
 );
