@@ -437,6 +437,9 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .track2 > form.panel > .btn, .track2 > form.panel > .btns { margin-top: 8px; }
 .reqnote { margin: 12px 0 4px; padding: 12px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); } /* #김다영 수정: 수령 전 안내 */
 .reqnote p { margin: 0 0 6px; }
+.scard.hasreq { border-left: 5px solid #E5484D; } /* #김다영 수정: 수령 신청이 들어온 물품 */
+.reqbadge { background: #FDECEC; color: #B42318; border: 1px solid #F5B5B5; font-weight: 700; }
+.reqline { display: block; font-size: 14px; color: #B42318; background: #FFF5F5; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
 </style>
 </head>
 <body>
@@ -2098,7 +2101,7 @@ var CONFIG = {
     ['고액', '고액·귀중품', function (it) { return it.status === '보관중' && it.valuable; }],
     ['임박', '기한 임박', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age === 7; }],
     ['이관', '이관 대상', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age > 7; }],
-    ['요청', '확인 요청', function (it) { return it.status === '보관중' && openClaims(it.id).length > 0; }], // #김다영 수정: 시민이 보낸 주인 확인 요청이 있는 물품
+    ['요청', '📩 수령 신청', function (it) { return it.status === '보관중' && openClaims(it.id).length > 0; }], // #김다영 수정: 시민이 보낸 주인 확인 요청이 있는 물품
     ['수령완료', '수령 완료', function (it) { return it.status === '수령완료'; }],
     ['전체', '전체', function () { return true; }]
   ];
@@ -2135,14 +2138,16 @@ var CONFIG = {
     inv.page = Math.min(Math.max(1, inv.page || 1), pages);
     var cards = list.slice((inv.page - 1) * PER, inv.page * PER).map(function (r) {
       var it = r.it, st = storage(it), done = it.status === '수령완료', val = it.valuable && !done;
-      return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + '">' +
+      var rq = done ? [] : openClaims(it.id), rq0 = rq[0]; // #김다영 수정: 이 물품에 들어온 수령 신청
+      return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + (rq0 ? ' hasreq' : '') + '">' +
         '<span class="thumb">' + pic(it) + '</span>' +
-        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (openClaims(it.id).length ? '<span class="badge s-soon">확인 요청 ' + openClaims(it.id).length + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
+        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락함') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
           '<span class="small">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · ' + esc(it.found) + '</span>' +
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
+          (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(rq0.at) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + '</span>' : '') + // #김다영 수정: 신청 요약
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
-        '<div class="sacts"><button class="btn tertiary sm" type="button" data-edit="' + esc(it.id) + '">수정</button>' +
+        '<div class="sacts">' + (rq0 ? '<a class="btn secondary sm" href="#staff-req">신청 보기</a>' : '') /* #김다영 수정 */ + '<button class="btn tertiary sm" type="button" data-edit="' + esc(it.id) + '">수정</button>' +
           (done ? '' : '<button class="btn ' + (val ? 'danger' : 'primary') + ' sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') +
           '<button class="btn tertiary sm del" type="button" data-del="' + esc(it.id) + '">삭제</button>' + // #김다영 수정: 삭제 버튼
         '</div></div>';
