@@ -227,6 +227,7 @@ create table public.claims (
 );
 create index claims_item_id_idx on public.claims (item_id);
 alter table public.claims enable row level security;
+grant select, insert, update, delete on public.claims to service_role; -- #김다영 수정: 서버(claim-mail)가 신청을 읽고 mailed_at을 기록할 수 있게. 빠지면 신청 확인 메일이 안 감
 
 create policy "확인 요청 보내기" on public.claims for insert
   to anon, authenticated
