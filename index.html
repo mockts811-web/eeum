@@ -536,7 +536,8 @@ var CONFIG = {
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function days(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 864e5); }
   function addDays(d, n) { var t = new Date(Date.parse(d) + n * 864e5); return t.toISOString().slice(0, 10); }
-  function md(d) { return d ? Number(d.slice(5, 7)) + '.' + Number(d.slice(8, 10)) : ''; }
+  function md(d) { return d ? Number(d.slice(5, 7)) + '.' + Number(d.slice(8, 10)) + ' (' + '일월화수목금토'.charAt(new Date(d.slice(0, 10) + 'T00:00:00Z').getUTCDay()) + ')' : ''; } // #김다영 수정: '11.19' → '11.19 (목)'
+  function josa(w, a, b) { var ch = String(w).replace(/[)\s]+$/, '').slice(-1), k = ch.charCodeAt(0) - 0xAC00; return w + ((k >= 0 && k <= 11171) ? (k % 28 ? a : b) : (/[013678]/.test(ch) ? a : b)); } // #김다영 수정: 받침에 맞는 조사 (괄호 속 요일 기준)
   function findIn(text, table) { for (var i = 0; i < table.length; i++) { for (var j = 0; j < table[i][1].length; j++) { if (text.indexOf(table[i][1][j]) > -1) return table[i][0]; } } return ''; }
   // ===== #고현 수정 시작: 담는 물건 우선 — "노트북이 든 백팩"이 전자기기로 분류되던 것 바로잡음 (서버 ai-parse 와 같은 기준) =====
   var CONTAINER_CATS = ['가방', '지갑'];
@@ -670,7 +671,7 @@ var CONFIG = {
     }
     // #김다영 수정: "다만 11.11 습득" → "습득일은 11.11이에요" (받침에 따라 이에요/예요)
     if (miss.length) {
-      var tail = miss[miss.length - 1], ch = tail.charAt(tail.length - 1), k = ch.charCodeAt(0) - 0xAC00;
+      var tail = miss[miss.length - 1].replace(/[)\s]+$/, ''), ch = tail.charAt(tail.length - 1), k = ch.charCodeAt(0) - 0xAC00; // #김다영 수정: '(목)'처럼 괄호로 끝나면 괄호 안 글자로 판단
       var batchim = (k >= 0 && k <= 11171) ? k % 28 > 0 : /[013678]/.test(ch); // 숫자는 읽는 소리(일·삼·육·칠·팔·영)로
       reason += ' / ' + miss.join(', ') + (batchim ? '이에요' : '예요');
     }
@@ -984,14 +985,14 @@ var CONFIG = {
     return '<section class="filters" aria-labelledby="h-f"><div class="top"><h3 id="h-f" class="s">검색 조건</h3><div class="btns"><span class="cap" style="align-self:center">' + (Object.keys(x.aiKeys).length ? '<span class="ai-tag">AI</span> 표시는 AI가 채운 조건이에요. 틀리면 바로 고치세요.' : '조건을 바꾸면 목록이 바로 다시 정렬돼요.') + '</span><button type="button" class="btn tertiary sm" id="b-reset">조건 초기화</button></div></div>' +
       '<div class="fgrid">' +
         '<div class="' + fieldCls(x, 'cat') + '"><label for="c-cat">분류' + aiTag(x, 'cat') + '</label><select id="c-cat" data-k="cat">' + opt(CATS.map(function (y) { return y[0]; }).concat(['기타']), c.cat, '전체 분류') + '</select></div>' +
-        '<div class="' + fieldCls(x, 'color') + '"><label for="c-color">색상' + aiTag(x, 'color') + '</label><select id="c-color" data-k="color">' + opt(COLORS.map(function (y) { return y[0]; }), c.color, '전체 색상') + '</select></div>' +
+        '<div class="' + fieldCls(x, 'color') + '"><label for="c-color">색상' + aiTag(x, 'color') + '</label><select id="c-color" data-k="color">' + opt(COLORS.map(function (y) { return y[0]; }).concat(['기타']), c.color, '전체 색상') /* #김다영 수정: 목록에 없는 색은 '기타' */ + '</select></div>' +
         '<div class="' + fieldCls(x, 'line') + '"><label for="c-line">습득장소' + aiTag(x, 'line') + '</label><select id="c-line" data-k="line">' + lineOptions + '</select></div>' + // #고현 수정: 노선 옵션을 위에서 만든 lineOptions로 바꿈(여러 개면 '1호선 + 2호선'). 원래: opt(LINES.indexOf(c.line) < 0 && c.line ? LINES.concat([c.line]) : LINES, c.line, '전체 노선')
         '<div class="' + fieldCls(x, 'date') + '"><label for="c-date">' + dateLabel + aiTag(x, 'date') + '</label><input id="c-date" type="date" data-k="date" value="' + esc(c.date) + '" max="' + TODAY + '"></div>' +
         '<div class="' + fieldCls(x, 'station') + '"><label for="c-st">역·정류장' + aiTag(x, 'station') + '</label><input id="c-st" type="text" data-k="station" value="' + esc(c.station) + '" placeholder="예: 강남"></div>' +
         '<div class="' + fieldCls(x, 'feats') + ' feat"><label for="c-feat">특징' + aiTag(x, 'feats') + '</label><input id="c-feat" type="text" data-k="feats" value="' + esc(c.feats.join(', ')) + '" placeholder="쉼표로 구분 · 예: 가죽, 반지갑"></div>' +
       '</div>' +
       ((c.lines || []).length > 1 ? '<div class="alert a-info">' + I.info + '<div><b>습득장소 ' + c.lines.length + '개</b><p>' + c.lines.map(function (l) { return esc(PLACE_LABEL[l] || l); }).join(', ') + ' 중 하나만 맞아도 찾아요</p></div></div>' : '') + // #김다영 수정
-      (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘(' + md(TODAY) + ')까지 접수된 습득물</p></div></div>' : '') +
+      (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘 ' + md(TODAY) + '까지 접수된 습득물</p></div></div>' : '') +
     '</section>';
   }
   // #김다영 수정 시작: 쪽 번호 (현재 쪽 앞뒤 2쪽 + 처음·끝)
@@ -1055,7 +1056,7 @@ var CONFIG = {
     var org = orgOf(it), st = storage(it), c = state.conds, scored = hasCond(c), s = score(it, c);
     var deadline = it.type === '경찰서' ? addDays(it.date, 7 + 180) : addDays(it.date, 7);
     var warn = st.warn ? '<div class="alert a-warn">' + I.warn + '<div><b>' + st.label + '</b><p>' + st.warn + '</p></div></div>' :
-      (it.type !== '경찰서' && it.status === '보관중' ? '<div class="alert a-warn">' + I.warn + '<div><b>' + md(deadline) + '이 지나면 경찰서로 옮겨져요</b><p>받는 곳이 바뀌니 그 전에 연락하세요. 습득 ' + st.age + '일째예요.</p></div></div>' : '');
+      (it.type !== '경찰서' && it.status === '보관중' ? '<div class="alert a-warn">' + I.warn + '<div><b>' + josa(md(deadline), '이', '가') + ' 지나면 경찰서로 옮겨져요</b><p>받는 곳이 바뀌니 그 전에 연락하세요. 습득 ' + st.age + '일째예요.</p></div></div>' : '');
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><a href="#find">습득물 찾기</a><span>›</span><span>습득물 상세</span></nav>' +
       '<div class="view"><div class="head"><span class="tags"><span class="badge ' + st.cls + '">' + st.label + '</span>' + (scored ? '<span class="badge b-mid">AI 후보 · 점수 ' + s.total.toFixed(2) + '</span>' : '') + '</span><h2>' + esc(it.name) + ' (' + esc(it.color) + ')</h2></div>' +
       '<div class="detail"><div class="col"><div class="photo" role="img" aria-label="' + esc(it.name) + ' 사진">' + pic(it) + '</div>' +
