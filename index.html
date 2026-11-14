@@ -1840,7 +1840,8 @@ var CONFIG = {
 
   /* ================= 화면: 담당자 로그인 ================= */
   function vLogin() {
-    return '<div class="view"><div class="login"><form class="panel" id="f-login"><div class="head"><h2>기관 담당자 로그인</h2><p class="small">유실물센터·운수회사·경찰서 담당자만 이용할 수 있어요.<br>시민은 로그인 없이 습득물을 찾을 수 있어요.</p></div>' +
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>기관 담당자 로그인</span></nav>' + // #김다영 수정
+      '<div class="view"><div class="login"><form class="panel" id="f-login"><div class="head"><h2>기관 담당자 로그인</h2><p class="small">유실물센터·운수회사·경찰서 담당자만 이용할 수 있어요.<br>시민은 로그인 없이 습득물을 찾을 수 있어요.</p></div>' +
       '<div class="form"><div class="f full"><label for="l-email">업무용 이메일</label><input id="l-email" type="email" autocomplete="username"' + (LIVE ? ' required' : '') + '></div>' +
       '<div class="f full"><label for="l-pw">비밀번호</label><input id="l-pw" type="password" autocomplete="current-password"' + (LIVE ? ' required' : '') + '></div></div>' +
       '<p id="l-msg" aria-live="polite" class="small"></p>' +
@@ -2092,7 +2093,8 @@ var CONFIG = {
         '<span class="toast" id="m-script" aria-live="polite"></span>' +
         (reg.savedId ? '<div class="alert a-ok">' + I.ok + '<div><b>관리번호 ' + esc(reg.savedId) + '로 등록했어요</b><p><a href="#staff-items">보관 물품에서 확인</a>하거나 <a href="#staff" id="a-new">새 습득물을 등록</a>하세요.</p></div></div>' : '') + '</section>';
     }
-    return '<div class="view"><div class="head"><h2>습득물 등록</h2><p class="small">사진과 메모만 넣으면 AI가 등록 항목을 정리해요. 확인하고 고친 뒤 등록하세요.</p></div>' + stepper + body + '</div>';
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><a href="#staff">담당자 화면</a><span>›</span><span>습득물 등록</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐)
+      '<div class="view"><div class="head"><h2>습득물 등록</h2><p class="small">사진과 메모만 넣으면 AI가 등록 항목을 정리해요. 확인하고 고친 뒤 등록하세요.</p></div>' + stepper + body + '</div>';
   }
 
   /* ================= 화면: 담당자 보관 물품 ================= */
@@ -2120,7 +2122,8 @@ var CONFIG = {
           '<button class="btn primary sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>' +
           '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="종료">주인이 아님 · 신청 닫기</button></div></section>';
     }).join('') || '<div class="empty panel"><b>처리할 수령 신청이 없어요</b><p class="small">시민이 습득물 상세 화면에서 수령 신청을 보내면 여기에 나타나요.</p></div>';
-    return '<div class="view"><div class="head"><h2>수령 신청</h2><p class="small">시민이 보낸 수령 신청이에요. 주인이 적은 특징을 비공개 메모와 맞춰 본 뒤 연락하세요. 새 신청은 1분마다 확인해요.</p></div>' +
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><a href="#staff">담당자 화면</a><span>›</span><span>수령 신청</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐)
+      '<div class="view"><div class="head"><h2>수령 신청</h2><p class="small">시민이 보낸 수령 신청이에요. 주인이 적은 특징을 비공개 메모와 맞춰 본 뒤 연락하세요. 새 신청은 1분마다 확인해요.</p></div>' +
       '<div class="col">' + cards + '</div></div>';
   }
   // ===== #김다영 수정 끝 =====
@@ -2154,7 +2157,8 @@ var CONFIG = {
           '<button class="btn tertiary sm del" type="button" data-del="' + esc(it.id) + '">삭제</button>' + // #김다영 수정: 삭제 버튼
         '</div></div>';
     }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
-    return '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <b class="val-text">빨간색</b>은 고액·귀중품이라 수령 때 본인 확인을 더 꼼꼼히 해야 해요.</p></div>' +
+    return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><a href="#staff">담당자 화면</a><span>›</span><span>보관 물품 조회·수정</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐)
+      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <b class="val-text">빨간색</b>은 고액·귀중품이라 수령 때 본인 확인을 더 꼼꼼히 해야 해요.</p></div>' +
       aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
       itemTabsHtml(inv) + // #김다영 수정
       filtersHtml(inv, '분실한 날') +
