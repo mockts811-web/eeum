@@ -1201,8 +1201,8 @@ var CONFIG = {
             '<div id="m-proxy" hidden><p class="small">가족·지인이 대신 받을 때 써요. 대리인 정보는 수령이 끝나면 바로 지워요.</p><p class="cap" id="proxy-lock">먼저 1번 주인 확인(안쪽 특징·이메일)을 적어 주세요. 그다음 대리인 정보를 적을 수 있어요.</p>' +
               '<div class="form"><div class="f"><label for="p-name">대리인 이름</label><input id="p-name" type="text" maxlength="30" disabled></div><div class="f"><label for="p-rel">관계</label><select id="p-rel" disabled><option>가족</option><option>지인</option><option>기타</option></select></div>' +
               '<div class="f full"><label for="p-tel">대리인 연락처</label><input id="p-tel" type="text" inputmode="tel" maxlength="60" disabled></div>' +
-              '<label class="check full"><input id="p-agree" type="checkbox" disabled><span>대리 수령에는 위임장과 분실자 신분증 사본 등 기관이 정한 서류가 필요하다는 안내를 확인했어요.</span></label></div></div></div>' +
-          '<label class="check full"><input id="claim-agree" type="checkbox"><span>신청 확인 메일을 받고 보관 기관이 연락할 수 있도록 이메일(대리 수령이면 대리인 연락처도)을 저장·전달하는 데 동의해요. 수령이 끝나거나 신청이 닫히면 바로 지워져요.</span></label>' +
+              '<label class="check full"><input id="p-agree" type="checkbox" disabled><span>대리 수령에는 위임장과 분실자 신분증 사본 등 기관이 정한 서류가 필요하다는 안내를 확인했습니다.</span></label></div></div></div>' +
+          '<label class="check full"><input id="claim-agree" type="checkbox"><span>신청 확인 메일을 받고 보관 기관이 연락할 수 있도록 이메일(대리 수령이면 대리인 연락처도)을 저장·전달하는 데 동의합니다.<br>수령이 끝나거나 신청이 닫히면 바로 지워집니다.</span></label>' +
           '<div class="btns center"><button class="btn primary" type="submit" id="b-claim">수령 신청 보내기</button></div>' +
           '<div id="claim-out" aria-live="polite"></div>' +
           '<p class="cap">' + (LIVE ? '보낸 내용은 이 물품을 보관 중인 기관 담당자만 볼 수 있어요.' : '시연 모드라 이 브라우저에만 저장돼요.') + '</p></form>' +
@@ -1812,7 +1812,7 @@ var CONFIG = {
           '<div class="exrow"><span class="cap">예시</span><div class="exlist">' + ['어제 2호선에서 검은 가죽 반지갑', '택시에 두고 내린 흰색 에어팟', '11월 13일 472번 버스 남색 장우산'].map(function (t) { return '<button type="button" class="chip" data-ex="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div></div>' +
           '<div class="pchips" id="s-preview" aria-live="polite"></div></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 이메일 주소를 입력해 주세요"></div>' + // #김다영 수정: 안내 글
-        '<label class="check"><input id="s-agree" type="checkbox"><span>비슷한 물건 알림 메일을 받기 위해 이메일 주소를 저장하는 데 동의해요.<br>알림을 해지하면 이메일 주소도 바로 지워져요.</span></label>' +
+        '<label class="check"><input id="s-agree" type="checkbox"><span>비슷한 물건 알림 메일을 받기 위해 이메일 주소를 저장하는 데 동의합니다.<br>알림을 해지하면 이메일 주소도 바로 지워집니다.</span></label>' +
         '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button>' +
         // #김다영 수정: 당일 분실 화면과 같은 모양의 기능 설명
         '<div class="fhelp"><b>💡 알림은 이렇게 도와드려요</b><ol>' +
