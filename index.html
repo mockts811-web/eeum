@@ -371,6 +371,12 @@ tr.done td { color: var(--fg-3); }
 .modal .box.val { border-top: 8px solid var(--error-fg); }
 .modal .mh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .modal .x { border: 0; background: transparent; color: var(--fg-2); font-size: 24px; width: 40px; height: 40px; cursor: pointer; border-radius: var(--r-md); flex: none; }
+.claimbox { border: 1px solid var(--line, #D5DBE3); border-radius: var(--r-md, 8px); padding: 14px 16px; display: grid; gap: 8px; margin: 4px 0; } /* #김다영 수정 */
+.claimbox h4 { margin: 0; font-size: 16px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.claimbox p { margin: 0; }
+.claimbox .ctext { font-size: 16px; background: var(--surface-2, #F3F5F8); border-radius: 6px; padding: 10px 12px; }
+.claimbox .cstate { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line, #D5DBE3); }
+.claimbox .cstate .btns { margin: 0; }
 .valnote { background: var(--error-bg); color: var(--error-fg); border-radius: var(--r-md); padding: 12px 14px; font-weight: 700; font-size: 15px; }
 .checklist { display: flex; flex-direction: column; gap: 10px; }
 .checklist .check.strong span { color: var(--error-fg); font-weight: 700; }
@@ -2245,9 +2251,9 @@ var CONFIG = {
         '<span class="tags"><span class="badge ' + (c.status === '접수' ? 's-soon' : 'b-mid') + '">' + (c.status === '접수' ? '새 신청' : '연락함') + '</span>' + (c.method === '대리' ? '<span class="badge s-val">대리 수령</span>' : '<span class="badge s-keep">본인 수령</span>') + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '</span>' +
         '<h3 class="s">' + esc(it.name) + ' (' + esc(it.color) + ')</h3><p class="cap">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · 신청 ' + esc(c.at) + '</p></div></div>' +
         claimDetailHtml(it, c) +
-        '<div class="btns end">' + (c.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + esc(c.id) + '" data-st="연락함">연락함으로 표시</button>' : '') +
+        '<div class="btns end">' + (c.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + esc(c.id) + '" data-st="연락함">연락 완료로 표시</button>' : '') +
           '<button class="btn primary sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>' +
-          '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="종료">주인이 아님 · 신청 닫기</button></div></section>';
+          '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="종료">신청 닫기</button></div></section>';
     }).join('') || '<div class="empty panel"><b>처리할 수령 신청이 없어요</b><p class="small">시민이 습득물 상세 화면에서 수령 신청을 보내면 여기에 나타나요.</p></div>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>수령 신청</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
       '<div class="view"><div class="head"><h2>수령 신청</h2><p class="small">시민이 「내 물건이에요」라고 보낸 신청이에요. 적힌 특징이 비공개 메모와 맞으면 신청자에게 연락해 주세요. 새 신청은 1분마다 자동으로 올라와요.</p></div>' + // #김다영 수정: 안내 문구
@@ -2315,18 +2321,18 @@ var CONFIG = {
     openModal('<div class="mh"><div class="head"><span class="tags">' + (v ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="cap">' + esc(it.id) + '</span></span><h3 id="m-title" class="s">수령 확인 · ' + esc(it.name) + ' (' + esc(it.color) + ')</h3></div><button class="x" type="button" data-close aria-label="닫기">×</button></div>' +
       (v ? '<p class="valnote">고액·귀중품이므로 주의가 필요합니다.<br>신분증 사진과 얼굴을 대조하고, 주인만 아는 특징을 2가지 이상 직접 말하게 하세요.</p>' : '') +
       '<form id="f-pick" class="col"><div class="checklist">' +
-        '<label class="check' + (v ? ' strong' : '') + '"><input type="checkbox" id="c1"><span>신분증으로 본인 확인' + (v ? ' (사진·이름 대조)' : '') + '</span></label>' +
-        '<label class="check' + (v ? ' strong' : '') + '"><input type="checkbox" id="c2"><span>주인만 아는 특징 확인' + (it.inner ? ' · 비공개 메모: ' + esc(it.inner) : '') + '</span></label>' +
+        '<label class="check"><input type="checkbox" id="c1"><span>신분증으로 본인 확인' + (v ? ' (사진·이름 대조)' : '') + '</span></label>' +
+        '<label class="check"><input type="checkbox" id="c2"><span>주인만 아는 특징 확인' + (it.inner && !claimFor(it.id) ? ' · 비공개 메모: ' + esc(it.inner) : '') + '</span></label>' +
         // ===== #고현 수정 시작: 시민이 미리 적은 안쪽 특징을 비공개 메모와 나란히 보여 줌 =====
         (function () {
           var cl = claimFor(it.id); // #김다영 수정: DB로 받은 요청을 먼저 봄
           if (!cl) return '<p class="cap">시민이 미리 적어 둔 안쪽 특징이 없어요. 전화·방문 때 직접 물어보세요.</p>';
           var m = claimMatch(it.inner, cl.text);
-          return '<section class="panel" style="margin:4px 0"><h4 class="s">시민이 적은 안쪽 특징 <span class="cap">(' + esc(cl.at) + (cl.n > 1 ? ' · 요청 ' + cl.n + '건 중 최신' : '') + ')</span></h4>' +
-            (cl.contact ? '<p class="small"><b>연락처</b> ' + esc(cl.contact) + '</p>' : (cl.id ? '<p class="cap">연락처를 남기지 않았어요. 시민이 전화하면 이 내용과 맞춰 보세요.</p>' : '')) + // #김다영 수정
+          return '<section class="claimbox"><h4 class="s">시민이 적은 안쪽 특징 <span class="cap">' + esc(cl.at) + (cl.n > 1 ? ' · 신청 ' + cl.n + '건 중 최신' : '') + '</span></h4>' + // #김다영 수정: 색을 줄이고 여백 정리, 내용 → 비공개 메모 → 이메일 순
+            '<p class="ctext">' + esc(cl.text) + '</p>' +
+            '<p class="small"><b>비공개 메모:</b> ' + esc(it.inner || '없음') + '</p>' +
+            (cl.contact ? '<p class="small"><b>이메일:</b> ' + esc(cl.contact) + '</p>' : (cl.id ? '<p class="cap">연락처를 남기지 않았어요. 시민이 전화하면 이 내용과 맞춰 보세요.</p>' : '')) + // #김다영 수정
             (cl.method === '대리' ? '<p class="small"><b>대리 수령 신청</b> ' + esc(cl.proxyName) + ' (' + esc(cl.proxyRel) + ') ' + esc(cl.proxyTel) + ' — 위임장·분실자 신분증 사본을 확인하세요</p>' : '') + // #김다영 수정
-            '<p class="small">' + esc(cl.text) + '</p>' +
-            '<p class="small"><b>등록된 비공개 메모</b> ' + esc(it.inner || '없음') + '</p>' +
             (it.inner
               ? '<p class="small">' + (m.hit.length
                   ? '<span class="badge b-high">겹치는 말 ' + m.hit.length + '개</span> ' + esc(m.hit.join(', '))
@@ -2334,11 +2340,12 @@ var CONFIG = {
                 (m.missed.length ? '<br><span class="cap">메모에만 있는 말: ' + esc(m.missed.join(', ')) + ' — 이걸 직접 물어보세요</span>' : '') + '</p>'
               : '') +
             '<p class="cap">낱말이 겹치는지만 기계가 세어 본 거예요. <b>맞는지 아닌지는 담당자가 판단</b>하세요.</p>' +
-            (cl.id ? '<div class="btns"><span class="badge ' + (cl.status === '연락함' ? 'b-mid' : 's-soon') + '">' + esc(cl.status) + '</span>' + (cl.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + cl.id + '" data-st="연락함">연락함으로 표시</button>' : '') + '<button class="btn tertiary sm" type="button" data-claim="' + cl.id + '" data-st="종료">주인이 아님 · 요청 닫기</button></div>' : '') + // #김다영 수정: 요청 처리
+            (cl.id ? '<div class="cstate"><span class="small"><b>신청 상태:</b> ' + (cl.status === '연락함' ? '신청자에게 연락함' : '새 신청 (아직 연락 안 함)') + '</span><div class="btns">' + (cl.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + cl.id + '" data-st="연락함">연락 완료로 표시</button>' : '') + '<button class="btn tertiary sm" type="button" data-claim="' + cl.id + '" data-st="종료">신청 닫기</button></div></div>' +
+              '<p class="cap">신청자에게 연락했으면 「연락 완료로 표시」, 주인이 아니면 「신청 닫기」를 눌러 주세요.</p>' : '') + // #김다영 수정: 버튼 뜻이 보이게
             '</section>';
         })() +
         // ===== #고현 수정 끝 =====
-        (v ? '<label class="check strong"><input type="checkbox" id="c4"><span>특징을 먼저 묻고 답을 들은 뒤 메모와 대조함 (메모를 먼저 알려 주지 않기)</span></label>' : '') +
+        (v ? '<label class="check"><input type="checkbox" id="c4"><span>특징을 먼저 묻고 답을 들은 뒤 메모와 대조함 (메모를 먼저 알려 주지 않기)</span></label>' : '') +
         '<label class="check"><input type="checkbox" id="c3"><span>대리 수령이에요</span></label>' +
         '<label class="check" id="c5wrap" hidden><input type="checkbox" id="c5"><span>위임 확인 서류(위임장, 분실자 신분증 사본) 확인</span></label></div>' +
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="c-note" class="lbl">메모 (선택)</label><input id="c-note" type="text" placeholder="예: 본인 방문, 카드 3장 일치"></div>' +
