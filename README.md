@@ -21,7 +21,8 @@ supabase/
    ├─ ai-parse/index.ts                 문장 → 검색 조건, 메모 → 등록 항목 (Gemini)   고현 · 김다영
    ├─ transit-locate/index.ts           당일 분실: 실시간 열차·버스 위치로 탔던 차 추정   서유석
    ├─ fetch-police-items/index.ts       경찰청 · 포털기관 습득물 API 수집 → items       김준희
-   └─ claim-mail/index.ts               수령 신청 확인 메일 (Gmail SMTP)                 김다영
+   ├─ claim-mail/index.ts               수령 신청 확인 메일 (Gmail SMTP)                 김다영
+   └─ alert-lookup/index.ts             이메일 확인 코드로 내 알림·진행 상황 불러오기       김다영
 ```
 
 ## 기능별 담당 코드
@@ -44,7 +45,7 @@ supabase/
 | ai-parse | `GEMINI_API_KEY`, `GEMINI_MODEL` |
 | transit-locate | `SEOUL_SUBWAY_KEY`, `SEOUL_BUS_KEY` |
 | fetch-police-items | `POLICE_API_KEY`, `PORTAL_API_KEY`, `CRON_SECRET` |
-| claim-mail | `GMAIL_USER`, `GMAIL_APP_PASSWORD` (match-alerts와 같은 값) |
+| claim-mail, alert-lookup | `GMAIL_USER`, `GMAIL_APP_PASSWORD` (match-alerts와 같은 값) |
 
 `index.html`에 들어 있는 `sb_publishable_…` 키는 공개용 키라 노출돼도 됩니다. `secret` / `service_role` 키는 절대 HTML에 넣지 마세요.
 
