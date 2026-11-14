@@ -878,7 +878,8 @@ var CONFIG = {
   }
 
   /* ================= 화면: 습득물 찾기 ================= */
-  function opt(list, cur, all) { return '<option value="">' + all + '</option>' + list.map(function (v) { return '<option' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join(''); }
+  function opt(list, cur, all, labels) { return '<option value="">' + all + '</option>' + list.map(function (v) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc((labels && labels[v]) || v) + '</option>'; }).join(''); } // #김다영 수정: labels로 보이는 이름만 바꿀 수 있게 (값은 그대로)
+  var PLACE_LABEL = { '경찰서': '기타' }; // #김다영 수정: 습득장소 칸·보관 위치 탭에서 '경찰서'를 '기타'로 표시 (데이터 값은 '경찰서' 그대로)
   function rankItems(base, c) {
     if (!hasCond(c)) return base.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (it) { return { it: it, s: null }; });
     var from = c.date ? addDays(c.date, -2) : '';
@@ -939,10 +940,10 @@ var CONFIG = {
 
     var lineOptions = multiLine
       ? '<option value="__multi__" selected disabled>' +
-          esc(displayLines.join(' + ')) +
+          esc(displayLines.map(function (l) { return PLACE_LABEL[l] || l; }).join(' + ')) + // #김다영 수정: 표시 이름
         '</option>' +
-        opt(lineChoices, '__multi__', '전체 노선')
-      : opt(lineChoices, c.line, '전체 노선');
+        opt(lineChoices, '__multi__', '전체 습득장소', PLACE_LABEL)
+      : opt(lineChoices, c.line, '전체 습득장소', PLACE_LABEL); // #김다영 수정: 노선 → 습득장소, 경찰서 → 기타
     // #고현 수정: 복수 노선이면 "1호선 + 2호선"으로 표시
     // #고현 수정: "__multi__"를 사용해 기존 단일 노선이 중복 선택되지 않도록 처리
     // #고현 수정: 사용자가 다른 노선을 직접 선택하면 기존 동작대로 단일 노선으로 변경
@@ -952,12 +953,12 @@ var CONFIG = {
       '<div class="fgrid">' +
         '<div class="' + fieldCls(x, 'cat') + '"><label for="c-cat">분류' + aiTag(x, 'cat') + '</label><select id="c-cat" data-k="cat">' + opt(CATS.map(function (y) { return y[0]; }).concat(['기타']), c.cat, '전체 분류') + '</select></div>' +
         '<div class="' + fieldCls(x, 'color') + '"><label for="c-color">색상' + aiTag(x, 'color') + '</label><select id="c-color" data-k="color">' + opt(COLORS.map(function (y) { return y[0]; }), c.color, '전체 색상') + '</select></div>' +
-        '<div class="' + fieldCls(x, 'line') + '"><label for="c-line">노선' + aiTag(x, 'line') + '</label><select id="c-line" data-k="line">' + lineOptions + '</select></div>' + // #고현 수정: 노선 옵션을 위에서 만든 lineOptions로 바꿈(여러 개면 '1호선 + 2호선'). 원래: opt(LINES.indexOf(c.line) < 0 && c.line ? LINES.concat([c.line]) : LINES, c.line, '전체 노선')
+        '<div class="' + fieldCls(x, 'line') + '"><label for="c-line">습득장소' + aiTag(x, 'line') + '</label><select id="c-line" data-k="line">' + lineOptions + '</select></div>' + // #고현 수정: 노선 옵션을 위에서 만든 lineOptions로 바꿈(여러 개면 '1호선 + 2호선'). 원래: opt(LINES.indexOf(c.line) < 0 && c.line ? LINES.concat([c.line]) : LINES, c.line, '전체 노선')
         '<div class="' + fieldCls(x, 'date') + '"><label for="c-date">' + dateLabel + aiTag(x, 'date') + '</label><input id="c-date" type="date" data-k="date" value="' + esc(c.date) + '" max="' + TODAY + '"></div>' +
         '<div class="' + fieldCls(x, 'station') + '"><label for="c-st">역·정류장' + aiTag(x, 'station') + '</label><input id="c-st" type="text" data-k="station" value="' + esc(c.station) + '" placeholder="예: 강남"></div>' +
         '<div class="' + fieldCls(x, 'feats') + ' feat"><label for="c-feat">특징' + aiTag(x, 'feats') + '</label><input id="c-feat" type="text" data-k="feats" value="' + esc(c.feats.join(', ')) + '" placeholder="쉼표로 구분 · 예: 가죽, 반지갑"></div>' +
       '</div>' +
-      ((c.lines || []).length > 1 ? '<div class="alert a-info">' + I.info + '<div><b>노선 ' + c.lines.length + '개</b><p>' + c.lines.map(esc).join(', ') + ' 중 하나만 맞아도 찾아요</p></div></div>' : '') + // #김다영 수정
+      ((c.lines || []).length > 1 ? '<div class="alert a-info">' + I.info + '<div><b>습득장소 ' + c.lines.length + '개</b><p>' + c.lines.map(function (l) { return esc(PLACE_LABEL[l] || l); }).join(', ') + ' 중 하나만 맞아도 찾아요</p></div></div>' : '') + // #김다영 수정
       (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘(' + md(TODAY) + ')까지 접수된 습득물</p></div></div>' : '') +
     '</section>';
   }
@@ -988,7 +989,7 @@ var CONFIG = {
     state.page = Math.min(Math.max(1, state.page || 1), pages);
     var shown = list.slice((state.page - 1) * PER_PAGE, state.page * PER_PAGE);
     // #김다영 수정 끝
-    var tabs = ['전체', '지하철', '버스', '경찰서'].map(function (t) { return '<button type="button" role="tab" aria-selected="' + (state.tab === t) + '" data-t="' + t + '">' + t + ' ' + counts[t] + '</button>'; }).join('');
+    var tabs = ['전체', '지하철', '버스', '경찰서'].map(function (t) { return '<button type="button" role="tab" aria-selected="' + (state.tab === t) + '" data-t="' + t + '">' + (PLACE_LABEL[t] || t) + ' ' + counts[t] + '</button>'; }).join(''); // #김다영 수정: 탭 이름 '경찰서' → '기타' (data-t 값은 그대로)
     var cards = shown.map(function (r) { // #김다영 수정: 현재 쪽의 10개만
       var st = storage(r.it), rank = all.indexOf(r) + 1, top = scored && rank === 1;
       var lvl = !scored ? null : r.s >= 0.85 ? ['b-high', '닮음 높음'] : r.s >= 0.6 ? ['b-mid', '닮음 보통'] : ['b-low', '닮음 낮음'];
