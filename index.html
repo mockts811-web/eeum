@@ -497,7 +497,7 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .memo-guide .mg-points { gap: 4px; margin-top: 4px; }
 /* #김다영 수정: 받은 알림 예시 — 차례로 나타나기 + 알림이 오는 과정 애니메이션 */
 .demo-alerts { display: flex; flex-direction: column; }
-.exlabel { color: #4FB37E; font-weight: 600; } /* #김다영 수정: (예시)는 연한 초록 */
+.exlabel { color: var(--fg-3); font-weight: 400; } /* #김다영 수정: (예시)는 회색·얇은 글씨 */
 .demo-alerts > .alert { animation: aIn 8s ease infinite both; } /* #김다영 수정: 알림 카드가 차례로 나타나기를 계속 반복 (아래 과정과 같은 8초) */
 .demo-alerts > .alert:nth-of-type(2) { animation-delay: .6s; }
 .demo-alerts > .alert:nth-of-type(3) { animation-delay: 1.2s; }
@@ -1881,7 +1881,7 @@ var CONFIG = {
   function alertStagesHtml(a) {
     var hits = a.hits || [], done = hits.some(function (h) { return h.status === '수령완료'; });
     var k = done ? 3 : hits.length ? 2 : a.last_checked_at ? 1 : 0;
-    var sub = [a.created_at ? kstStamp(a.created_at).replace(/ \d\d:\d\d$/, '') : '저장됨', a.last_checked_at ? kstStamp(a.last_checked_at) + ' 비교' : '첫 비교 전 (오전 9시·오후 6시)', hits.length ? hits.length + '건' : '아직 없음', done ? '완료' : ''];
+    var sub = [a.created_at ? kstStamp(a.created_at).replace(/ \d\d:\d\d$/, '') : '저장됨', a.last_checked_at ? kstStamp(a.last_checked_at) + ' 비교' : '첫 비교 전 (오전 9시와 오후 6시)', hits.length ? hits.length + '건' : '아직 없음', done ? '완료' : ''];
     return '<div class="prog" aria-hidden="true">' + [0, 1, 2, 3].map(function (i) { return '<span' + (i <= k ? ' class="on"' : '') + '></span>'; }).join('') + '</div>' +
       '<div class="progl">' + ['조건 저장', '비교 중', '후보 발견', '수령 완료'].map(function (t, i) { return '<span' + (i === k ? ' class="cur"' : '') + '>' + t + (sub[i] && i <= k ? '<em>' + esc(sub[i]) + '</em>' : '') + '</span>'; }).join('') + '</div>' +
       '<p class="sr-only">진행 단계: ' + ['조건 저장', '비교 중', '후보 발견', '수령 완료'][k] + '</p>';
@@ -1893,7 +1893,7 @@ var CONFIG = {
         var st = hitStatus(h);
         return '<li><span class="badge ' + st[0] + '">' + st[1] + '</span> <b>' + esc(h.name) + (h.color ? ' (' + esc(h.color) + ')' : '') + '</b> · 닮음 ' + Number(h.score).toFixed(2) +
           '<br><span class="cap">' + (h.found_on ? md(h.found_on) + ' 습득 · ' : '') + esc(h.org) + (h.tel ? ' ' + esc(h.tel) : '') + ' · 관리번호 ' + esc(h.item_id) + '</span> <a href="#detail" data-open-item="' + esc(h.item_id) + '">자세히</a></li>';
-      }).join('') + '</ul>' : '<p class="cap">' + (a.last_checked_at ? '아직 닮은 습득물이 없어요. 계속 비교하고 있어요.' : '아직 첫 비교 전이에요. 오전 9시·오후 6시에 비교해요.') + '</p>') + '</div>';
+      }).join('') + '</ul>' : '<p class="cap">' + (a.last_checked_at ? '아직 닮은 습득물이 없어요. 계속 비교하고 있어요.' : '아직 첫 비교 전이에요. 오전 9시와 오후 6시에 비교해요.') + '</p>') + '</div>';
   }
   // ===== #김다영 수정 끝 =====
   function vTrack() {
@@ -1909,7 +1909,7 @@ var CONFIG = {
         '<div class="row"><span class="cap">' + (s.email ? '이메일 알림 · ' + esc(s.email) : '이 기기에서만 확인') + '</span><button class="btn tertiary sm" type="button" data-unsave="' + i + '">알림 해지</button></div></div>';
     }).join('') : '<p class="small">저장한 조건이 없어요. 왼쪽에서 조건을 저장하세요.</p>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>비슷한 물건 알림</span></nav>' +
-      '<div class="view"><div class="head"><h2>비슷한 물건이 올라오면 알려 드려요</h2><p class="small">습득물은 등록까지 1~2일 걸려요. 하루 두 번(오전 9시·오후 6시) 새 습득물과 비교해, 닮음 점수 0.6 이상이면 알려 드려요.</p></div>' +
+      '<div class="view"><div class="head"><h2>비슷한 물건이 올라오면 알려 드려요</h2><p class="small">습득물은 등록까지 1~2일 걸려요. 하루 두 번(오전 9시와 오후 6시) 새 습득물과 비교해, 닮음 점수 0.6 이상이면 알려 드려요.</p></div>' +
       '<div class="track2"><form class="panel" id="f-save"><h3 class="s">알림 조건 저장</h3>' +
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" placeholder="찾는 물건을 입력해 주세요" required>' +
           // #김다영 수정: 예시 문장 버튼 + 적은 문장을 어떤 조건으로 알아들었는지 바로 보여 줌
@@ -1920,7 +1920,7 @@ var CONFIG = {
         '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button>' +
         // #김다영 수정: 당일 분실 화면과 같은 모양의 기능 설명
         '<div class="fhelp"><b>💡 알림은 이렇게 도와드려요</b><ol>' +
-          '<li><b>🔍 하루 두 번 비교해요</b>오전 9시·오후 6시에 새로 올라온 습득물과 비교하고,<br>닮음 점수 0.6 이상이면 알려 드려요.</li>' +
+          '<li><b>🔍 하루 두 번 비교해요</b>오전 9시와 오후 6시에 새로 올라온 습득물과 비교하고,<br>닮음 점수 0.6 이상이면 알려 드려요.</li>' +
           '<li><b>✉️ 이메일로 알려 드려요</b>이메일을 남기면 비슷한 물건이 올라올 때 메일을 보내 드려요.<br>남기지 않으면 이 기기에서만 확인할 수 있어요.</li>' +
           '<li><b>🗑️ 언제든 해지할 수 있어요</b>해지하면 저장한 조건과 이메일이 바로 지워져요.</li>' +
         '</ol><p class="cap">⚠️ 습득물은 등록까지 1~2일 걸려요. 급하면 습득물 찾기에서 바로 찾아보세요.</p></div></form>' +
