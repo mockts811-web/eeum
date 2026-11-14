@@ -48,6 +48,7 @@ const CAT_TABLE: Table = [
   ["가방", /가방|백팩|배낭|쇼핑백|캐리어|\b(?:bags?|backpacks?|handbags?|totes?|suitcases?|luggage)\b/i],
   ["우산", /우산|\bumbrellas?\b/i],
   ["의류", /의류|패딩|점퍼|코트|자켓|재킷|옷(?!걸이)|\b(?:jackets?|coats?|puffers?|hoodies?|sweaters?|cardigans?|clothes|clothing)\b/i],
+  ["안경", /안경|선글라스|썬글라스|고글|\b(?:(?:sun|eye)?glasses|goggles)\b/i], // #김다영 수정: 안경 분류 추가 (선글라스 포함)
 ];
 const COLOR_TABLE: Table = [
   ["검정", /검정|검은|까만|블랙|흑색|\bblack\b/i],
