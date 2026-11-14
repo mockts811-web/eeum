@@ -1669,7 +1669,7 @@ var CONFIG = {
     // #김다영 수정: '검정 · 지갑 · 2호선 · 11.7' → '11월 7일 2호선에서 잃어버린 검정 지갑' (읽히는 문장으로)
     var what = [c.color, c.cat].filter(Boolean).join(' ') || '물건';
     var when = c.date ? Number(c.date.slice(5, 7)) + '월 ' + Number(c.date.slice(8, 10)) + '일' : '';
-    var desc = (when || c.line) ? [when, c.line ? c.line + '에서' : '', '잃어버린 ' + what].filter(Boolean).join(' ') : what;
+    var desc = (when || c.line) ? [when, c.line ? c.line + '에서' : '', '잃어버린 ' + what].filter(Boolean).join(' ') : what; // (#김다영 수정: 입력칸 기본값으로는 더 이상 쓰지 않음)
     var saved = state.saved.length ? state.saved.map(function (s, i) {
       return '<div class="it"><div class="row"><b>' + esc(s.label) + '</b><span class="badge s-keep">하루 2회 자동 확인</span></div>' +
         '<div class="prog" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span><span></span></div><div class="progl"><span>분실</span><span>등록 대기</span><span>이관 전후</span><span>수령</span></div>' +
@@ -1678,8 +1678,8 @@ var CONFIG = {
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>비슷한 물건 알림</span></nav>' +
       '<div class="view"><div class="head"><h2>비슷한 물건이 올라오면 알려 드려요</h2><p class="small">습득물은 등록까지 1~2일 걸려요. 하루 두 번(오전 9시·오후 6시) 새 습득물과 비교해, 닮음 점수 0.6 이상이면 알려 드려요.</p></div>' +
       '<div class="track2"><form class="panel" id="f-save"><h3 class="s">알림 조건 저장</h3>' +
-        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" value="' + esc(desc) + '"></div>' +
-        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 주소"></div>' +
+        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" placeholder="찾는 물건을 입력해 주세요" required></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
+        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 이메일 주소를 입력해 주세요"></div>' + // #김다영 수정: 안내 글
         '<label class="check"><input id="s-agree" type="checkbox"><span>이메일로 알림을 받기 위해 주소를 저장하는 데 동의해요. 해지하면 바로 지워져요.</span></label>' +
         '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button></form>' +
       '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div></section>' +
@@ -2312,7 +2312,7 @@ var CONFIG = {
         var email = document.getElementById('s-email').value.trim(), agree = document.getElementById('s-agree').checked;
         var msg = document.getElementById('s-msg');
         if (email && !agree) { msg.textContent = '이메일을 저장하려면 동의에 체크해 주세요. 이메일 없이도 저장할 수 있어요.'; msg.style.color = 'var(--error-fg)'; return; }
-        var a = { id: uuid(), label: document.getElementById('s-label').value || '찾는 물건', email: agree ? email : '', conds: hasCond(state.conds) ? state.conds : parse(document.getElementById('s-label').value) };
+        var a = { id: uuid(), label: document.getElementById('s-label').value || '찾는 물건', email: agree ? email : '', conds: parse(document.getElementById('s-label').value) }; // #김다영 수정: 입력칸이 비어서 시작하므로 적은 문장으로 조건을 만듦 (예전: 습득물 찾기 조건을 그대로 씀)
         msg.style.color = ''; msg.textContent = '저장하는 중…';
         DB.saveAlert(a).then(function () { state.saved.unshift({ id: a.id, label: a.label, email: a.email }); persist(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '저장하지 못했어요: ' + (err.message || err); });
       });
