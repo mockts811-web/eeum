@@ -2245,7 +2245,7 @@ var CONFIG = {
           '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="종료">주인이 아님 · 신청 닫기</button></div></section>';
     }).join('') || '<div class="empty panel"><b>처리할 수령 신청이 없어요</b><p class="small">시민이 습득물 상세 화면에서 수령 신청을 보내면 여기에 나타나요.</p></div>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>수령 신청</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
-      '<div class="view"><div class="head"><h2>수령 신청</h2><p class="small">내 물건이라며 시민이 보낸 신청을 모아 보여 드려요. 신청자가 적은 특징이 비공개 메모와 맞는지 확인한 뒤 연락해 주세요. 새 신청은 1분마다 자동으로 불러와요.</p></div>' + // #김다영 수정: 안내 문구
+      '<div class="view"><div class="head"><h2>수령 신청</h2><p class="small">시민이 「내 물건이에요」라고 보낸 신청이에요. 적힌 특징이 비공개 메모와 맞으면 신청자에게 연락해 주세요. 새 신청은 1분마다 자동으로 올라와요.</p></div>' + // #김다영 수정: 안내 문구
       '<div class="col">' + cards + '</div></div>';
   }
   // ===== #김다영 수정 끝 =====
