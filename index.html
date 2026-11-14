@@ -393,6 +393,8 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 .tag { margin-left: auto; font-size: 12px; color: var(--ink-3, #666); }
 .bus-tag { background: #FFC83D; color: #111; border-radius: 6px; padding: 1px 6px; font-size: 12px; margin-left: 4px; }
 /* #서유석 수정 끝 */
+.pager { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; margin-top: 16px; } /* #김다영 수정: 쪽 번호 */
+.pager .btn { min-width: 40px; }
 </style>
 </head>
 <body>
@@ -754,7 +756,16 @@ var CONFIG = {
     loadItems: function () {
       if (!LIVE) return Promise.resolve(ITEMS);
       var cols = '*, orgs(name, tel, hours, lines, delivery, kind)' + (state.staff ? ', item_private(owner_check_memo)' : '');
-      return sb.from('items').select(cols).order('found_on', { ascending: false }).limit(500).then(function (r) {
+      // #김다영 수정: 500개 제한 없앰 — 서버가 한 번에 최대 1000개까지만 주므로 1000개씩 끝까지 이어 받음
+      var rows = [], CHUNK = 1000;
+      var page = function (from) {
+        return sb.from('items').select(cols).order('found_on', { ascending: false }).order('id').range(from, from + CHUNK - 1).then(function (r) {
+          if (r.error) return r;
+          rows = rows.concat(r.data);
+          return r.data.length === CHUNK ? page(from + CHUNK) : { data: rows };
+        });
+      };
+      return page(0).then(function (r) {
         var note = document.getElementById('mode-note');
         if (r.error) { console.error(r.error); note.textContent = '데이터베이스에 연결하지 못해 시연 데이터를 보여 주고 있어요 (' + (r.error.message || r.error.code) + ').'; return ITEMS; }
         note.textContent = '습득물은 연결된 데이터베이스에서 불러옵니다 (' + r.data.length + '건).';
@@ -950,13 +961,35 @@ var CONFIG = {
       (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘(' + md(TODAY) + ')까지 접수된 습득물</p></div></div>' : '') +
     '</section>';
   }
+  // #김다영 수정 시작: 쪽 번호 (현재 쪽 앞뒤 2쪽 + 처음·끝)
+  function pagerHtml(cur, total) {
+    if (total <= 1) return '';
+    var btn = function (n, label, aria) {
+      return '<button type="button" class="btn ' + (n === cur && !aria ? 'primary' : 'secondary') + ' sm" data-pg="' + n + '"' + (n === cur && !aria ? ' aria-current="page"' : '') + (aria ? ' aria-label="' + aria + '"' : '') + '>' + label + '</button>';
+    };
+    var out = [], from = Math.max(1, cur - 2), to = Math.min(total, cur + 2);
+    if (cur > 1) out.push(btn(cur - 1, '‹', '이전 쪽'));
+    if (from > 1) { out.push(btn(1, '1')); if (from > 2) out.push('<span class="cap">…</span>'); }
+    for (var n = from; n <= to; n++) out.push(btn(n, String(n)));
+    if (to < total) { if (to < total - 1) out.push('<span class="cap">…</span>'); out.push(btn(total, String(total))); }
+    if (cur < total) out.push(btn(cur + 1, '›', '다음 쪽'));
+    return '<nav class="pager" aria-label="목록 쪽 번호">' + out.join('') + '</nav>';
+  }
+  // #김다영 수정 끝
   function vFind() {
     var c = state.conds, all = ranked(), scored = hasCond(c);
     var counts = { '전체': all.length, '지하철': 0, '버스': 0, '경찰서': 0 };
     all.forEach(function (r) { counts[r.it.type]++; });
     var list = state.tab === '전체' ? all : all.filter(function (r) { return r.it.type === state.tab; });
+    // #김다영 수정 시작: 목록을 10개씩 페이지로 나눔 (탭·검색 조건이 바뀌면 1쪽으로)
+    var PER_PAGE = 10, pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+    var sig = state.tab + '|' + JSON.stringify(c);
+    if (state.pageSig !== sig) { state.pageSig = sig; state.page = 1; }
+    state.page = Math.min(Math.max(1, state.page || 1), pages);
+    var shown = list.slice((state.page - 1) * PER_PAGE, state.page * PER_PAGE);
+    // #김다영 수정 끝
     var tabs = ['전체', '지하철', '버스', '경찰서'].map(function (t) { return '<button type="button" role="tab" aria-selected="' + (state.tab === t) + '" data-t="' + t + '">' + t + ' ' + counts[t] + '</button>'; }).join('');
-    var cards = list.map(function (r) {
+    var cards = shown.map(function (r) { // #김다영 수정: 현재 쪽의 10개만
       var st = storage(r.it), rank = all.indexOf(r) + 1, top = scored && rank === 1;
       var lvl = !scored ? null : r.s >= 0.85 ? ['b-high', '닮음 높음'] : r.s >= 0.6 ? ['b-mid', '닮음 보통'] : ['b-low', '닮음 낮음'];
       return '<button type="button" class="card' + (top ? ' top' : '') + '" data-open="' + esc(r.it.id) + '">' +
@@ -977,6 +1010,7 @@ var CONFIG = {
         '<div class="listhead"><h3 class="s">' + (scored ? '조건과 닮은 습득물 ' + all.length + '건' : '전체 습득물 ' + all.length + '건') + '</h3><span class="cap">' + (scored ? '닮은 순 정렬 · AI가 고른 후보이며, 내 물건인지는 보관 기관에서 확인해요' : '최근 습득 순 정렬') + '</span></div>' +
         '<div class="tabs" role="tablist" aria-label="보관 위치">' + tabs + '</div>' +
         '<div class="list">' + cards + '</div>' +
+        pagerHtml(state.page, pages) + // #김다영 수정
         (scored ? '<div class="btns center"><a class="btn secondary" href="#track">' + I.bell + '이 조건으로 알림 받기</a></div>' : '') +
       '</section></div>';
   }
@@ -2156,6 +2190,10 @@ var CONFIG = {
     if (h === 'find') {
       bindSearch(state);
       app.querySelectorAll('[data-t]').forEach(function (b) { b.addEventListener('click', function () { state.tab = b.getAttribute('data-t'); route(); }); });
+      app.querySelectorAll('[data-pg]').forEach(function (b) { b.addEventListener('click', function () { // #김다영 수정: 쪽 이동 후 목록 맨 위로
+        state.page = Number(b.getAttribute('data-pg')); route();
+        var l = app.querySelector('.listhead'); if (l) l.scrollIntoView({ block: 'start' });
+      }); });
       app.querySelectorAll('[data-open]').forEach(function (b) { b.addEventListener('click', function () { state.selected = b.getAttribute('data-open'); go('detail'); }); });
     }
     if (h === 'detail') {
