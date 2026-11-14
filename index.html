@@ -427,7 +427,11 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 /* #김다영 수정: 수령 신청 */
 .reqstep { margin: 14px 0; padding: 14px 16px; border: 1px solid var(--line, #D5DBE3); border-radius: var(--r-lg, 12px); display: grid; gap: 10px; }
 .reqstep h4 { margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.reqstep .no { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary, #2563EB); color: #fff; font-size: 13px; }
+.reqstep h4.s { font-size: 20px; } /* #김다영 수정: 단계 제목 크게 */
+.reqstep h4 .cap { font-size: 14px; font-weight: 500; }
+.reqstep .dirs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } /* #김다영 수정: 본인/대리 버튼을 한 줄에 */
+@media (max-width: 640px) { .reqstep .dirs { grid-template-columns: minmax(0, 1fr); } }
+.reqstep .no { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary, #2563EB); color: #fff; font-size: 15px; }
 .reqstep input:disabled, .reqstep select:disabled { opacity: .5; }
 /* #김다영 수정: 대리 수령 칸, 동의 문구 줄 간격 넓힘 */
 #m-self, #m-proxy { display: grid; gap: 10px; }
@@ -1243,7 +1247,7 @@ var CONFIG = {
         '<form class="panel proxy" id="f-req" hidden novalidate><div class="reqtop"><h3 class="s">수령 신청</h3>' + // #김다영 수정: 넓게, 제목 옆에 설명
           '<p class="small">신청하면 ' + esc(it.org) + ' 담당자에게 바로 전달돼요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 본 뒤 연락드려요.</p></div>' +
           // #김다영 수정: 예전 '본인 수령 안내'에 있던 내용을 그대로 살림 (#고현 작성 문구)
-          '<div class="reqnote"><p class="small">급하면 먼저 ' + esc(it.org) + '에 전화해 관리번호 ' + esc(it.id) + '로 보관 여부를 확인하세요.' + (org.hours && org.hours !== '-' ? '<br>운영 시간은 ' + esc(org.hours) + '이에요.' : '') + '</p>' + // #김다영 수정: 운영 시간 정보가 없으면('-') 문장을 뺌
+          '<div class="reqnote"><p class="small">먼저 ' + esc(it.org) + '에 전화해 관리번호 ' + esc(it.id) + '로 보관 여부를 확인하세요.' + (org.hours && org.hours !== '-' ? '<br>운영 시간은 ' + esc(org.hours) + '이에요.' : '') + '</p>' + // #김다영 수정: 운영 시간 정보가 없으면('-') 문장을 뺌
           '<ul class="mg-points"><li><b>챙길 것:</b> 신분증 (본인 확인용)</li>' + // #김다영 수정: 항목 이름 뒤에 쌍점, '준비할 말' → '확인할 내용'
           '<li><b>확인할 내용:</b> 내용물, 잠금화면, 각인처럼 겉에서 안 보이는 특징</li>' +
           '<li><b>왜 묻나요:</b> 같은 물건이 여러 개일 수 있어서, 공개된 설명 말고 주인만 아는 것으로 확인해요</li></ul>' +
@@ -1254,7 +1258,7 @@ var CONFIG = {
             '<textarea id="claim-text" rows="3" placeholder="예: 카드 3장 들어 있고 모서리가 해졌어요. 안쪽에 이니셜 각인이 있어요">' + esc((CLAIMS[it.id] || {}).text || '') + '</textarea>' +
             '</div>' +
             '<div class="f full"><label for="claim-contact">이메일</label><input id="claim-contact" type="email" maxlength="60" placeholder="신청 확인 메일을 받을 이메일 주소를 입력해 주세요"><span class="cap">신청하면 이 주소로 확인 메일을 보내 드리고, 담당자도 이 주소로 연락해요.</span></div></div>' + // #김다영 수정: 이메일로 받음
-          '<div class="reqstep"><h4 class="s"><span class="no">2</span>누가 받으러 가나요?</h4>' +
+          '<div class="reqstep"><h4 class="s"><span class="no">2</span>누가 수령하나요?</h4>' +
             '<div class="dirs" role="radiogroup" aria-label="받는 사람"><label><input type="radio" name="rmethod" value="본인">본인이 직접 받아요</label><label><input type="radio" name="rmethod" value="대리">가족·지인이 대신 받아요 (대리 수령)</label></div>' +
             '<div id="m-self" hidden><p class="small">본인이 직접 받을 때는 신분증을 챙겨 ' + esc(it.org) + '에 방문하세요. 현장에서 1번에 적은 안쪽 특징을 한 번 더 물어봐요.</p></div>' +
             '<div id="m-proxy" hidden><p class="small">가족·지인이 대신 받을 때 써요. 대리인 정보는 수령이 끝나면 바로 지워요.</p><p class="cap" id="proxy-lock">먼저 1번 주인 확인(안쪽 특징·이메일)을 적어 주세요. 그다음 대리인 정보를 적을 수 있어요.</p>' +
