@@ -497,10 +497,11 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .memo-guide .mg-points { gap: 4px; margin-top: 4px; }
 /* #김다영 수정: 받은 알림 예시 — 차례로 나타나기 + 알림이 오는 과정 애니메이션 */
 .demo-alerts { display: flex; flex-direction: column; }
-.demo-alerts > .alert { animation: aIn .5s ease both; }
-.demo-alerts > .alert:nth-of-type(2) { animation-delay: .15s; }
-.demo-alerts > .alert:nth-of-type(3) { animation-delay: .3s; }
-@keyframes aIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.exlabel { color: #4FB37E; font-weight: 600; } /* #김다영 수정: (예시)는 연한 초록 */
+.demo-alerts > .alert { animation: aIn 8s ease infinite both; } /* #김다영 수정: 알림 카드가 차례로 나타나기를 계속 반복 (아래 과정과 같은 8초) */
+.demo-alerts > .alert:nth-of-type(2) { animation-delay: .6s; }
+.demo-alerts > .alert:nth-of-type(3) { animation-delay: 1.2s; }
+@keyframes aIn { 0% { opacity: 0; transform: translateY(10px); } 8%, 82% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; transform: translateY(-4px); } }
 .aflow { margin-top: auto; padding-top: 20px; }
 .aflow h4 { margin: 0 0 12px; }
 .aflow ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -1932,7 +1933,7 @@ var CONFIG = {
         (LOOKUP.alerts ? '<div class="saved lkout"><span class="lbl">' + esc(LOOKUP.email) + '로 저장한 알림 ' + LOOKUP.alerts.length + '건</span>' + (LOOKUP.alerts.length ? LOOKUP.alerts.map(lookupAlertHtml).join('') : '<p class="small">이 이메일로 저장된 알림이 없어요.</p>') + '</div>' : '') +
         // #김다영 수정 끝
         '</section>' +
-        '<section class="panel demo-alerts" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
+        '<section class="panel demo-alerts" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 <span class="exlabel">(예시)</span></h3>' +
           '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · ' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일
           '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · ' + md('2026-10-30') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
           '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요. · ' + md('2026-10-31') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
