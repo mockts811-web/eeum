@@ -215,6 +215,7 @@ table.info th { width: 128px; background: var(--surface); color: var(--fg-2); fo
 .bottom-actions #f-req { max-width: none; } /* #김다영 수정: 수령 신청서는 화면 가로를 꽉 채움 */
 .reqtop { display: flex; flex-wrap: wrap; align-items: center; column-gap: 28px; row-gap: 6px; padding-bottom: 14px; border-bottom: 1px solid var(--line, #D5DBE3); margin-bottom: 4px; }
 .reqtop h3.s { font-size: 26px; margin: 0; }
+.head.dhead { padding-bottom: 20px; border-bottom: 1px solid var(--line, #D5DBE3); } /* #김다영 수정: 상세 제목 아래 얇은 회색 구분선 */
 .reqtop p { margin: 0; }
 .copyline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .num { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -1218,7 +1219,7 @@ var CONFIG = {
     var warn = st.warn ? '<div class="alert a-warn">' + I.warn + '<div><b>' + st.label + '</b><p>' + st.warn + '</p></div></div>' :
       (it.type !== '경찰서' && it.status === '보관중' ? '<div class="alert a-warn">' + I.warn + '<div><b>' + josa(md(deadline), '이', '가') + ' 지나면 경찰서로 옮겨져요</b><p>받는 곳이 바뀌니 그 전에 연락하세요. 습득 ' + st.age + '일째예요.</p></div></div>' : '');
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><a href="#find">습득물 찾기</a><span>›</span><span>습득물 상세</span></nav>' +
-      '<div class="view"><div class="head"><span class="tags"><span class="badge ' + st.cls + '">' + st.label + '</span>' + (scored ? '<span class="badge b-mid">AI 후보 · 점수 ' + s.total.toFixed(2) + '</span>' : '') + '</span><h2>' + esc(it.name) + ' (' + esc(it.color) + ')</h2></div>' +
+      '<div class="view"><div class="head dhead"><span class="tags"><span class="badge ' + st.cls + '">' + st.label + '</span>' + (scored ? '<span class="badge b-mid">AI 후보 · 점수 ' + s.total.toFixed(2) + '</span>' : '') + '</span><h2>' + esc(it.name) + ' (' + esc(it.color) + ')</h2></div>' +
       '<div class="detail"><div class="col"><div class="photo" role="img" aria-label="' + esc(it.name) + ' 사진">' + pic(it) + '</div>' +
         (scored ? '<div class="alert a-info">' + I.info + '<div><b>AI 일치 이유</b><p>' + esc(s.reason) + '</p></div></div>' : '') + '</div>' +
       '<div class="col">' + warn +
@@ -1242,10 +1243,10 @@ var CONFIG = {
         '<form class="panel proxy" id="f-req" hidden novalidate><div class="reqtop"><h3 class="s">수령 신청</h3>' + // #김다영 수정: 넓게, 제목 옆에 설명
           '<p class="small">신청하면 ' + esc(it.org) + ' 담당자에게 바로 전달돼요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 본 뒤 연락드려요.</p></div>' +
           // #김다영 수정: 예전 '본인 수령 안내'에 있던 내용을 그대로 살림 (#고현 작성 문구)
-          '<div class="reqnote"><p class="small">급하면 먼저 ' + esc(it.org) + '에 전화해 관리번호 ' + esc(it.id) + '로 보관 여부를 확인하세요. 운영 시간은 ' + esc(org.hours) + '이에요.</p>' +
-          '<ul class="mg-points"><li><b>챙길 것</b> 신분증 (본인 확인용)</li>' +
-          '<li><b>준비할 말</b> 물건의 안쪽 특징 — 내용물, 잠금화면, 각인처럼 겉에서 안 보이는 것</li>' +
-          '<li><b>왜 묻나요</b> 같은 물건이 여러 개일 수 있어서, 공개된 설명 말고 주인만 아는 것으로 확인해요</li></ul>' +
+          '<div class="reqnote"><p class="small">급하면 먼저 ' + esc(it.org) + '에 전화해 관리번호 ' + esc(it.id) + '로 보관 여부를 확인하세요.' + (org.hours && org.hours !== '-' ? '<br>운영 시간은 ' + esc(org.hours) + '이에요.' : '') + '</p>' + // #김다영 수정: 운영 시간 정보가 없으면('-') 문장을 뺌
+          '<ul class="mg-points"><li><b>챙길 것:</b> 신분증 (본인 확인용)</li>' + // #김다영 수정: 항목 이름 뒤에 쌍점, '준비할 말' → '확인할 내용'
+          '<li><b>확인할 내용:</b> 내용물, 잠금화면, 각인처럼 겉에서 안 보이는 특징</li>' +
+          '<li><b>왜 묻나요:</b> 같은 물건이 여러 개일 수 있어서, 공개된 설명 말고 주인만 아는 것으로 확인해요</li></ul>' +
           '<p class="cap">' + (org.delivery ? '직접 가기 어려우면 보관함·집앞배송도 신청할 수 있어요.' : '이 기관은 방문 수령만 돼요.') + '</p></div>' +
           '<div class="reqstep"><h4 class="s"><span class="no">1</span>내 물건인지 확인하기 <span class="cap">대리 수령이어도 물건 주인이 먼저 적어 주세요</span></h4>' +
             '<p class="small">나만 알 수 있는 정보를 적어 주세요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 봐요.</p>' + // #김다영 수정: 예전 문구
