@@ -2176,7 +2176,7 @@ var CONFIG = {
           // ===== #고현 수정 끝: 습득일 =====
           '<div class="f full"><label for="r-feat">공개 특징 ' + mark(o.feats) + '</label><input id="r-feat" type="text" value="' + esc(o.feats) + '">' +
             // #고현 수정: (사진 확인 필요) 안내를 고칠 수 있는 이 칸 아래로 옮김 (3단계에서는 뺌)
-            (hasPhotoMark(o.feats) ? '<span class="cap"><b>(사진 확인 필요)</b>는 사진에서만 본 특징이라는 담당자용 표시입니다.<br>등록 문안과 저장되는 값에서는 자동으로 빠져요. 특징이 잘못 입력되었다면? 위 칸에서 지워 주세요.</span>' /* #김다영 수정 */ : '') +
+            (hasPhotoMark(o.feats) ? '<span class="cap"><b>(사진 확인 필요)</b>는 사진에서만 본 특징이라는 담당자용 표시예요.<br>등록 문안과 저장되는 값에서는 자동으로 빠져요. 사진과 다른 특징이 있다면 위 칸에서 지워 주세요.</span>' /* #김다영 수정 */ : '') +
           '</div>' +
           '<div class="f full"><label for="r-inner">주인 확인용 메모 (비공개) ' + mark(o.inner) + '</label><input id="r-inner" type="text" value="' + esc(o.inner) + '"><span class="cap">시민 화면에는 보이지 않고, 수령 때 주인 확인에만 써요.</span></div>' +
           '<label class="check full"><input id="r-val" type="checkbox"' + (o.valuable ? ' checked' : '') + '><span><b>고액·귀중품</b>으로 표시 (수령 때 본인 확인을 더 꼼꼼히 해요)</span></label></div></div></div>' +
