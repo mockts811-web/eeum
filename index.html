@@ -310,7 +310,7 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .kpi { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; background: var(--bg); text-align: left; color: var(--fg); font-size: 15px; cursor: pointer; }
 .kpi .v { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.3; }
-.kpi.val .v { color: var(--error-fg); }
+.kpi.val .v { color: var(--val-fg); } /* #김다영 수정: 고액·귀중품 색 통일 */
 .kpi[aria-pressed="true"] { border: 2px solid var(--primary); }
 .stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; margin: 0; }
 .stepper li { list-style: none; display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-bottom: 4px solid var(--surface-2); color: var(--fg-3); font-weight: 700; font-size: 15px; }
@@ -366,7 +366,7 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tabs button.tab-val[aria-selected="true"] { border-bottom-color: var(--val-fg); color: var(--val-fg); }
 .val-text { color: var(--val-fg); }
 tr.val td { background: var(--error-bg); }
-tr.val .iname { color: var(--error-fg); font-weight: 700; }
+tr.val .iname { color: var(--val-fg); font-weight: 700; } /* #김다영 수정: 고액·귀중품 색 통일 */
 tr.done td { color: var(--fg-3); }
 .iname { font-weight: 500; }
 .acts { display: flex; gap: 6px; flex-wrap: nowrap; }
@@ -374,7 +374,7 @@ tr.done td { color: var(--fg-3); }
 /* 팝업 */
 .modal { position: fixed; inset: 0; background: var(--shade); display: grid; place-items: center; z-index: 50; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
 .modal .box { background: var(--bg); color: var(--fg); border-radius: var(--r-xl); width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-.modal .box.val { border-top: 8px solid var(--error-fg); }
+.modal .box.val { border-top: 8px solid var(--val-fg); } /* #김다영 수정: 고액·귀중품 색 통일 */
 .modal .mh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .modal .x { border: 0; background: transparent; color: var(--fg-2); font-size: 24px; width: 40px; height: 40px; cursor: pointer; border-radius: var(--r-md); flex: none; }
 .claimbox { border: 1px solid var(--line, #D5DBE3); border-radius: var(--r-md, 8px); padding: 14px 16px; display: grid; gap: 8px; margin: 4px 0; } /* #김다영 수정 */
