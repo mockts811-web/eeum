@@ -2270,7 +2270,7 @@ var CONFIG = {
         '<span class="thumb">' + pic(it) + '</span>' +
         '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락함') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
-          '<span class="small">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · ' + esc(it.found) + '</span>' +
+          '<span class="small">' + esc(it.id) + ' / 습득일자: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
           (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(rq0.at) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + '</span>' : '') + // #김다영 수정: 신청 요약
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
