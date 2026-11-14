@@ -481,6 +481,18 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 @keyframes aBar { 0% { width: 0; } 95% { width: 100%; } 100% { width: 100%; opacity: 0; } }
 @media (max-width: 720px) { .aflow ol { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) { .demo-alerts > .alert, .aflow li, .aflow .ic, .abar i { animation: none; } .abar i { width: 100%; } }
+/* #김다영 수정: 내 알림 불러오기·진행 단계 */
+.lookup { margin-top: 16px; padding: 14px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); display: grid; gap: 8px; }
+.lookup p { margin: 0; }
+.lkrow { display: flex; gap: 8px; }
+.lkrow input { flex: 1; min-width: 0; }
+.lkout { margin-top: 12px; }
+.progl span { display: flex; flex-direction: column; }
+.progl span.cur { color: var(--primary-strong, #1D4ED8); font-weight: 700; }
+.progl em { font-style: normal; font-weight: 400; font-size: 12px; color: var(--fg-3); }
+.hits { margin: 4px 0 0; padding-left: 0; list-style: none; display: grid; gap: 8px; font-size: 15px; }
+.hits li { padding: 8px 10px; border-radius: 8px; background: var(--surface, #F4F6F8); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -1818,6 +1830,27 @@ var CONFIG = {
   }
 
   /* ================= 화면: 알림 ================= */
+  // ===== #김다영 수정 시작: 알림 진행 단계 (실제 데이터 기준) =====
+  var LOOKUP = { email: '', sent: false, msg: '', alerts: null };
+  function kstStamp(iso) { if (!iso) return ''; var d = new Date(new Date(iso).getTime() + 9 * 36e5).toISOString(); return md(d.slice(0, 10)) + ' ' + d.slice(11, 16); }
+  function alertStagesHtml(a) {
+    var hits = a.hits || [], done = hits.some(function (h) { return h.status === '수령완료'; });
+    var k = done ? 3 : hits.length ? 2 : a.last_checked_at ? 1 : 0;
+    var sub = [a.created_at ? kstStamp(a.created_at).replace(/ \d\d:\d\d$/, '') : '저장됨', a.last_checked_at ? kstStamp(a.last_checked_at) + ' 비교' : '첫 비교 전 (오전 9시·오후 6시)', hits.length ? hits.length + '건' : '아직 없음', done ? '완료' : ''];
+    return '<div class="prog" aria-hidden="true">' + [0, 1, 2, 3].map(function (i) { return '<span' + (i <= k ? ' class="on"' : '') + '></span>'; }).join('') + '</div>' +
+      '<div class="progl">' + ['조건 저장', '비교 중', '후보 발견', '수령 완료'].map(function (t, i) { return '<span' + (i === k ? ' class="cur"' : '') + '>' + t + (sub[i] && i <= k ? '<em>' + esc(sub[i]) + '</em>' : '') + '</span>'; }).join('') + '</div>' +
+      '<p class="sr-only">진행 단계: ' + ['조건 저장', '비교 중', '후보 발견', '수령 완료'][k] + '</p>';
+  }
+  function hitStatus(h) { return h.status === '수령완료' ? ['s-done', '수령 완료'] : (h.status === '경찰서이관' || h.kind === '경찰서') ? ['s-moved', '경찰서 보관'] : ['s-keep', '보관 중']; }
+  function lookupAlertHtml(a) {
+    return '<div class="it"><div class="row"><b>' + esc(a.label) + '</b><span class="badge s-keep">하루 2회 자동 확인</span></div>' + alertStagesHtml(a) +
+      (a.hits.length ? '<ul class="hits">' + a.hits.slice(0, 5).map(function (h) {
+        var st = hitStatus(h);
+        return '<li><span class="badge ' + st[0] + '">' + st[1] + '</span> <b>' + esc(h.name) + (h.color ? ' (' + esc(h.color) + ')' : '') + '</b> · 닮음 ' + Number(h.score).toFixed(2) +
+          '<br><span class="cap">' + (h.found_on ? md(h.found_on) + ' 습득 · ' : '') + esc(h.org) + (h.tel ? ' ' + esc(h.tel) : '') + ' · 관리번호 ' + esc(h.item_id) + '</span> <a href="#detail" data-open-item="' + esc(h.item_id) + '">자세히</a></li>';
+      }).join('') + '</ul>' : '<p class="cap">' + (a.last_checked_at ? '아직 닮은 습득물이 없어요. 계속 비교하고 있어요.' : '아직 첫 비교 전이에요. 오전 9시·오후 6시에 비교해요.') + '</p>') + '</div>';
+  }
+  // ===== #김다영 수정 끝 =====
   function vTrack() {
     var c = hasCond(state.conds) ? state.conds : parse('어제 2호선에서 검은 가죽 반지갑을 잃어버렸어요');
     // #김다영 수정: '검정 · 지갑 · 2호선 · 11.7' → '11월 7일 2호선에서 잃어버린 검정 지갑' (읽히는 문장으로)
@@ -1826,7 +1859,8 @@ var CONFIG = {
     var desc = (when || c.line) ? [when, c.line ? c.line + '에서' : '', '잃어버린 ' + what].filter(Boolean).join(' ') : what; // (#김다영 수정: 입력칸 기본값으로는 더 이상 쓰지 않음)
     var saved = state.saved.length ? state.saved.map(function (s, i) {
       return '<div class="it"><div class="row"><b>' + esc(s.label) + '</b><span class="badge s-keep">하루 2회 자동 확인</span></div>' +
-        '<div class="prog" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span><span></span></div><div class="progl"><span>분실</span><span>등록 대기</span><span>이관 전후</span><span>수령</span></div>' +
+        alertStagesHtml({ created_at: s.at || '', last_checked_at: null, hits: [] }) + // #김다영 수정: 예전엔 늘 두 칸이 칠해진 장식이었음 → 이 기기에서는 '조건 저장'까지만 확실함
+        (s.email ? '<p class="cap">실제 비교 결과는 아래 \'내 알림 불러오기\'로 볼 수 있어요.</p>' : '') +
         '<div class="row"><span class="cap">' + (s.email ? '이메일 알림 · ' + esc(s.email) : '이 기기에서만 확인') + '</span><button class="btn tertiary sm" type="button" data-unsave="' + i + '">알림 해지</button></div></div>';
     }).join('') : '<p class="small">저장한 조건이 없어요. 왼쪽에서 조건을 저장하세요.</p>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>비슷한 물건 알림</span></nav>' +
@@ -1845,7 +1879,15 @@ var CONFIG = {
           '<li><b>✉️ 이메일로 알려 드려요</b>이메일을 남기면 비슷한 물건이 올라올 때 메일을 보내 드려요.<br>남기지 않으면 이 기기에서만 확인할 수 있어요.</li>' +
           '<li><b>🗑️ 언제든 해지할 수 있어요</b>해지하면 저장한 조건과 이메일이 바로 지워져요.</li>' +
         '</ol><p class="cap">⚠️ 습득물은 등록까지 1~2일 걸려요. 급하면 습득물 찾기에서 바로 찾아보세요.</p></div></form>' +
-      '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div></section>' +
+      '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div>' +
+        // #김다영 수정 시작: 이메일로 내 알림 불러오기 (확인 코드) — 다른 기기에서 저장한 알림도 실제 진행 상황과 함께
+        '<div class="lookup"><b>📬 내 알림 불러오기</b><p class="small">알림을 저장할 때 쓴 이메일로 확인 코드를 받아, 다른 기기에서 저장한 알림과 진행 상황을 볼 수 있어요.</p>' +
+          '<div class="lkrow"><input id="lk-email" type="email" maxlength="120" placeholder="알림을 저장한 이메일 주소를 입력해 주세요" value="' + esc(LOOKUP.email) + '"><button class="btn secondary" type="button" id="lk-send">코드 받기</button></div>' +
+          '<div class="lkrow" id="lk-coderow"' + (LOOKUP.sent ? '' : ' hidden') + '><input id="lk-code" inputmode="numeric" maxlength="6" placeholder="메일로 받은 6자리 코드"><button class="btn primary" type="button" id="lk-verify">확인</button></div>' +
+          '<p class="cap" id="lk-msg" aria-live="polite">' + esc(LOOKUP.msg || '') + '</p></div>' +
+        (LOOKUP.alerts ? '<div class="saved lkout"><span class="lbl">' + esc(LOOKUP.email) + '로 저장한 알림 ' + LOOKUP.alerts.length + '건</span>' + (LOOKUP.alerts.length ? LOOKUP.alerts.map(lookupAlertHtml).join('') : '<p class="small">이 이메일로 저장된 알림이 없어요.</p>') + '</div>' : '') +
+        // #김다영 수정 끝
+        '</section>' +
         '<section class="panel demo-alerts" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
           '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · ' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일
           '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · ' + md('2026-10-30') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
@@ -2592,6 +2634,42 @@ var CONFIG = {
       var bf = document.getElementById('b-facts'); if (bf) bf.addEventListener('click', function () { copy(bf.getAttribute('data-text'), document.getElementById('m-facts'), document.getElementById('facts')); });
     }
     if (h === 'track') {
+      // #김다영 수정 시작: 내 알림 불러오기
+      var lkMsg = function (t, bad) { var m = document.getElementById('lk-msg'); LOOKUP.msg = t; m.textContent = t; m.style.color = bad ? 'var(--error-fg)' : ''; };
+      var lkReason = { wait: '방금 코드를 보냈어요. 1분 뒤에 다시 요청해 주세요.', too_many: '1시간에 5번까지 요청할 수 있어요. 잠시 뒤에 다시 해 주세요.', bad_email: '이메일 주소를 확인해 주세요.', expired: '코드가 만료됐어요. 코드를 다시 받아 주세요.', too_many_attempts: '5번 틀려서 이 코드는 쓸 수 없어요. 코드를 다시 받아 주세요.', bad_code: '6자리 숫자를 입력해 주세요.', smtp_failed: '메일을 보내지 못했어요. 잠시 뒤에 다시 해 주세요.' };
+      var lkCall = function (body) {
+        if (!LIVE) return Promise.resolve(body.action === 'send' ? { ok: true, demo: true } : { ok: true, alerts: state.saved.filter(function (x) { return (x.email || '').toLowerCase() === body.email; }).map(function (x) { return { id: x.id, label: x.label, created_at: x.at || '', last_checked_at: null, hits: [] }; }) });
+        return sb.functions.invoke('alert-lookup', { body: body }).then(function (r) {
+          if (r.data) return r.data;
+          return (r.error && r.error.context && r.error.context.json ? r.error.context.json() : Promise.resolve({ ok: false })).catch(function () { return { ok: false }; });
+        });
+      };
+      var lks = document.getElementById('lk-send');
+      lks.addEventListener('click', function () {
+        var em = document.getElementById('lk-email').value.trim().toLowerCase();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return lkMsg(lkReason.bad_email, true);
+        LOOKUP.email = em; lks.disabled = true; lkMsg('코드를 보내는 중…');
+        lkCall({ action: 'send', email: em }).then(function (r) {
+          lks.disabled = false;
+          if (!r || !r.ok) return lkMsg(lkReason[r && r.reason] || '코드를 보내지 못했어요. 잠시 뒤에 다시 해 주세요.', true);
+          LOOKUP.sent = true; document.getElementById('lk-coderow').hidden = false;
+          lkMsg(r.demo ? '시연 모드라 메일은 보내지 않아요. 아무 6자리 숫자나 넣어 보세요.' : em + '로 확인 코드를 보냈어요. 10분 안에 입력해 주세요.');
+          document.getElementById('lk-code').focus();
+        });
+      });
+      var lkv = document.getElementById('lk-verify');
+      lkv.addEventListener('click', function () {
+        var code = document.getElementById('lk-code').value.replace(/\D/g, '');
+        if (code.length !== 6) return lkMsg(lkReason.bad_code, true);
+        lkv.disabled = true; lkMsg('확인하는 중…');
+        lkCall({ action: 'verify', email: LOOKUP.email, code: code }).then(function (r) {
+          lkv.disabled = false;
+          if (!r || !r.ok) return lkMsg(r && r.reason === 'wrong_code' ? '코드가 맞지 않아요. (남은 기회 ' + r.left + '번)' : (lkReason[r && r.reason] || '확인하지 못했어요.'), true);
+          LOOKUP.alerts = r.alerts || []; LOOKUP.sent = false; LOOKUP.msg = ''; route();
+        });
+      });
+      app.querySelectorAll('[data-open-item]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); state.selected = a.getAttribute('data-open-item'); go('detail'); }); });
+      // #김다영 수정 끝
       // #김다영 수정 시작: 적는 대로 알림 조건 미리 보기
       var sl = document.getElementById('s-label'), sp = document.getElementById('s-preview');
       var showPreview = function () {
@@ -2615,7 +2693,7 @@ var CONFIG = {
         if (email && !agree) { msg.textContent = '이메일을 저장하려면 동의에 체크해 주세요. 이메일 없이도 저장할 수 있어요.'; msg.style.color = 'var(--error-fg)'; return; }
         var a = { id: uuid(), label: document.getElementById('s-label').value || '찾는 물건', email: agree ? email : '', conds: parse(document.getElementById('s-label').value) }; // #김다영 수정: 입력칸이 비어서 시작하므로 적은 문장으로 조건을 만듦 (예전: 습득물 찾기 조건을 그대로 씀)
         msg.style.color = ''; msg.textContent = '저장하는 중…';
-        DB.saveAlert(a).then(function () { state.saved.unshift({ id: a.id, label: a.label, email: a.email }); persist(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '저장하지 못했어요: ' + (err.message || err); });
+        DB.saveAlert(a).then(function () { state.saved.unshift({ id: a.id, label: a.label, email: a.email, at: new Date().toISOString() }); /* #김다영 수정: 저장 시각 */ persist(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '저장하지 못했어요: ' + (err.message || err); });
       });
       app.querySelectorAll('[data-unsave]').forEach(function (b) { b.addEventListener('click', function () { var i = Number(b.getAttribute('data-unsave')), s = state.saved[i]; DB.cancelAlert(s.id).then(function () { state.saved.splice(i, 1); persist(); route(); }); }); });
     }

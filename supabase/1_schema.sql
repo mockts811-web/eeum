@@ -258,3 +258,16 @@ alter table public.claims
   add column mailed_at     timestamptz;
 alter table public.claims
   add constraint claims_proxy_fields check (method = '본인' or (proxy_name is not null and proxy_contact is not null) or status = '종료');
+
+-- #김다영 수정: 이메일로 내 알림 불러오기 — 확인 코드(해시만), 10분 유효, 5번 틀리면 무효. 서버 함수(alert-lookup)만 읽고 씀
+create table public.alert_codes (
+  id          uuid primary key default gen_random_uuid(),
+  email       text not null,
+  code_hash   text not null,
+  attempts    int  not null default 0,
+  expires_at  timestamptz not null,
+  created_at  timestamptz not null default now()
+);
+create index alert_codes_email_idx on public.alert_codes (lower(email), created_at desc);
+alter table public.alert_codes enable row level security;
+revoke all on public.alert_codes from anon, authenticated;
