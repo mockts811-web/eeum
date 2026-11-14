@@ -435,6 +435,8 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 #nbar button { background: none; border: 0; color: #fff; font-size: 18px; cursor: pointer; }
 .track2 > form.panel { display: flex; flex-direction: column; justify-content: space-between; } /* #김다영 수정: 알림 조건 박스가 길어져도 아래만 비지 않게 고르게 */
 .track2 > form.panel > .btn, .track2 > form.panel > .btns { margin-top: 8px; }
+.reqnote { margin: 12px 0 4px; padding: 12px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); } /* #김다영 수정: 수령 전 안내 */
+.reqnote p { margin: 0 0 6px; }
 </style>
 </head>
 <body>
@@ -1162,16 +1164,22 @@ var CONFIG = {
           '<a class="btn tertiary" href="#find">내 물건이 아니에요</a></div>' +
         '<form class="panel proxy" id="f-req" hidden novalidate><h3 class="s">수령 신청</h3>' +
           '<p class="small">신청하면 ' + esc(it.org) + ' 담당자에게 바로 전달돼요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 본 뒤 연락드려요.</p>' +
-          '<div class="reqstep"><h4 class="s"><span class="no">1</span>주인 확인 <span class="cap">대리 수령이어도 물건 주인이 먼저 적어 주세요</span></h4>' +
+          // #김다영 수정: 예전 '본인 수령 안내'에 있던 내용을 그대로 살림 (#고현 작성 문구)
+          '<div class="reqnote"><p class="small">급하면 먼저 ' + esc(it.org) + '에 전화해 관리번호 ' + esc(it.id) + '로 보관 여부를 확인하세요. 운영 시간은 ' + esc(org.hours) + '이에요.</p>' +
+          '<ul class="mg-points"><li><b>챙길 것</b> 신분증 (본인 확인용)</li>' +
+          '<li><b>준비할 말</b> 물건의 안쪽 특징 — 내용물, 잠금화면, 각인처럼 겉에서 안 보이는 것</li>' +
+          '<li><b>왜 묻나요</b> 같은 물건이 여러 개일 수 있어서, 공개된 설명 말고 주인만 아는 것으로 확인해요</li></ul>' +
+          '<p class="cap">' + (org.delivery ? '직접 가기 어려우면 보관함·집앞배송도 신청할 수 있어요.' : '이 기관은 방문 수령만 돼요.') + '</p></div>' +
+          '<div class="reqstep"><h4 class="s"><span class="no">1</span>내 물건인지 확인하기 <span class="cap">대리 수령이어도 물건 주인이 먼저 적어 주세요</span></h4>' +
+            '<p class="small">겉에서 안 보이는 것을 적어 주세요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 봐요. 맞히려고 애쓰지 말고 <b>기억나는 것만</b> 적으면 돼요.</p>' + // #김다영 수정: 예전 문구
             '<div class="f full"><label for="claim-text">안쪽 특징 (내용물·각인·잠금화면 등)</label>' +
             '<textarea id="claim-text" rows="3" placeholder="예: 카드 3장 들어 있고 모서리가 해졌어요. 안쪽에 이니셜 각인이 있어요">' + esc((CLAIMS[it.id] || {}).text || '') + '</textarea>' +
-            '<span class="cap">겉에서 안 보이는 것을 기억나는 만큼만 적으면 돼요. 같은 물건이 여러 개일 수 있어서 주인만 아는 것으로 확인해요.</span></div>' +
+            '</div>' +
             '<div class="f full"><label for="claim-contact">이메일</label><input id="claim-contact" type="email" maxlength="60" placeholder="신청 확인 메일을 받을 이메일 주소를 입력해 주세요"><span class="cap">신청하면 이 주소로 확인 메일을 보내 드리고, 담당자도 이 주소로 연락해요.</span></div></div>' + // #김다영 수정: 이메일로 받음
           '<div class="reqstep"><h4 class="s"><span class="no">2</span>누가 받으러 가나요?</h4>' +
             '<div class="dirs" role="radiogroup" aria-label="받는 사람"><label><input type="radio" name="rmethod" value="본인">본인이 직접 받아요</label><label><input type="radio" name="rmethod" value="대리">가족·지인이 대신 받아요 (대리 수령)</label></div>' +
-            '<div id="m-self" hidden><ul class="mg-points"><li><b>챙길 것</b> 신분증 (본인 확인용)</li><li><b>운영 시간</b> ' + esc(org.hours) + '</li><li><b>현장에서</b> 1번에 적은 안쪽 특징을 한 번 더 물어봐요</li></ul>' +
-              '<p class="cap">' + (org.delivery ? '직접 가기 어려우면 보관함·집앞배송도 신청할 수 있어요.' : '이 기관은 방문 수령만 돼요.') + '</p></div>' +
-            '<div id="m-proxy" hidden><p class="cap" id="proxy-lock">먼저 1번 주인 확인(안쪽 특징·이메일)을 적어 주세요. 그다음 대리인 정보를 적을 수 있어요.</p>' +
+            '<div id="m-self" hidden><p class="small">본인이 직접 받을 때는 신분증을 챙겨 ' + esc(it.org) + '에 방문하세요. 현장에서 1번에 적은 안쪽 특징을 한 번 더 물어봐요.</p></div>' +
+            '<div id="m-proxy" hidden><p class="small">가족·지인이 대신 받을 때 써요. 대리인 정보는 수령이 끝나면 바로 지워요.</p><p class="cap" id="proxy-lock">먼저 1번 주인 확인(안쪽 특징·이메일)을 적어 주세요. 그다음 대리인 정보를 적을 수 있어요.</p>' +
               '<div class="form"><div class="f"><label for="p-name">대리인 이름</label><input id="p-name" type="text" maxlength="30" disabled></div><div class="f"><label for="p-rel">관계</label><select id="p-rel" disabled><option>가족</option><option>지인</option><option>기타</option></select></div>' +
               '<div class="f full"><label for="p-tel">대리인 연락처</label><input id="p-tel" type="text" inputmode="tel" maxlength="60" disabled></div>' +
               '<label class="check full"><input id="p-agree" type="checkbox" disabled><span>대리 수령에는 위임장과 분실자 신분증 사본 등 기관이 정한 서류가 필요하다는 안내를 확인했어요.</span></label></div></div></div>' +
