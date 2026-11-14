@@ -440,6 +440,8 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .scard.hasreq { border-left: 5px solid #E5484D; } /* #김다영 수정: 수령 신청이 들어온 물품 */
 .reqbadge { background: #FDECEC; color: #B42318; border: 1px solid #F5B5B5; font-weight: 700; }
 .reqline { display: block; font-size: 14px; color: #B42318; background: #FFF5F5; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
+.alert.inline > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; } /* #김다영 수정: 제목 옆에 간격 두고 한 줄로 */
+.alert.inline > div > p { margin: 0; }
 </style>
 </head>
 <body>
@@ -1077,8 +1079,8 @@ var CONFIG = {
         '<div class="' + fieldCls(x, 'station') + '"><label for="c-st">역·정류장' + aiTag(x, 'station') + '</label><input id="c-st" type="text" data-k="station" value="' + esc(c.station) + '" placeholder="예: 강남"></div>' +
         '<div class="' + fieldCls(x, 'feats') + ' feat"><label for="c-feat">특징' + aiTag(x, 'feats') + '</label><input id="c-feat" type="text" data-k="feats" value="' + esc(c.feats.join(', ')) + '" placeholder="쉼표로 구분 · 예: 가죽, 반지갑"></div>' +
       '</div>' +
-      ((c.lines || []).length > 1 ? '<div class="alert a-info">' + I.info + '<div><b>습득장소 ' + c.lines.length + '개</b><p>' + c.lines.map(function (l) { return esc(PLACE_LABEL[l] || l); }).join(', ') + ' 중 하나만 맞아도 찾아요</p></div></div>' : '') + // #김다영 수정
-      (c.date ? '<div class="alert a-info">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘 ' + md(TODAY) + '까지 접수된 습득물</p></div></div>' : '') +
+      ((c.lines || []).length > 1 ? '<div class="alert a-info inline">' + I.info + '<div><b>습득장소 ' + c.lines.length + '개</b><p>' + c.lines.map(function (l) { return esc(PLACE_LABEL[l] || l); }).join(', ') + ' 중 하나만 맞아도 찾아요</p></div></div>' : '') + // #김다영 수정
+      (c.date ? '<div class="alert a-info inline">' + I.info + '<div><b>검색 범위</b><p>' + md(addDays(c.date, -2)) + '부터 오늘 ' + md(TODAY) + '까지 접수된 습득물</p></div></div>' /* #김다영 수정: 한 줄로 */ : '') +
     '</section>';
   }
   // #김다영 수정 시작: 쪽 번호 (현재 쪽 앞뒤 2쪽 + 처음·끝)
