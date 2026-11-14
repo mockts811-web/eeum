@@ -447,10 +447,13 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .small, .alert p { line-height: 1.6; }
 .cap, .memo-guide > summary, .stop, .reqline { font-size: 14px; line-height: 1.55; }
 /* #김다영 수정: 알림 조건 예시·미리 보기 */
-.exrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.exrow, .pchips { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: start; margin-top: 10px; } /* 이름표 오른쪽에 칩을 모아, 줄이 넘어가도 첫 칩 아래로 정렬 */
+.exrow > .cap, .pchips > .cap { padding-top: 5px; white-space: nowrap; }
+.pchips > .cap:only-child { grid-column: 1 / -1; padding-top: 0; white-space: normal; }
+.exlist { display: flex; flex-wrap: wrap; gap: 6px 6px; }
 .chip { font: inherit; font-size: 14px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line-strong, #C3CAD3); background: var(--bg, #fff); color: var(--fg-2); cursor: pointer; }
 .chip:hover { border-color: var(--primary, #2563EB); color: var(--primary, #2563EB); }
-.pchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; min-height: 28px; }
+.pchips { min-height: 28px; }
 .pchip { font-size: 14px; padding: 4px 10px; border-radius: 8px; background: var(--surface, #F4F6F8); }
 .pchip b { color: var(--primary-strong, #1D4ED8); margin-right: 6px; font-weight: 700; }
 </style>
@@ -1806,7 +1809,7 @@ var CONFIG = {
       '<div class="track2"><form class="panel" id="f-save"><h3 class="s">알림 조건 저장</h3>' +
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" placeholder="찾는 물건을 입력해 주세요" required>' +
           // #김다영 수정: 예시 문장 버튼 + 적은 문장을 어떤 조건으로 알아들었는지 바로 보여 줌
-          '<div class="exrow"><span class="cap">예시</span>' + ['어제 2호선에서 검은 가죽 반지갑', '택시에 두고 내린 흰색 에어팟', '11월 13일 472번 버스 남색 장우산'].map(function (t) { return '<button type="button" class="chip" data-ex="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
+          '<div class="exrow"><span class="cap">예시</span><div class="exlist">' + ['어제 2호선에서 검은 가죽 반지갑', '택시에 두고 내린 흰색 에어팟', '11월 13일 472번 버스 남색 장우산'].map(function (t) { return '<button type="button" class="chip" data-ex="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div></div>' +
           '<div class="pchips" id="s-preview" aria-live="polite"></div></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 이메일 주소를 입력해 주세요"></div>' + // #김다영 수정: 안내 글
         '<label class="check"><input id="s-agree" type="checkbox"><span>비슷한 물건 알림 메일을 받기 위해 이메일 주소를 저장하는 데 동의해요.<br>알림을 해지하면 이메일 주소도 바로 지워져요.</span></label>' +
@@ -2568,7 +2571,7 @@ var CONFIG = {
         if (c.date) tags.push(['잃어버린 날', md(c.date)]);
         (c.lines && c.lines.length ? c.lines : (c.line ? [c.line] : [])).forEach(function (l) { tags.push(['습득장소', PLACE_LABEL[l] || l]); });
         if (c.station) tags.push(['역', c.station]); if (c.feats.length) tags.push(['특징', c.feats.join(', ')]);
-        sp.innerHTML = tags.length ? '<span class="cap">이렇게 알아들었어요</span>' + tags.map(function (g) { return '<span class="pchip"><b>' + esc(g[0]) + '</b>' + esc(g[1]) + '</span>'; }).join('')
+        sp.innerHTML = tags.length ? '<span class="cap">이렇게 알아들었어요</span><div class="exlist">' + tags.map(function (g) { return '<span class="pchip"><b>' + esc(g[0]) + '</b>' + esc(g[1]) + '</span>'; }).join('') + '</div>'
           : '<span class="cap">⚠️ 알아들은 조건이 없어요. 물건 종류나 색상을 넣으면 더 잘 찾아요. (예: 검은 지갑)</span>';
       };
       sl.addEventListener('input', showPreview); showPreview();
