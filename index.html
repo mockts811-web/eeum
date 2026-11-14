@@ -456,6 +456,11 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .pchips { min-height: 28px; }
 .pchip { font-size: 14px; padding: 4px 10px; border-radius: 8px; background: var(--surface, #F4F6F8); }
 .pchip b { color: var(--primary-strong, #1D4ED8); margin-right: 6px; font-weight: 700; }
+/* #김다영 수정: 작성 요령 줄 간격 — 분류 버튼과 '작성 순서' 사이를 띄우고 줄마다 숨 쉴 틈 */
+.memo-guide { gap: 12px; padding: 14px 16px; line-height: 1.6; }
+.memo-guide .guide-tabs { margin: 12px 0 14px; } /* <details>는 flex 간격(gap)이 안 먹는 브라우저가 있어 여백으로 띄움 */
+.memo-guide .mg-top, .memo-guide .mg-ex { margin-bottom: 10px; }
+.memo-guide .mg-points { gap: 4px; margin-top: 4px; }
 </style>
 </head>
 <body>
