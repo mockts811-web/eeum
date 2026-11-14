@@ -2313,7 +2313,7 @@ var CONFIG = {
     var it = ITEMS.filter(function (x) { return x.id === id; })[0]; if (!it) return;
     var v = it.valuable;
     openModal('<div class="mh"><div class="head"><span class="tags">' + (v ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="cap">' + esc(it.id) + '</span></span><h3 id="m-title" class="s">수령 확인 · ' + esc(it.name) + ' (' + esc(it.color) + ')</h3></div><button class="x" type="button" data-close aria-label="닫기">×</button></div>' +
-      (v ? '<p class="valnote">고액·귀중품이에요. 신분증 사진과 얼굴을 대조하고, 주인만 아는 특징을 2가지 이상 직접 말하게 하세요.</p>' : '') +
+      (v ? '<p class="valnote">고액·귀중품이므로 주의가 필요합니다.<br>신분증 사진과 얼굴을 대조하고, 주인만 아는 특징을 2가지 이상 직접 말하게 하세요.</p>' : '') +
       '<form id="f-pick" class="col"><div class="checklist">' +
         '<label class="check' + (v ? ' strong' : '') + '"><input type="checkbox" id="c1"><span>신분증으로 본인 확인' + (v ? ' (사진·이름 대조)' : '') + '</span></label>' +
         '<label class="check' + (v ? ' strong' : '') + '"><input type="checkbox" id="c2"><span>주인만 아는 특징 확인' + (it.inner ? ' · 비공개 메모: ' + esc(it.inner) : '') + '</span></label>' +
