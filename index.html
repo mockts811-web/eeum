@@ -461,6 +461,26 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .memo-guide .guide-tabs { margin: 12px 0 14px; } /* <details>는 flex 간격(gap)이 안 먹는 브라우저가 있어 여백으로 띄움 */
 .memo-guide .mg-top, .memo-guide .mg-ex { margin-bottom: 10px; }
 .memo-guide .mg-points { gap: 4px; margin-top: 4px; }
+/* #김다영 수정: 받은 알림 예시 — 차례로 나타나기 + 알림이 오는 과정 애니메이션 */
+.demo-alerts { display: flex; flex-direction: column; }
+.demo-alerts > .alert { animation: aIn .5s ease both; }
+.demo-alerts > .alert:nth-of-type(2) { animation-delay: .15s; }
+.demo-alerts > .alert:nth-of-type(3) { animation-delay: .3s; }
+@keyframes aIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.aflow { margin-top: auto; padding-top: 20px; }
+.aflow h4 { margin: 0 0 12px; }
+.aflow ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.aflow li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 12px 6px; border-radius: 12px; background: var(--surface, #F4F6F8); animation: aStep 8s infinite; animation-delay: calc(var(--k) * 2s); }
+.aflow .ic { font-size: 26px; line-height: 1; display: inline-block; animation: aPop 8s infinite; animation-delay: calc(var(--k) * 2s); }
+.aflow b { font-size: 15px; }
+.aflow .cap { font-size: 13px; }
+@keyframes aStep { 0%, 25% { background: #E8F0FE; box-shadow: inset 0 0 0 2px var(--primary, #2563EB); } 30%, 100% { background: var(--surface, #F4F6F8); box-shadow: none; } }
+@keyframes aPop { 0% { transform: scale(1); } 5% { transform: scale(1.25); } 12%, 100% { transform: scale(1); } }
+.abar { height: 6px; border-radius: 999px; background: var(--surface-2, #E5E8EC); margin-top: 12px; overflow: hidden; }
+.abar i { display: block; height: 100%; width: 0; background: var(--primary, #2563EB); border-radius: inherit; animation: aBar 8s linear infinite; }
+@keyframes aBar { 0% { width: 0; } 95% { width: 100%; } 100% { width: 100%; opacity: 0; } }
+@media (max-width: 720px) { .aflow ol { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .demo-alerts > .alert, .aflow li, .aflow .ic, .abar i { animation: none; } .abar i { width: 100%; } }
 </style>
 </head>
 <body>
@@ -1826,10 +1846,16 @@ var CONFIG = {
           '<li><b>🗑️ 언제든 해지할 수 있어요</b>해지하면 저장한 조건과 이메일이 바로 지워져요.</li>' +
         '</ol><p class="cap">⚠️ 습득물은 등록까지 1~2일 걸려요. 급하면 습득물 찾기에서 바로 찾아보세요.</p></div></form>' +
       '<div class="col"><section class="panel" aria-labelledby="h-sv"><h3 id="h-sv" class="s">찾는 중인 물건</h3><div class="saved">' + saved + '</div></section>' +
-        '<section class="panel" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
+        '<section class="panel demo-alerts" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 (예시)</h3>' +
           '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 닮음 높음 · ' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일
           '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · ' + md('2026-10-30') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
           '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요. · ' + md('2026-10-31') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
+        // #김다영 수정: 알림이 오는 과정을 한 단계씩 움직여 보여 줌 (움직임 줄이기 설정이면 멈춤)
+        '<div class="aflow" aria-label="알림이 오는 과정"><h4 class="s">알림이 오는 과정</h4><ol>' +
+          [['📝', '조건 저장', '찾는 물건을 저장해요'], ['📦', '새 습득물 등록', '기관이 습득물을 올려요'], ['🤖', 'AI가 비교', '하루 두 번 닮음을 따져요'], ['✉️', '알림 도착', '닮은 물건을 알려 드려요']].map(function (x, k) {
+            return '<li style="--k:' + k + '"><span class="ic" aria-hidden="true">' + x[0] + '</span><b>' + x[1] + '</b><span class="cap">' + x[2] + '</span></li>';
+          }).join('') +
+        '</ol><div class="abar" aria-hidden="true"><i></i></div></div>' +
         '</section></div></div></div>';
   }
 
