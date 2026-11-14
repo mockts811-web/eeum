@@ -446,6 +446,13 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .small, .alert p, .check, .dirs label, .form label, .lbl, .fgrid label, dl.facts dt, dl.facts dd, .valnote, .scard .inner, .mg-points, .memo-guide, .memo-guide .mg-points, table.queue, .steps .small, .howto .small { font-size: 16px; }
 .small, .alert p { line-height: 1.6; }
 .cap, .memo-guide > summary, .stop, .reqline { font-size: 14px; line-height: 1.55; }
+/* #김다영 수정: 알림 조건 예시·미리 보기 */
+.exrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.chip { font: inherit; font-size: 14px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line-strong, #C3CAD3); background: var(--bg, #fff); color: var(--fg-2); cursor: pointer; }
+.chip:hover { border-color: var(--primary, #2563EB); color: var(--primary, #2563EB); }
+.pchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; min-height: 28px; }
+.pchip { font-size: 14px; padding: 4px 10px; border-radius: 8px; background: var(--surface, #F4F6F8); }
+.pchip b { color: var(--primary-strong, #1D4ED8); margin-right: 6px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -1797,7 +1804,10 @@ var CONFIG = {
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>비슷한 물건 알림</span></nav>' +
       '<div class="view"><div class="head"><h2>비슷한 물건이 올라오면 알려 드려요</h2><p class="small">습득물은 등록까지 1~2일 걸려요. 하루 두 번(오전 9시·오후 6시) 새 습득물과 비교해, 닮음 점수 0.6 이상이면 알려 드려요.</p></div>' +
       '<div class="track2"><form class="panel" id="f-save"><h3 class="s">알림 조건 저장</h3>' +
-        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" placeholder="찾는 물건을 입력해 주세요" required></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
+        '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-label" class="lbl">찾는 물건</label><input id="s-label" type="text" placeholder="찾는 물건을 입력해 주세요" required>' +
+          // #김다영 수정: 예시 문장 버튼 + 적은 문장을 어떤 조건으로 알아들었는지 바로 보여 줌
+          '<div class="exrow"><span class="cap">예시</span>' + ['어제 2호선에서 검은 가죽 반지갑', '택시에 두고 내린 흰색 에어팟', '11월 13일 472번 버스 남색 장우산'].map(function (t) { return '<button type="button" class="chip" data-ex="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
+          '<div class="pchips" id="s-preview" aria-live="polite"></div></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 이메일 주소를 입력해 주세요"></div>' + // #김다영 수정: 안내 글
         '<label class="check"><input id="s-agree" type="checkbox"><span>이메일로 알림을 받기 위해 주소를 저장하는 데 동의해요. 해지하면 바로 지워져요.</span></label>' +
         '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button>' +
@@ -2548,6 +2558,22 @@ var CONFIG = {
       var bf = document.getElementById('b-facts'); if (bf) bf.addEventListener('click', function () { copy(bf.getAttribute('data-text'), document.getElementById('m-facts'), document.getElementById('facts')); });
     }
     if (h === 'track') {
+      // #김다영 수정 시작: 적는 대로 알림 조건 미리 보기
+      var sl = document.getElementById('s-label'), sp = document.getElementById('s-preview');
+      var showPreview = function () {
+        var t = sl.value.trim();
+        if (!t) { sp.innerHTML = '<span class="cap">🔎 물건·색상·날짜·장소를 적으면 알림 조건으로 정리해 보여 드려요.</span>'; return; }
+        var c = parse(t), tags = [];
+        if (c.cat) tags.push(['분류', c.cat]); if (c.color) tags.push(['색상', c.color]);
+        if (c.date) tags.push(['잃어버린 날', md(c.date)]);
+        (c.lines && c.lines.length ? c.lines : (c.line ? [c.line] : [])).forEach(function (l) { tags.push(['습득장소', PLACE_LABEL[l] || l]); });
+        if (c.station) tags.push(['역', c.station]); if (c.feats.length) tags.push(['특징', c.feats.join(', ')]);
+        sp.innerHTML = tags.length ? '<span class="cap">이렇게 알아들었어요</span>' + tags.map(function (g) { return '<span class="pchip"><b>' + esc(g[0]) + '</b>' + esc(g[1]) + '</span>'; }).join('')
+          : '<span class="cap">⚠️ 알아들은 조건이 없어요. 물건 종류나 색상을 넣으면 더 잘 찾아요. (예: 검은 지갑)</span>';
+      };
+      sl.addEventListener('input', showPreview); showPreview();
+      app.querySelectorAll('[data-ex]').forEach(function (b) { b.addEventListener('click', function () { sl.value = b.getAttribute('data-ex'); showPreview(); sl.focus(); }); });
+      // #김다영 수정 끝
       document.getElementById('f-save').addEventListener('submit', function (e) {
         e.preventDefault();
         var email = document.getElementById('s-email').value.trim(), agree = document.getElementById('s-agree').checked;
