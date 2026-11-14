@@ -48,6 +48,7 @@
 html { scrollbar-gutter: stable; overflow-y: scroll; }
 body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; } body > main { flex: 1 0 auto; } body > footer { flex: none; } [hidden] { display: none !important; } img { max-width: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 17px; line-height: 1.5; }
+body { word-break: keep-all; overflow-wrap: break-word; } /* #김다영 수정: 한국어 문장이 글자 중간에서 끊기지 않고 띄어쓰기 단위로 줄바꿈 */
 .band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .in { max-width: 1200px; margin: 0 auto; }
 h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 700; }
@@ -1400,7 +1401,7 @@ var CONFIG = {
   // ===== #서유석 수정 끝 =====
     var tc = trainCands(), dir = dirSign() || 1, L = STATIONS.length; // #서유석 수정 (4차)
     var names = []; for (var k = -1; k <= 6; k++) names.push(STATIONS[((tc.idx + dir * k) % L + L) % L]);
-    var vehicles = tc.list.map(function (c) { var pos = 1 + (tc.now - c.dep) / 2; return { pos: pos, label: c.no + (c.best ? ' · 탔던 열차?' : ''), best: c.best }; });
+    var vehicles = tc.list.map(function (c) { var pos = 1 + (tc.now - c.dep) / 2; return { pos: pos, label: c.no + (c.best ? ' · 탔던 열차' : ''), best: c.best }; }); // #김다영 수정: '탔던 열차?' → '탔던 열차'
     var cands = tc.list.map(function (c) {
       var pos = Math.max(0, Math.min(names.length - 1, Math.round(1 + (tc.now - c.dep) / 2)));
       return '<div class="cand' + (c.best ? ' best' : '') + '"><span><span class="no">' + c.no + ' 열차</span><br><span class="small">' + hhmm(c.dep) + ' ' + esc(tState.station) + ' 출발 · 지금 ' + esc(names[pos]) + ' 부근 (추정)</span></span><span class="badge ' + (c.best ? 's-soon' : 'b-low') + '">' + (c.best ? '가능성 높음' : '추정') + '</span></div>';
@@ -1507,7 +1508,7 @@ var CONFIG = {
     for (var k = from; k < from + 7; k++) { var j = a + dir * k; if (m.loop) j = ((j % L) + L) % L; if (j >= 0 && j < L) ks.push(k); }
     var names = ks.map(function (k) { var j = a + dir * k; if (m.loop) j = ((j % L) + L) % L; return STATIONS[j]; });
     var me = ks.indexOf(0);
-    var vehicles = live.filter(function (t) { return ks.indexOf(t.off) >= 0; }).map(function (t) { return { pos: ks.indexOf(t.off), label: t.no + (t === best ? ' · 탔던 열차?' : ''), best: t === best }; });
+    var vehicles = live.filter(function (t) { return ks.indexOf(t.off) >= 0; }).map(function (t) { return { pos: ks.indexOf(t.off), label: t.no + (t === best ? ' · 탔던 열차' : ''), best: t === best }; }); // #김다영 수정: '탔던 열차?' → '탔던 열차'
     var cands = (tv ? '<p class="small">열차 시간표를 불러오는 중이에요…</p>' : '') + timeNote(el, est, '정거장') + (ranked.length ? ranked.slice(0, 3).map(function (t, i) {
       return '<div class="cand' + (i === 0 ? ' best' : '') + '"><span><span class="no">' + esc(t.no) + ' 열차</span><br><span class="small">지금 ' + esc(t.station) + ' 부근 · 내린 역에서 ' + (t.off === 0 ? '아직 같은 역' : t.off + '정거장 지남') + '</span></span><span class="badge ' + (i === 0 ? 's-soon' : 'b-low') + '">' + (i === 0 ? '가능성 높음' : '추정') + '</span></div>';
     }).join('') : (el > 180 ? '' : '<p class="small">내린 역을 지나간 열차를 찾지 못했어요. 역 직원에게 바로 문의하세요.</p>'));
@@ -1753,7 +1754,7 @@ var CONFIG = {
       ['6·7호선', '태릉입구 유실물센터', '02-6311-6766', '평일 09:00~18:00', '보관함·집앞배송']] },
     { title: '그 밖의 도시철도·광역철도', note: '운영 기관마다 유실물 센터와 이관 기간이 달라요. 확인된 곳만 번호를 적었어요.', rows: [
       ['9호선', '서울시메트로9호선 유실물센터 (동작역)', '02-2656-0009', '확인 필요', '확인 필요'],
-      ['신분당선', '신분당선 유실물센터', '031-8018-7777', '확인 필요', '확인 필요'], // #김다영 수정: 번호 추가
+      ['신분당선', '신분당선 유실물센터', '031-8018-7777', '평일 09:00~20:00 (주말·공휴일 휴무)', '확인 필요'], // #김다영 수정: 번호·운영시간 추가
       ['공항철도', '공항철도 유실물센터', '운영 기관 공식 안내 확인', '확인 필요', '확인 필요'],
       ['코레일 광역전철 (경의중앙·수인분당 등)', '각 역 / 코레일 유실물센터', '철도고객센터 1544-7788', '확인 필요', '확인 필요']] },
       // ===== #서유석 수정 끝 =====
