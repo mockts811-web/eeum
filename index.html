@@ -2632,9 +2632,10 @@ var CONFIG = {
         tState.time = g('t-time') || tState.time; tState.where = g('t-where'); tState.what = g('t-what');
         if (tState.mode === '지하철') {
           // ===== #서유석 수정 시작 =====
-          var nl = g('t-line'); if (nl && nl !== tState.line) setLine(nl); else { tState.station = g('t-st'); setLine(tState.line); } // #서유석 수정 (4차): 노선을 바꾸면 새 노선의 역으로
+          var nl = g('t-line'); if (nl && nl !== tState.line) { /* 아래에서 초기화 */ } else { tState.station = g('t-st'); setLine(tState.line); } // #서유석 수정 (4차): 노선을 바꾸면 새 노선의 역으로
           // ===== #서유석 수정 끝 =====
-          var r = app.querySelector('input[name="dir"]:checked'); if (r) tState.dir = r.value; // #서유석 수정 (4차)
+          if (nl && nl !== tState.line) { tState.station = ''; tState.dir = ''; setLine(nl); } // #김다영 수정: 노선을 바꾸면 내린 역·방향을 처음부터 다시 고름 (환승역이 겹쳐도 남기지 않음)
+          else { var r = app.querySelector('input[name="dir"]:checked'); if (r) tState.dir = r.value; } // #서유석 수정 (4차)
         } else {
           // ===== #서유석 수정 시작 =====
           var prevR = tState.region; tState.region = g('t-region') || '서울';
