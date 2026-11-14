@@ -183,7 +183,7 @@ grant execute on function public.cancel_alert(uuid) to anon, authenticated;
 -- 2026-10-30부터 새 표는 자동 공개되지 않으므로 grant가 꼭 필요함
 grant select                 on public.orgs          to anon, authenticated;
 grant select                 on public.items         to anon, authenticated;
-grant insert, update         on public.items         to authenticated;
+grant insert, update, delete on public.items         to authenticated; -- #김다영 수정: 담당자 삭제 권한 (빠져 있어서 permission denied)
 grant select                 on public.staff_members to authenticated;
 grant select, insert, update on public.item_private  to authenticated;
 grant select, insert         on public.pickups       to authenticated;
