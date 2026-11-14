@@ -1158,7 +1158,7 @@ var CONFIG = {
       // ===== #김다영 수정 시작: 본인 수령·대리 수령을 '수령 신청' 하나로 합침 (주인 확인 → 받는 사람 선택 → 담당자에게 전달) =====
       // (예전: #고현 수정 '본인 수령 안내' 패널 + '대리 수령 신청' 폼을 따로 열던 구조)
       '<div class="bottom-actions"><div class="btns center"><button class="btn primary" type="button" id="b-req">수령 신청</button>' +
-          (org.delivery ? '<a class="btn tertiary" href="https://news.seoul.go.kr/traffic/archives/514397" target="_blank" rel="noopener">집앞배송·보관함 안내</a>' : '') +
+          // #김다영 수정: '집앞배송·보관함 안내' 버튼 뺌
           '<a class="btn tertiary" href="#find">내 물건이 아니에요</a></div>' +
         '<form class="panel proxy" id="f-req" hidden novalidate><h3 class="s">수령 신청</h3>' +
           '<p class="small">신청하면 ' + esc(it.org) + ' 담당자에게 바로 전달돼요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 본 뒤 연락드려요.</p>' +
