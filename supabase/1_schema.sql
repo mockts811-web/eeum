@@ -211,3 +211,40 @@ create policy "담당자 사진 삭제" on storage.objects for delete
     bucket_id = 'item-photos'
     and (storage.foldername(name))[1] in (
       select s.org_id::text from public.staff_members s where s.user_id = (select auth.uid())));
+
+-- ===== #김다영 수정 시작: 주인 확인 요청 (시민 → 그 물품을 보관 중인 기관 담당자) =====
+-- 시민은 보내기만 하고 조회는 못 함. 담당자는 자기 기관 물품의 요청만 보고 상태를 바꿈.
+-- 연락처는 동의했을 때만 저장하고, 요청을 닫거나 수령이 끝나면 화면이 연락처를 지움(null).
+create table public.claims (
+  id               uuid primary key default gen_random_uuid(),
+  item_id          text not null references public.items (id) on delete cascade,
+  text             text not null check (char_length(text) between 1 and 300),
+  contact          text check (contact is null or char_length(contact) between 5 and 60),
+  contact_consent  boolean not null default false,
+  status           text not null default '접수' check (status in ('접수', '연락함', '종료')),
+  created_at       timestamptz not null default now(),
+  constraint claims_contact_needs_consent check (contact is null or contact_consent)
+);
+create index claims_item_id_idx on public.claims (item_id);
+alter table public.claims enable row level security;
+
+create policy "확인 요청 보내기" on public.claims for insert
+  to anon, authenticated
+  with check (status = '접수' and exists (
+    select 1 from public.items i where i.id = claims.item_id and i.status <> '수령완료'));
+create policy "담당자 확인 요청 조회" on public.claims for select
+  to authenticated using (exists (
+    select 1 from public.items i join public.staff_members s on s.org_id = i.org_id
+    where i.id = claims.item_id and s.user_id = (select auth.uid())));
+create policy "담당자 확인 요청 처리" on public.claims for update
+  to authenticated
+  using (exists (
+    select 1 from public.items i join public.staff_members s on s.org_id = i.org_id
+    where i.id = claims.item_id and s.user_id = (select auth.uid())))
+  with check (exists (
+    select 1 from public.items i join public.staff_members s on s.org_id = i.org_id
+    where i.id = claims.item_id and s.user_id = (select auth.uid())));
+
+grant insert on public.claims to anon, authenticated;
+grant select, update on public.claims to authenticated;
+-- ===== #김다영 수정 끝 =====
