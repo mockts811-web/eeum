@@ -1837,7 +1837,7 @@ var CONFIG = {
     var need = sub ? [!tState.line && '지하철 노선', !tState.station && '내린 정류장', !tState.dir && '열차 방향'].filter(Boolean)
       : [!tState.bus && '버스 노선', !tState.busStop && '내린 정류장'].filter(Boolean);
     if (need.length) {
-      right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 후보' : '탔던 버스 위치') + '</h3>' +
+      right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 위치' : '탔던 버스 위치') /* #김다영 수정: 제목 통일 */ + '</h3>' +
         '<div class="empty-guide"><b>' + esc(need.join(', ')) + (/[가-힣]/.test(need[need.length - 1].slice(-1)) && ((need[need.length - 1].slice(-1).charCodeAt(0) - 0xAC00) % 28) ? '을' : '를') + ' 골라 주세요</b>' +
         '<p class="small">왼쪽에서 ' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 정류장과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
       if (sub && tState.line && STATIONS.length) { // #김다영 수정: 노선을 고르면 그 노선의 노선도(7개 역)를 먼저 보여 줌. 내린 역을 고르면 그 역이 가운데
@@ -1853,7 +1853,7 @@ var CONFIG = {
       right = '<div class="alert a-warn">' + I.warn + '<div><b>시범 데이터에 없는 노선이에요</b><p>시범 서비스는 ' + Object.keys(BUSES).join('·') + '번만 안내해요. 서울 시내버스는 다산콜센터(120)에서 운수회사 연락처를 알려 줘요.</p></div></div>';
     } else {
       var factsText = v.facts.map(function (f) { return f[0] + ': ' + f[1]; }).join('\n');
-      right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 후보' : '탔던 버스 위치') + '</h3>' + v.screen + (v.cands ? '<div class="cands">' + v.cands + '</div>' : '') + '</section>' +
+      right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 위치' : '탔던 버스 위치') /* #김다영 수정: 제목 통일 */ + '</h3>' + v.screen + (v.cands ? '<div class="cands">' + v.cands + '</div>' : '') + '</section>' +
         '<section class="panel" aria-labelledby="h-call"><h3 id="h-call" class="s">지금 연락하세요</h3>' +
           '<div class="copyline"><span class="lbl">' + esc(v.callName) + '</span><span class="num" id="cc">' + esc(v.callTel) + '</span><button class="btn secondary sm" type="button" id="b-cc">번호 복사</button><span class="toast" id="m-cc" aria-live="polite"></span></div>' +
           '<p class="small">' + esc(v.callNote) + '</p>' +
