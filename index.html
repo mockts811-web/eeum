@@ -419,6 +419,22 @@ footer .in { padding-block: 24px; display: flex; flex-direction: column; gap: 6p
 /* #김다영 수정: 줄이 끝에 한두 단어만 남지 않게 문단 줄바꿈을 고르게 */
 p, .small, .cap, li { text-wrap: pretty; }
 h1, h2, h3, .empty-guide b { text-wrap: balance; }
+/* #김다영 수정: 수령 신청 */
+.reqstep { margin: 14px 0; padding: 14px 16px; border: 1px solid var(--line, #D5DBE3); border-radius: var(--r-lg, 12px); display: grid; gap: 10px; }
+.reqstep h4 { margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.reqstep .no { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary, #2563EB); color: #fff; font-size: 13px; }
+.reqstep input:disabled, .reqstep select:disabled { opacity: .5; }
+.reqcard.new { border-color: var(--warn-fg, #B45309); }
+.reqhead { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
+.reqhead .thumb { width: 72px; height: 72px; flex: none; border-radius: 10px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; }
+.reqhead .thumb img, .reqhead .thumb svg { width: 100%; height: 100%; object-fit: cover; }
+.reqhead h3 { margin: 4px 0 2px; }
+.nbadge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #E5484D; color: #fff; font-size: 12px; font-weight: 700; margin-left: 4px; }
+#nbar { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; display: flex; gap: 14px; align-items: center; padding: 12px 18px; border-radius: 12px; background: #1F2937; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+#nbar a { color: #FFC83D; font-weight: 700; }
+#nbar button { background: none; border: 0; color: #fff; font-size: 18px; cursor: pointer; }
+.track2 > form.panel { display: flex; flex-direction: column; justify-content: space-between; } /* #김다영 수정: 알림 조건 박스가 길어져도 아래만 비지 않게 고르게 */
+.track2 > form.panel > .btn, .track2 > form.panel > .btns { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -525,17 +541,36 @@ var CONFIG = {
   // 지금은 같은 브라우저 안에서만 오가므로 시연용. 실제로 쓰려면 claims 표와 RLS가 필요함(회의 안건).
   var CLAIMS = {};
   try { CLAIMS = JSON.parse(localStorage.getItem('eeum-claims') || '{}'); } catch (e) { CLAIMS = {}; }
-  function saveClaim(id, text) {
-    CLAIMS[id] = { text: String(text || '').slice(0, 300), at: new Date().toISOString().slice(0, 16).replace('T', ' ') };
+  function saveClaim(id, text, contact, extra) { // #김다영 수정: 시연 모드에서도 연락처·수령 방법을 담아 담당자 화면에서 보이게
+    extra = extra || {}; var px = extra.proxy || {};
+    CLAIMS[id] = { text: String(text || '').slice(0, 300), at: new Date(Date.now() + 9 * 36e5).toISOString().slice(0, 16).replace('T', ' '), contact: contact || '', method: extra.method || '본인', proxyName: px.name || '', proxyRel: px.rel || '', proxyTel: px.tel || '', status: '접수' };
     try { localStorage.setItem('eeum-claims', JSON.stringify(CLAIMS)); } catch (e) {}
   }
   function dropClaim(id) { delete CLAIMS[id]; try { localStorage.setItem('eeum-claims', JSON.stringify(CLAIMS)); } catch (e) {} }
   // ===== #김다영 수정 시작: 주인 확인 요청을 DB(claims)로 담당자에게 전달 =====
   var SRV_CLAIMS = {}; // 담당자 화면: 물품 ID → 처리 중인 요청 목록(최신 먼저)
-  function openClaims(id) { return (SRV_CLAIMS[id] || []).filter(function (c) { return c.status !== '종료'; }); }
-  function claimFor(id) { // 담당자 화면에서 볼 요청: DB 요청이 있으면 그것, 없으면(시연) 이 브라우저에 적은 것
-    var c = openClaims(id)[0];
-    return c ? { text: c.text, at: c.at, contact: c.contact, id: c.id, status: c.status, n: openClaims(id).length } : CLAIMS[id];
+  function openClaims(id) {
+    if (!LIVE) { var d = CLAIMS[id]; return d && d.status !== '종료' ? [Object.assign({ id: 'demo:' + id, status: '접수', method: '본인' }, d)] : []; } // 시연 모드: 이 브라우저에 적은 신청
+    return (SRV_CLAIMS[id] || []).filter(function (c) { return c.status !== '종료'; });
+  }
+  function claimFor(id) { var list = openClaims(id); return list.length ? Object.assign({ n: list.length }, list[0]) : null; }
+  function allOpenClaims() { // 담당자 화면: 우리 기관 물품의 처리 중인 신청 (최신 먼저)
+    var out = [];
+    myItems().forEach(function (it) { if (it.status !== '수령완료') openClaims(it.id).forEach(function (c) { out.push({ it: it, c: c }); }); });
+    return out.sort(function (a, b) { return a.c.at < b.c.at ? 1 : -1; });
+  }
+  function newClaimCount() { return allOpenClaims().filter(function (x) { return x.c.status === '접수'; }).length; }
+  // 신청 한 건을 담당자에게 보여 주는 내용 (수령 신청 페이지·수령 확인 창이 같이 씀)
+  function claimDetailHtml(it, cl) {
+    var m = claimMatch(it.inner, cl.text);
+    return '<dl class="facts">' +
+      '<dt>받는 사람</dt><dd>' + (cl.method === '대리' ? '<b>대리 수령</b> · ' + esc(cl.proxyName || '-') + ' (' + esc(cl.proxyRel || '-') + ') ' + esc(cl.proxyTel || '') : '본인 수령') + '</dd>' +
+      '<dt>주인 연락처</dt><dd>' + esc(cl.contact || '남기지 않음') + '</dd>' +
+      '<dt>주인이 적은 특징</dt><dd>' + esc(cl.text) + '</dd>' +
+      '<dt>비공개 메모</dt><dd>' + esc(it.inner || '없음') + '</dd>' +
+      '<dt>대조</dt><dd>' + (it.inner ? (m.hit.length ? '<span class="badge b-high">겹치는 말 ' + m.hit.length + '개</span> ' + esc(m.hit.join(', ')) : '<span class="badge b-low">겹치는 말 없음</span>') +
+        (m.missed.length ? '<br><span class="cap">메모에만 있는 말: ' + esc(m.missed.join(', ')) + ' — 연락할 때 직접 물어보세요</span>' : '') : '<span class="cap">비공개 메모가 없어 대조할 수 없어요. 연락할 때 직접 물어보세요.</span>') + '</dd></dl>' +
+      '<p class="cap">낱말이 겹치는지만 기계가 세어 본 거예요. <b>주인이 맞는지는 담당자가 판단</b>하세요.</p>';
   }
   // ===== #김다영 수정 끝 =====
   // 대조는 코드가 함 (판정은 코드, 설명은 사람). 두 글에 함께 나오는 낱말을 찾아 줌
@@ -867,19 +902,25 @@ var CONFIG = {
       }).then(function (r) { if (r && r.error) throw r.error; return DB.loadItems(); });
     },
     // #김다영 수정 시작: 주인 확인 요청 보내기·불러오기·처리
-    sendClaim: function (itemId, text, contact) {
-      if (!LIVE) { saveClaim(itemId, text); return Promise.resolve(); }
-      return sb.from('claims').insert({ item_id: itemId, text: text.slice(0, 300), contact: contact || null, contact_consent: !!contact }).then(function (r) { if (r.error) throw r.error; saveClaim(itemId, text); });
+    sendClaim: function (itemId, text, contact, extra) { // #김다영 수정: 수령 방법(본인/대리)·대리인 정보도 함께
+      extra = extra || {}; var px = extra.proxy || {};
+      if (!LIVE) { saveClaim(itemId, text, contact, extra); return Promise.resolve(); }
+      var cid = uuid(); // 시민은 조회 권한이 없어 저장 뒤 id를 못 받으므로 미리 만들어 보냄
+      return sb.from('claims').insert({ id: cid, item_id: itemId, text: text.slice(0, 300), contact: contact || null, contact_consent: !!contact, method: extra.method || '본인', proxy_name: px.name || null, proxy_rel: px.rel || null, proxy_contact: px.tel || null }).then(function (r) {
+        if (r.error) throw r.error; saveClaim(itemId, text, contact, extra);
+        return sb.functions.invoke('claim-mail', { body: { id: cid } }).then(function (m) { return (m && m.data) || { sent: false }; }, function () { return { sent: false }; }); // #김다영 수정: 신청 확인 메일
+      });
     },
     loadClaims: function () {
       if (!LIVE || !state.staff) { SRV_CLAIMS = {}; return Promise.resolve(); }
-      return sb.from('claims').select('id, item_id, text, contact, status, created_at').neq('status', '종료').order('created_at', { ascending: false }).limit(1000).then(function (r) {
+      return sb.from('claims').select('id, item_id, text, contact, status, created_at, method, proxy_name, proxy_rel, proxy_contact').neq('status', '종료').order('created_at', { ascending: false }).limit(1000).then(function (r) {
         SRV_CLAIMS = {};
-        (r.data || []).forEach(function (c) { (SRV_CLAIMS[c.item_id] = SRV_CLAIMS[c.item_id] || []).push({ id: c.id, text: c.text, contact: c.contact || '', status: c.status, at: new Date(new Date(c.created_at).getTime() + 9 * 36e5).toISOString().slice(0, 16).replace('T', ' ') }); });
+        (r.data || []).forEach(function (c) { (SRV_CLAIMS[c.item_id] = SRV_CLAIMS[c.item_id] || []).push({ id: c.id, text: c.text, contact: c.contact || '', status: c.status, method: c.method || '본인', proxyName: c.proxy_name || '', proxyRel: c.proxy_rel || '', proxyTel: c.proxy_contact || '', at: new Date(new Date(c.created_at).getTime() + 9 * 36e5).toISOString().slice(0, 16).replace('T', ' ') }); });
       });
     },
     setClaim: function (claimId, status) {
-      var patch = { status: status }; if (status === '종료') patch.contact = null; // 닫으면 연락처는 지움
+      if (String(claimId).indexOf('demo:') === 0) { var did = claimId.slice(5); if (CLAIMS[did]) CLAIMS[did].status = status; try { localStorage.setItem('eeum-claims', JSON.stringify(CLAIMS)); } catch (e) {} return Promise.resolve(); } // 시연 모드
+      var patch = { status: status }; if (status === '종료') { patch.contact = null; patch.proxy_name = null; patch.proxy_rel = null; patch.proxy_contact = null; } // 닫으면 연락처·대리인 정보는 지움
       return sb.from('claims').update(patch).eq('id', claimId).then(function (r) { if (r.error) throw r.error; return DB.loadClaims(); });
     },
     // #김다영 수정 끝
@@ -907,13 +948,13 @@ var CONFIG = {
     },
     recordPickup: function (id, chk) {
       var it = ITEMS.filter(function (x) { return x.id === id; })[0];
-      if (!LIVE) { it.status = '수령완료'; return Promise.resolve(); }
+      if (!LIVE) { it.status = '수령완료'; if (CLAIMS[id]) CLAIMS[id].status = '종료'; return Promise.resolve(); } // #김다영 수정: 시연 모드도 신청 닫기
       return sb.from('pickups').insert({ item_id: id, checked_id: chk.id, checked_feature: chk.feat, proxy: chk.proxy, proxy_doc: chk.doc, note: chk.note || null }).then(function (r) {
         if (r.error) throw r.error;
         return sb.from('items').update({ status: '수령완료' }).eq('id', id);
       }).then(function (r) {
         if (r.error) throw r.error;
-        return sb.from('claims').update({ status: '종료', contact: null }).eq('item_id', id).neq('status', '종료'); // #김다영 수정: 수령이 끝나면 확인 요청도 닫고 연락처 지움
+        return sb.from('claims').update({ status: '종료', contact: null, proxy_name: null, proxy_rel: null, proxy_contact: null }).eq('item_id', id).neq('status', '종료'); // #김다영 수정: 수령이 끝나면 확인 요청도 닫고 연락처 지움
       }).then(function () { return DB.loadItems(); });
     },
     saveAlert: function (a) {
@@ -1114,34 +1155,31 @@ var CONFIG = {
         '<p class="cap">전화할 때 관리번호 ' + esc(it.id) + '를 알려 주세요.</p>' +
         '<h3 class="s">찾는 방법</h3><ol class="howto"><li><b>연락</b><span class="small">관리번호를 말하고 보관 여부를 확인해요</span></li><li><b>방문·배송</b><span class="small">' + (org.delivery ? '직접 방문하거나 보관함·집앞배송을 신청해요' : '보관 장소를 직접 방문해요') + '</span></li><li><b>본인 확인 후 수령</b><span class="small">신분증과 물건 특징을 확인해요</span></li></ol>' +
       '</div></div>' +
-      // ===== #고현 수정 시작: 본인 수령 안내 — 가장 많이 쓰는 길인데 버튼이 없어 대리 수령만 보이던 것 =====
-      '<div class="bottom-actions"><div class="btns center"><button class="btn primary" type="button" id="b-self">본인 수령 안내</button>' +
-          '<button class="btn secondary" type="button" id="b-proxy">대리 수령 신청</button>' +
+      // ===== #김다영 수정 시작: 본인 수령·대리 수령을 '수령 신청' 하나로 합침 (주인 확인 → 받는 사람 선택 → 담당자에게 전달) =====
+      // (예전: #고현 수정 '본인 수령 안내' 패널 + '대리 수령 신청' 폼을 따로 열던 구조)
+      '<div class="bottom-actions"><div class="btns center"><button class="btn primary" type="button" id="b-req">수령 신청</button>' +
           (org.delivery ? '<a class="btn tertiary" href="https://news.seoul.go.kr/traffic/archives/514397" target="_blank" rel="noopener">집앞배송·보관함 안내</a>' : '') +
           '<a class="btn tertiary" href="#find">내 물건이 아니에요</a></div>' +
-        '<section class="panel proxy" id="p-self" hidden><h3 class="s">본인이 직접 받을 때</h3>' +
-          '<p class="small">먼저 ' + esc(it.org) + '에 전화해 관리번호 ' + esc(it.id) + '로 보관 여부를 확인하세요. 운영 시간은 ' + esc(org.hours) + '이에요.</p>' +
-          '<ul class="mg-points"><li><b>챙길 것</b> 신분증 (본인 확인용)</li>' +
-          '<li><b>준비할 말</b> 물건의 안쪽 특징 — 내용물, 잠금화면, 각인처럼 겉에서 안 보이는 것</li>' +
-          '<li><b>왜 묻나요</b> 같은 물건이 여러 개일 수 있어서, 공개된 설명 말고 주인만 아는 것으로 확인해요</li></ul>' +
-          '<p class="cap">' + (org.delivery ? '직접 가기 어려우면 보관함·집앞배송도 신청할 수 있어요.' : '이 기관은 방문 수령만 돼요.') + '</p>' +
-          // #고현 수정: 내 물건 확인 — 안쪽 특징을 미리 적어 두면 담당자가 비공개 메모와 대조함
-          '<h3 class="s" style="margin-top:14px">내 물건인지 미리 확인하기</h3>' +
-          '<p class="small">겉에서 안 보이는 것을 적어 주세요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 봐요. 맞히려고 애쓰지 말고 <b>기억나는 것만</b> 적으면 돼요.</p>' +
-          '<div class="f full"><label for="claim-text">안쪽 특징 (내용물·각인·잠금화면 등)</label>' +
-          '<textarea id="claim-text" rows="3" placeholder="예: 카드 3장 들어 있고 모서리가 해졌어요. 안쪽에 이니셜 각인이 있어요">' + esc((CLAIMS[it.id] || {}).text || '') + '</textarea></div>' +
-          // #김다영 수정: 연락처(선택)를 받아 담당자에게 실제로 보냄
-          '<div class="f full"><label for="claim-contact">연락받을 전화번호 또는 이메일 (선택)</label><input id="claim-contact" type="text" maxlength="60" placeholder="남기면 담당자가 확인 뒤 연락드려요"></div>' +
-          '<label class="check full"><input id="claim-agree" type="checkbox"><span>확인 연락을 위해 연락처를 보관 기관에 전달하는 데 동의해요. 수령이 끝나거나 요청이 닫히면 바로 지워져요.</span></label>' +
-          '<div class="btns"><button class="btn primary sm" type="button" id="b-claim">담당자에게 확인 요청 보내기</button>' +
-          (CLAIMS[it.id] ? '<button class="btn tertiary sm" type="button" id="b-claim-del">지우기</button>' : '') + '</div>' +
+        '<form class="panel proxy" id="f-req" hidden novalidate><h3 class="s">수령 신청</h3>' +
+          '<p class="small">신청하면 ' + esc(it.org) + ' 담당자에게 바로 전달돼요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 본 뒤 연락드려요.</p>' +
+          '<div class="reqstep"><h4 class="s"><span class="no">1</span>주인 확인 <span class="cap">대리 수령이어도 물건 주인이 먼저 적어 주세요</span></h4>' +
+            '<div class="f full"><label for="claim-text">안쪽 특징 (내용물·각인·잠금화면 등)</label>' +
+            '<textarea id="claim-text" rows="3" placeholder="예: 카드 3장 들어 있고 모서리가 해졌어요. 안쪽에 이니셜 각인이 있어요">' + esc((CLAIMS[it.id] || {}).text || '') + '</textarea>' +
+            '<span class="cap">겉에서 안 보이는 것을 기억나는 만큼만 적으면 돼요. 같은 물건이 여러 개일 수 있어서 주인만 아는 것으로 확인해요.</span></div>' +
+            '<div class="f full"><label for="claim-contact">이메일</label><input id="claim-contact" type="email" maxlength="60" placeholder="신청 확인 메일을 받을 이메일 주소를 입력해 주세요"><span class="cap">신청하면 이 주소로 확인 메일을 보내 드리고, 담당자도 이 주소로 연락해요.</span></div></div>' + // #김다영 수정: 이메일로 받음
+          '<div class="reqstep"><h4 class="s"><span class="no">2</span>누가 받으러 가나요?</h4>' +
+            '<div class="dirs" role="radiogroup" aria-label="받는 사람"><label><input type="radio" name="rmethod" value="본인">본인이 직접 받아요</label><label><input type="radio" name="rmethod" value="대리">가족·지인이 대신 받아요 (대리 수령)</label></div>' +
+            '<div id="m-self" hidden><ul class="mg-points"><li><b>챙길 것</b> 신분증 (본인 확인용)</li><li><b>운영 시간</b> ' + esc(org.hours) + '</li><li><b>현장에서</b> 1번에 적은 안쪽 특징을 한 번 더 물어봐요</li></ul>' +
+              '<p class="cap">' + (org.delivery ? '직접 가기 어려우면 보관함·집앞배송도 신청할 수 있어요.' : '이 기관은 방문 수령만 돼요.') + '</p></div>' +
+            '<div id="m-proxy" hidden><p class="cap" id="proxy-lock">먼저 1번 주인 확인(안쪽 특징·이메일)을 적어 주세요. 그다음 대리인 정보를 적을 수 있어요.</p>' +
+              '<div class="form"><div class="f"><label for="p-name">대리인 이름</label><input id="p-name" type="text" maxlength="30" disabled></div><div class="f"><label for="p-rel">관계</label><select id="p-rel" disabled><option>가족</option><option>지인</option><option>기타</option></select></div>' +
+              '<div class="f full"><label for="p-tel">대리인 연락처</label><input id="p-tel" type="text" inputmode="tel" maxlength="60" disabled></div>' +
+              '<label class="check full"><input id="p-agree" type="checkbox" disabled><span>대리 수령에는 위임장과 분실자 신분증 사본 등 기관이 정한 서류가 필요하다는 안내를 확인했어요.</span></label></div></div></div>' +
+          '<label class="check full"><input id="claim-agree" type="checkbox"><span>신청 확인 메일을 받고 보관 기관이 연락할 수 있도록 이메일(대리 수령이면 대리인 연락처도)을 저장·전달하는 데 동의해요. 수령이 끝나거나 신청이 닫히면 바로 지워져요.</span></label>' +
+          '<div class="btns center"><button class="btn primary" type="submit" id="b-claim">수령 신청 보내기</button></div>' +
           '<div id="claim-out" aria-live="polite"></div>' +
-          '<p class="cap">' + (LIVE ? '보낸 내용은 이 물품을 보관 중인 기관 담당자만 볼 수 있어요. 담당자가 등록해 둔 비공개 메모와 맞춰 봐요.' : '시연 모드라 이 브라우저에만 저장돼요.') + '</p></section>' + // #김다영 수정
-        '<form class="panel proxy" id="f-proxy" hidden><h3 class="s">대리 수령 신청</h3><p class="small">가족·지인이 대신 받을 때 써요. 대리인 정보는 수령이 끝나면 바로 지워요.</p>' +
-          '<div class="form"><div class="f"><label for="p-name">대리인 이름</label><input id="p-name" type="text" required></div><div class="f"><label for="p-rel">관계</label><select id="p-rel"><option>가족</option><option>지인</option><option>기타</option></select></div>' +
-          '<div class="f full"><label for="p-tel">대리인 연락처</label><input id="p-tel" type="text" inputmode="tel" required></div>' +
-          '<label class="check full"><input id="p-agree" type="checkbox" required><span>위임 확인을 위해 기관이 정한 서류(위임장, 분실자 신분증 사본 등)가 필요하다는 안내를 확인했어요.</span></label></div>' +
-          '<div class="btns center"><button class="btn primary" type="submit">신청 내용 만들기</button></div><div id="proxy-out" aria-live="polite"></div></form>' +
+          '<p class="cap">' + (LIVE ? '보낸 내용은 이 물품을 보관 중인 기관 담당자만 볼 수 있어요.' : '시연 모드라 이 브라우저에만 저장돼요.') + '</p></form>' +
+      // ===== #김다영 수정 끝 =====
       '</div></div>';
   }
 
@@ -1801,7 +1839,7 @@ var CONFIG = {
     var el = document.getElementById('subnav');
     if (!state.staff) { el.hidden = true; el.innerHTML = ''; return; }
     el.hidden = false;
-    el.innerHTML = '<div class="in"><span><b>' + esc(state.staff.org) + '</b> · ' + esc(state.staff.name) + '</span><nav aria-label="담당자 메뉴"><a href="#staff"' + (h === 'staff' ? ' aria-current="page"' : '') + '>습득물 등록</a><a href="#staff-items"' + (h === 'staff-items' ? ' aria-current="page"' : '') + '>보관 물품 조회·수정</a><button type="button" id="b-logout">로그아웃</button></nav></div>';
+    el.innerHTML = '<div class="in"><span><b>' + esc(state.staff.org) + '</b> · ' + esc(state.staff.name) + '</span><nav aria-label="담당자 메뉴"><a href="#staff"' + (h === 'staff' ? ' aria-current="page"' : '') + '>습득물 등록</a><a href="#staff-items"' + (h === 'staff-items' ? ' aria-current="page"' : '') + '>보관 물품 조회·수정</a><a href="#staff-req"' + (h === 'staff-req' ? ' aria-current="page"' : '') + '>수령 신청' + (newClaimCount() ? ' <span class="nbadge" aria-label="새 신청 ' + newClaimCount() + '건">' + newClaimCount() + '</span>' : '') + '</a><button type="button" id="b-logout">로그아웃</button></nav></div>';
     document.getElementById('b-logout').addEventListener('click', function () { DB.signOut().then(function () { go('home'); }); });
   }
 
@@ -2056,6 +2094,23 @@ var CONFIG = {
     ['수령완료', '수령 완료', function (it) { return it.status === '수령완료'; }],
     ['전체', '전체', function () { return true; }]
   ];
+  // ===== #김다영 수정 시작: 담당자 '수령 신청' 페이지 — 시민이 보낸 수령 신청을 모아 보고 처리 =====
+  function vStaffReq() {
+    var list = allOpenClaims();
+    var cards = list.map(function (x) {
+      var it = x.it, c = x.c;
+      return '<section class="panel reqcard' + (c.status === '접수' ? ' new' : '') + '"><div class="reqhead"><span class="thumb">' + pic(it) + '</span><div>' +
+        '<span class="tags"><span class="badge ' + (c.status === '접수' ? 's-soon' : 'b-mid') + '">' + (c.status === '접수' ? '새 신청' : '연락함') + '</span>' + (c.method === '대리' ? '<span class="badge s-val">대리 수령</span>' : '<span class="badge s-keep">본인 수령</span>') + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '</span>' +
+        '<h3 class="s">' + esc(it.name) + ' (' + esc(it.color) + ')</h3><p class="cap">' + esc(it.id) + ' · ' + md(it.date) + ' 습득 · 신청 ' + esc(c.at) + '</p></div></div>' +
+        claimDetailHtml(it, c) +
+        '<div class="btns end">' + (c.status === '접수' ? '<button class="btn secondary sm" type="button" data-claim="' + esc(c.id) + '" data-st="연락함">연락함으로 표시</button>' : '') +
+          '<button class="btn primary sm" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>' +
+          '<button class="btn tertiary sm" type="button" data-claim="' + esc(c.id) + '" data-st="종료">주인이 아님 · 신청 닫기</button></div></section>';
+    }).join('') || '<div class="empty panel"><b>처리할 수령 신청이 없어요</b><p class="small">시민이 습득물 상세 화면에서 수령 신청을 보내면 여기에 나타나요.</p></div>';
+    return '<div class="view"><div class="head"><h2>수령 신청</h2><p class="small">시민이 보낸 수령 신청이에요. 주인이 적은 특징을 비공개 메모와 맞춰 본 뒤 연락하세요. 새 신청은 1분마다 확인해요.</p></div>' +
+      '<div class="col">' + cards + '</div></div>';
+  }
+  // ===== #김다영 수정 끝 =====
   function vStaffItems() {
     var mine = myItems(), c = inv.conds, scored = hasCond(c);
     var tabDef = INV_TABS.filter(function (t) { return t[0] === inv.tab; })[0] || INV_TABS[0];
@@ -2123,6 +2178,7 @@ var CONFIG = {
           var m = claimMatch(it.inner, cl.text);
           return '<section class="panel" style="margin:4px 0"><h4 class="s">시민이 적은 안쪽 특징 <span class="cap">(' + esc(cl.at) + (cl.n > 1 ? ' · 요청 ' + cl.n + '건 중 최신' : '') + ')</span></h4>' +
             (cl.contact ? '<p class="small"><b>연락처</b> ' + esc(cl.contact) + '</p>' : (cl.id ? '<p class="cap">연락처를 남기지 않았어요. 시민이 전화하면 이 내용과 맞춰 보세요.</p>' : '')) + // #김다영 수정
+            (cl.method === '대리' ? '<p class="small"><b>대리 수령 신청</b> ' + esc(cl.proxyName) + ' (' + esc(cl.proxyRel) + ') ' + esc(cl.proxyTel) + ' — 위임장·분실자 신분증 사본을 확인하세요</p>' : '') + // #김다영 수정
             '<p class="small">' + esc(cl.text) + '</p>' +
             '<p class="small"><b>등록된 비공개 메모</b> ' + esc(it.inner || '없음') + '</p>' +
             (it.inner
@@ -2143,6 +2199,7 @@ var CONFIG = {
         '<p id="pick-msg" aria-live="polite" class="small"></p>' +
         '<div class="btns end"><button class="btn tertiary" type="button" data-close>닫기</button><button class="btn primary" type="submit">수령 완료 기록</button></div></form>', v ? 'val' : '');
     document.getElementById('c3').addEventListener('change', function (e) { document.getElementById('c5wrap').hidden = !e.target.checked; });
+    var pcl = claimFor(id); if (pcl && pcl.method === '대리') { document.getElementById('c3').checked = true; document.getElementById('c5wrap').hidden = false; } // #김다영 수정: 대리 수령 신청이면 미리 체크
     document.querySelectorAll('#modal [data-claim]').forEach(function (b) { b.addEventListener('click', function () { // #김다영 수정: 확인 요청 상태 바꾸기
       b.disabled = true;
       DB.setClaim(b.getAttribute('data-claim'), b.getAttribute('data-st')).then(function () { pickupModal(id); route(); }, function (e) { b.disabled = false; document.getElementById('pick-msg').textContent = '요청 상태를 바꾸지 못했어요 (' + ((e && e.message) || '오류') + ').'; });
@@ -2230,7 +2287,7 @@ var CONFIG = {
   }
 
   /* ================= 라우팅 ================= */
-  var VIEWS = { home: vHome, find: vFind, detail: vDetail, today: vToday, track: vTrack, guide: vGuide, 'staff-login': vLogin, staff: vStaff, 'staff-items': vStaffItems };
+  var VIEWS = { home: vHome, find: vFind, detail: vDetail, today: vToday, track: vTrack, guide: vGuide, 'staff-login': vLogin, staff: vStaff, 'staff-items': vStaffItems, 'staff-req': vStaffReq }; // #김다영 수정: 수령 신청 페이지
   var phTimer = null;
   // ===== #김다영 수정 시작: 안내 문단에서 문장이 끝나는 곳("~요. ", "~다. ")마다 줄을 바꿈 =====
   // 글자만 건드리고(태그·속성은 그대로), 표·카드·입력칸 안은 건드리지 않음
@@ -2250,9 +2307,28 @@ var CONFIG = {
     });
   }
   // ===== #김다영 수정 끝 =====
+  // ===== #김다영 수정 시작: 새 수령 신청 알림 — 담당자로 로그인해 있으면 1분마다 확인하고, 늘었으면 화면 아래에 알림 =====
+  function alertBar(msg, link) {
+    var el = document.getElementById('nbar');
+    if (!el) { el = document.createElement('div'); el.id = 'nbar'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.innerHTML = '<span>' + esc(msg) + '</span>' + (link ? '<a href="' + link + '">확인하기</a>' : '') + '<button type="button" aria-label="닫기">×</button>';
+    el.querySelector('button').onclick = function () { el.remove(); };
+    clearTimeout(alertBar.t); alertBar.t = setTimeout(function () { if (el.parentNode) el.remove(); }, 15000);
+  }
+  var lastNew = -1;
+  setInterval(function () {
+    if (!LIVE || !state.staff) return;
+    DB.loadClaims().then(function () {
+      var n = newClaimCount(), h = (location.hash || '#home').slice(1);
+      if (lastNew >= 0 && n > lastNew) alertBar('새 수령 신청이 ' + (n - lastNew) + '건 들어왔어요.', '#staff-req');
+      lastNew = n;
+      subnav(h); if (h === 'staff-req') route();
+    });
+  }, 60000);
+  // ===== #김다영 수정 끝 =====
   function route() {
     var h = (location.hash || '#home').slice(1); if (h === 'results') h = 'find'; if (!VIEWS[h]) h = 'home';
-    if ((h === 'staff' || h === 'staff-items') && !state.staff) h = 'staff-login';
+    if ((h === 'staff' || h === 'staff-items' || h === 'staff-req') && !state.staff) h = 'staff-login'; // #김다영 수정: staff-req 추가
     if (h === 'staff-login' && state.staff) h = 'staff';
     if (phTimer) { clearInterval(phTimer); phTimer = null; }
     app.innerHTML = VIEWS[h]();
@@ -2358,44 +2434,54 @@ var CONFIG = {
     if (h === 'detail') {
       var bt = document.getElementById('b-tel');
       if (bt) bt.addEventListener('click', function () { copy(document.getElementById('tel').textContent, document.getElementById('m-tel'), document.getElementById('tel')); });
-      // #고현 수정: 본인 수령 안내 — 두 패널 중 하나만 열리게
-      var bs = document.getElementById('b-self'), ps = document.getElementById('p-self');
-      if (bs) bs.addEventListener('click', function () {
-        var fp = document.getElementById('f-proxy'); if (fp) fp.hidden = true;
-        ps.hidden = !ps.hidden; if (!ps.hidden && ps.scrollIntoView) ps.scrollIntoView({ block: 'nearest' }); // #고현 수정: 오래된 환경 대비
-      });
-      // ===== #고현 수정 시작: 내 물건 확인 버튼 =====
-      var cit = ITEMS.filter(function (x) { return x.id === state.selected; })[0] || { id: state.selected }; // #고현 수정: bind 안에는 it 이 없어서 다시 찾음
-      var bc = document.getElementById('b-claim');
-      if (bc) bc.addEventListener('click', function () {
-        var t = document.getElementById('claim-text').value.trim(), out = document.getElementById('claim-out');
-        if (!t) { out.innerHTML = '<p class="cap" style="color:var(--error-fg)">기억나는 특징을 한 가지라도 적어 주세요.</p>'; return; }
-        // #김다영 수정 시작: DB로 보내기 (연락처는 동의했을 때만)
-        var contact = document.getElementById('claim-contact').value.trim(), agree = document.getElementById('claim-agree').checked;
-        if (contact && !agree) { out.innerHTML = '<p class="cap" style="color:var(--error-fg)">연락처를 남기려면 동의에 체크해 주세요. 연락처 없이도 보낼 수 있어요.</p>'; return; }
-        if (contact && !/^[0-9+\-\s()]{9,20}$|^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact)) { out.innerHTML = '<p class="cap" style="color:var(--error-fg)">전화번호나 이메일 형식을 확인해 주세요.</p>'; return; }
-        bc.disabled = true; out.innerHTML = '<p class="cap">보내는 중…</p>';
-        DB.sendClaim(cit.id, t, contact).then(function () {
-          bc.disabled = false;
-          out.innerHTML = '<div class="alert a-ok">' + I.ok + '<div><b>' + (LIVE ? '담당자에게 확인 요청을 보냈어요' : '확인 요청을 만들었어요') + '</b>' +
-            '<p>' + (contact ? '담당자가 비공개 메모와 맞춰 본 뒤 남기신 연락처로 연락드려요. ' : '') + '빨리 찾으려면 지금 <b>' + esc(cit.org || '보관 기관') + '</b>에 전화해 <b>관리번호 ' + esc(cit.id) + '</b>를 말해 주세요.</p>' +
-            '<p class="small">' + esc(t) + '</p></div></div>';
-        }, function (e) {
-          bc.disabled = false;
-          out.innerHTML = '<p class="cap" style="color:var(--error-fg)">보내지 못했어요 (' + esc((e && e.message) || '오류') + '). 보관 기관에 직접 전화해 주세요.</p>';
+      // ===== #김다영 수정 시작: 수령 신청 (주인 확인 먼저 → 본인/대리 선택 → 담당자에게 전달) =====
+      var cit = ITEMS.filter(function (x) { return x.id === state.selected; })[0] || { id: state.selected };
+      var freq = document.getElementById('f-req');
+      var br = document.getElementById('b-req');
+      if (br) br.addEventListener('click', function () { freq.hidden = !freq.hidden; if (!freq.hidden) { document.getElementById('claim-text').focus(); if (freq.scrollIntoView) freq.scrollIntoView({ block: 'nearest' }); } });
+      if (freq) {
+        var $ = function (id) { return document.getElementById(id); };
+        var ownerDone = function () { return $('claim-text').value.trim().length > 0 && $('claim-contact').value.trim().length > 0; };
+        var syncReq = function () {
+          var m = (freq.querySelector('input[name="rmethod"]:checked') || {}).value;
+          $('m-self').hidden = m !== '본인'; $('m-proxy').hidden = m !== '대리';
+          var lock = !ownerDone(); // 대리 수령은 주인 확인을 먼저 적어야 열림
+          ['p-name', 'p-rel', 'p-tel', 'p-agree'].forEach(function (id) { $(id).disabled = lock; });
+          $('proxy-lock').hidden = !lock;
+        };
+        freq.querySelectorAll('input[name="rmethod"]').forEach(function (r) { r.addEventListener('change', syncReq); });
+        ['claim-text', 'claim-contact'].forEach(function (id) { $(id).addEventListener('input', syncReq); });
+        syncReq();
+        freq.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var out = $('claim-out'), err = function (t) { out.innerHTML = '<p class="cap" style="color:var(--error-fg)">' + t + '</p>'; };
+          var okContact = function (v) { return /^[0-9+\-\s()]{9,20}$|^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v); };
+          var t = $('claim-text').value.trim(), contact = $('claim-contact').value.trim();
+          var m = (freq.querySelector('input[name="rmethod"]:checked') || {}).value;
+          if (!t) return err('1번 주인 확인: 기억나는 안쪽 특징을 한 가지라도 적어 주세요.');
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact)) return err('1번 주인 확인: 이메일 주소를 확인해 주세요.'); // #김다영 수정: 이메일만
+          if (!m) return err('2번: 누가 받으러 가는지 골라 주세요.');
+          var proxy = null;
+          if (m === '대리') {
+            proxy = { name: $('p-name').value.trim(), rel: $('p-rel').value, tel: $('p-tel').value.trim() };
+            if (!proxy.name) return err('대리인 이름을 적어 주세요.');
+            if (!okContact(proxy.tel)) return err('대리인 연락처를 확인해 주세요.');
+            if (!$('p-agree').checked) return err('대리 수령 서류 안내를 확인하고 체크해 주세요.');
+          }
+          if (!$('claim-agree').checked) return err('이메일 저장·전달 동의에 체크해 주세요.');
+          var bc = $('b-claim'); bc.disabled = true; out.innerHTML = '<p class="cap">보내는 중…</p>';
+          DB.sendClaim(cit.id, t, contact, { method: m, proxy: proxy }).then(function (mail) {
+            bc.disabled = false;
+            out.innerHTML = '<div class="alert a-ok">' + I.ok + '<div><b>' + (LIVE ? '수령 신청을 보냈어요' : '수령 신청을 만들었어요') + '</b>' +
+              '<p>' + (mail && mail.sent ? esc(contact) + '(으)로 신청 확인 메일을 보냈어요. ' : (LIVE ? '확인 메일은 보내지 못했지만 신청은 담당자에게 전달됐어요. ' : '')) + esc(cit.org || '보관 기관') + ' 담당자가 주인 확인용 메모와 맞춰 본 뒤 이메일로 연락드려요.</p>' +
+              '<p>' + (m === '대리' ? '대리인 ' + esc(proxy.name) + '님이 위임장과 분실자 신분증 사본을 챙겨 방문해 주세요.' : '방문할 때 신분증을 챙겨 주세요.') + ' 급하면 관리번호 ' + esc(cit.id) + '로 바로 전화해도 돼요.</p></div></div>';
+          }, function (e2) {
+            bc.disabled = false;
+            err('보내지 못했어요 (' + esc((e2 && e2.message) || '오류') + '). 보관 기관에 직접 전화해 주세요.');
+          });
         });
-        // #김다영 수정 끝
-      });
-      var bcd = document.getElementById('b-claim-del');
-      if (bcd) bcd.addEventListener('click', function () { dropClaim(cit.id); route(); });
-      // ===== #고현 수정 끝: 내 물건 확인 버튼 =====
-      var bp = document.getElementById('b-proxy');
-      if (bp) bp.addEventListener('click', function () { if (ps) ps.hidden = true; var f = document.getElementById('f-proxy'); f.hidden = !f.hidden; if (!f.hidden) document.getElementById('p-name').focus(); });
-      var fp = document.getElementById('f-proxy');
-      if (fp) fp.addEventListener('submit', function (e) {
-        e.preventDefault();
-        document.getElementById('proxy-out').innerHTML = '<div class="alert a-ok">' + I.ok + '<div><b>신청 내용을 만들었어요</b><p>보관 기관에 연락할 때 대리인 ' + esc(document.getElementById('p-name').value) + '(' + esc(document.getElementById('p-rel').value) + ')이 받는다고 알려 주세요. 시범 서비스라 실제로 접수되지는 않아요.</p></div></div>';
-      });
+      }
+      // ===== #김다영 수정 끝 =====
     }
     if (h === 'today') {
       app.querySelectorAll('[data-mode]').forEach(function (b) { b.addEventListener('click', function () { tState.mode = b.getAttribute('data-mode'); route(); }); });
@@ -2505,6 +2591,13 @@ var CONFIG = {
           DB.createItem(it, reg.file).then(function () { reg.savedId = id; route(); }, function (err) { bs.disabled = false; bs.textContent = '보관 물품에 등록'; var m = document.getElementById('save-msg'); m.style.color = 'var(--error-fg)'; m.textContent = '등록하지 못했어요: ' + (err.message || err); });
         });
       }
+    }
+    if (h === 'staff-req') { // #김다영 수정: 수령 신청 처리
+      app.querySelectorAll('[data-pick]').forEach(function (b) { b.addEventListener('click', function () { pickupModal(b.getAttribute('data-pick')); }); });
+      app.querySelectorAll('[data-claim]').forEach(function (b) { b.addEventListener('click', function () {
+        b.disabled = true;
+        DB.setClaim(b.getAttribute('data-claim'), b.getAttribute('data-st')).then(function () { route(); }, function (e) { b.disabled = false; alertBar('신청 상태를 바꾸지 못했어요 (' + ((e && e.message) || '오류') + ').'); });
+      }); });
     }
     if (h === 'staff-items') {
       bindSearch(inv);
