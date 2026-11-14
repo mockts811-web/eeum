@@ -428,6 +428,15 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .reqstep h4 { margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .reqstep .no { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary, #2563EB); color: #fff; font-size: 13px; }
 .reqstep input:disabled, .reqstep select:disabled { opacity: .5; }
+/* #김다영 수정: 대리 수령 칸, 동의 문구 줄 간격 넓힘 */
+#m-self, #m-proxy { display: grid; gap: 10px; }
+#m-self p, #m-proxy p { margin: 0; line-height: 1.7; }
+#m-proxy .form { gap: 16px 16px; margin-top: 6px; }
+#m-proxy .form .f { gap: 8px; }
+#f-req .check { line-height: 1.7; }
+#f-req .check input { margin-top: 4px; }
+#f-req > .check { margin: 22px 0 6px; }
+#m-proxy .check { margin-top: 4px; }
 .reqcard.new { border-color: var(--warn-fg, #B45309); }
 .reqhead { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
 .reqhead .thumb { width: 72px; height: 72px; flex: none; border-radius: 10px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; }
@@ -2134,7 +2143,7 @@ var CONFIG = {
     var body;
     if (st === 1) {
       var t = TEMPLATES[reg.tmpl];
-      body = '<section class="panel" aria-labelledby="h-s1"><div class="head"><h3 id="h-s1" class="s">1단계 · 사진과 메모를 넣어 주세요</h3><p class="small">생각나는 대로 짧게 적어도 돼요. 다음 단계에서 AI가 등록 항목으로 나눠 드려요.</p></div>' +
+      body = '<section class="panel" aria-labelledby="h-s1"><div class="head"><h3 id="h-s1" class="s">1단계 · 사진과 메모를 넣어 주세요</h3><p class="small">생각나는 대로 짧게 작성해도 괜찮아요. 다음 단계에서 AI가 등록 항목으로 나눠 드려요.</p></div>' +
         '<div class="drop"><div id="preview">' + (reg.img ? '<img src="' + reg.img + '" alt="올린 습득물 사진">' : '<span class="ph">사진 없음</span>') + '</div>' +
           '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><label for="r-photo" class="lbl">습득물 사진</label><input id="r-photo" type="file" accept="image/*"><span class="cap">이름·번호가 보이는 면은 가리고 찍어 주세요.</span></div></div>' +
         '<div class="memo-block"><label for="r-memo" class="lbl">메모 (습득 장소, 물품, 특징 / 비공개: 내용물)</label>' +
@@ -2206,7 +2215,7 @@ var CONFIG = {
         (reg.savedId ? '<div class="alert a-ok">' + I.ok + '<div><b>관리번호 ' + esc(reg.savedId) + '로 등록했어요</b><p><a href="#staff-items">보관 물품에서 확인</a>하거나 <a href="#staff" id="a-new">새 습득물을 등록</a>하세요.</p></div></div>' : '') + '</section>';
     }
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>습득물 등록</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
-      '<div class="view"><div class="head"><h2>습득물 등록</h2><p class="small">사진과 메모만 넣으면 AI가 등록 항목을 정리해요. 확인하고 고친 뒤 등록하세요.</p></div>' + stepper + body + '</div>';
+      '<div class="view"><div class="head"><h2>습득물 등록</h2><p class="small">사진과 메모만 넣으면 AI가 등록 항목을 정리해요. 내용을 확인하고 수정한 뒤 등록하세요.</p></div>' + stepper + body + '</div>';
   }
 
   /* ================= 화면: 담당자 보관 물품 ================= */
