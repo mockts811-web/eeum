@@ -1190,7 +1190,7 @@ var CONFIG = {
         '<span class="thumb">' + pic(r.it) + '</span>' +
         '<span class="cbody"><span class="tags">' + (lvl ? '<span class="badge ' + lvl[0] + '">' + (top ? I.ok : '') + lvl[1] + ' · ' + rank + '위 후보</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span></span>' +
         '<span class="cname">' + esc(r.it.name) + ' (' + esc(r.it.color) + ')</span>' +
-        '<span class="small">' + md(r.it.date) + ' 습득 · ' + esc(r.it.found) + ' · ' + esc(r.it.org) + '</span>' +
+        '<span class="small">습득일자: ' + md(r.it.date) + ' / 습득 장소: ' + esc(r.it.found) + ' / 보관 장소: ' + esc(r.it.org) + '</span>' + // #김다영 수정: 담당자 목록과 같은 형식
         (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</span>' +
         (scored ? '<span class="score">점수 ' + r.s.toFixed(2) + '</span>' : '<span class="score">' + esc(r.it.type) + '</span>') + '</button>';
     }).join('');
