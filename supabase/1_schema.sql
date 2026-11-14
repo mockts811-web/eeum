@@ -248,3 +248,13 @@ create policy "담당자 확인 요청 처리" on public.claims for update
 grant insert on public.claims to anon, authenticated;
 grant select, update on public.claims to authenticated;
 -- ===== #김다영 수정 끝 =====
+
+-- #김다영 수정: 수령 신청 — 받는 사람(본인/대리)·대리인 정보·확인 메일 보낸 시각
+alter table public.claims
+  add column method        text not null default '본인' check (method in ('본인', '대리')),
+  add column proxy_name    text check (proxy_name is null or char_length(proxy_name) between 1 and 30),
+  add column proxy_rel     text check (proxy_rel is null or char_length(proxy_rel) between 1 and 20),
+  add column proxy_contact text check (proxy_contact is null or char_length(proxy_contact) between 5 and 60),
+  add column mailed_at     timestamptz;
+alter table public.claims
+  add constraint claims_proxy_fields check (method = '본인' or (proxy_name is not null and proxy_contact is not null) or status = '종료');
