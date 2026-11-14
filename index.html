@@ -1809,7 +1809,7 @@ var CONFIG = {
           '<div class="exrow"><span class="cap">예시</span>' + ['어제 2호선에서 검은 가죽 반지갑', '택시에 두고 내린 흰색 에어팟', '11월 13일 472번 버스 남색 장우산'].map(function (t) { return '<button type="button" class="chip" data-ex="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
           '<div class="pchips" id="s-preview" aria-live="polite"></div></div>' + // #김다영 수정: 미리 채우던 문장(예: '경찰서에서 잃어버린 물건')을 빼고 안내 글만
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="s-email" class="lbl">이메일 </label><input id="s-email" type="email" placeholder="알림을 받을 이메일 주소를 입력해 주세요"></div>' + // #김다영 수정: 안내 글
-        '<label class="check"><input id="s-agree" type="checkbox"><span>이메일로 알림을 받기 위해 주소를 저장하는 데 동의해요. 해지하면 바로 지워져요.</span></label>' +
+        '<label class="check"><input id="s-agree" type="checkbox"><span>비슷한 물건 알림 메일을 받기 위해 이메일 주소를 저장하는 데 동의해요.<br>알림을 해지하면 이메일 주소도 바로 지워져요.</span></label>' +
         '<p class="cap" id="s-msg" aria-live="polite"></p><button class="btn primary" type="submit">알림 저장</button>' +
         // #김다영 수정: 당일 분실 화면과 같은 모양의 기능 설명
         '<div class="fhelp"><b>💡 알림은 이렇게 도와드려요</b><ol>' +
