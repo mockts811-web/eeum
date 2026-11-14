@@ -1718,28 +1718,30 @@ var CONFIG = {
     if (sub) {
       v = subwayView();
       // ===== #서유석 수정 시작 =====
-      form = '<div class="f"><label for="t-line">노선</label><select id="t-line">' + lineOptions() + '</select></div>' +
+      // #김다영 수정: 칸 이름 통일 (지하철 노선·버스 노선, 내린 정류장)
+      form = '<div class="f"><label for="t-line">지하철 노선</label><select id="t-line">' + lineOptions() + '</select></div>' +
       // ===== #서유석 수정 끝 =====
-        '<div class="f"><label for="t-st">내린 역</label><select id="t-st"' + (tState.line ? '' : ' disabled') + '><option value=""' + (tState.station ? '' : ' selected') + ' disabled>' + (tState.line ? '내린 역을 고르세요' : '노선을 먼저 고르세요') + '</option>' + (tState.line ? STATION_CHOICES.map(function (s) { return '<option' + (s === tState.station ? ' selected' : '') + '>' + s + '</option>'; }).join('') : '') + '</select></div>' + // #서유석 수정 (4차) · #김다영 수정: 노선을 고르기 전엔 비활성
+        '<div class="f"><label for="t-st">내린 정류장</label><select id="t-st"' + (tState.line ? '' : ' disabled') + '><option value=""' + (tState.station ? '' : ' selected') + ' disabled>' + (tState.line ? '내린 정류장을 고르세요' : '노선을 먼저 고르세요') + '</option>' + (tState.line ? STATION_CHOICES.map(function (s) { return '<option' + (s === tState.station ? ' selected' : '') + '>' + s + '</option>'; }).join('') : '') + '</select></div>' + // #서유석 수정 (4차) · #김다영 수정: 노선을 고르기 전엔 비활성
         '<div class="f full"><span class="lbl" id="l-dir">열차 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-dir"><label><input type="radio" name="dir" value="외선"' + (tState.dir === '외선' ? ' checked' : '') + '>' + esc(dirLabel('외선')) + '</label><label><input type="radio" name="dir" value="내선"' + (tState.dir === '내선' ? ' checked' : '') + '>' + esc(dirLabel('내선')) + '</label></div></div>' + common;
     } else {
       v = busView();
       var b = BUSES[tState.bus];
-      var stopOpts = b ? '<option value=""' + (tState.busStop ? '' : ' selected') + ' disabled>내린 정류장을 고르세요</option>' + (tState.busDir === 0 ? b.stops : b.stops.slice().reverse()).map(function (s) { return '<option' + (s === tState.busStop ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') : '<option>노선 번호를 먼저 입력하세요</option>';
+      var stopOpts = b ? '<option value=""' + (tState.busStop ? '' : ' selected') + ' disabled>내린 정류장을 고르세요</option>' + (tState.busDir === 0 ? b.stops : b.stops.slice().reverse()).map(function (s) { return '<option' + (s === tState.busStop ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') : '<option>번호를 먼저 입력하세요</option>';
       // ===== #서유석 수정 시작 =====
-      form = '<div class="f"><label for="t-bus">버스 노선 번호</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + busListOptions() + '</datalist></div>' + // #서유석 수정 (5차)
+      // #김다영 수정: 칸 이름 통일 (지하철 노선·버스 노선, 내린 정류장)
+      form = '<div class="f"><label for="t-bus">버스 노선</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + busListOptions() + '</datalist></div>' + // #서유석 수정 (5차)
       // ===== #서유석 수정 끝 =====
         '<div class="f"><label for="t-stop">내린 정류장</label><select id="t-stop"' + (b ? '' : ' disabled') + '>' + stopOpts + '</select></div>' +
         (b ? '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir"><label><input type="radio" name="bdir" value="0"' + (tState.busDir === 0 ? ' checked' : '') + '>' + esc(b.stops[b.stops.length - 1]) + ' 방면</label><label><input type="radio" name="bdir" value="1"' + (tState.busDir === 1 ? ' checked' : '') + '>' + esc(b.stops[0]) + ' 방면</label></div></div>' : '') + common;
     }
     var right;
     // #김다영 수정 시작: 노선(버스 번호)·역·방향을 고르기 전에는 노선도 대신 안내를 보여 줌
-    var need = sub ? [!tState.line && '노선', !tState.station && '내린 역', !tState.dir && '열차 방향'].filter(Boolean)
-      : [!tState.bus && '버스 노선 번호', !tState.busStop && '내린 정류장'].filter(Boolean);
+    var need = sub ? [!tState.line && '지하철 노선', !tState.station && '내린 정류장', !tState.dir && '열차 방향'].filter(Boolean)
+      : [!tState.bus && '버스 노선', !tState.busStop && '내린 정류장'].filter(Boolean);
     if (need.length) {
       right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 후보' : '탔던 버스 위치') + '</h3>' +
         '<div class="empty-guide"><b>' + esc(need.join(', ')) + (/[가-힣]/.test(need[need.length - 1].slice(-1)) && ((need[need.length - 1].slice(-1).charCodeAt(0) - 0xAC00) % 28) ? '을' : '를') + ' 골라 주세요</b>' +
-        '<p class="small">왼쪽에서 ' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 역과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
+        '<p class="small">왼쪽에서 ' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 정류장과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
       if (sub && tState.line && STATIONS.length) { // #김다영 수정: 노선을 고르면 그 노선의 노선도(7개 역)를 먼저 보여 줌. 내린 역을 고르면 그 역이 가운데
         var pa = STATIONS.indexOf(tState.station), pf = pa < 0 ? 0 : Math.max(0, Math.min(pa - 3, STATIONS.length - 7));
         var pn = STATIONS.slice(pf, pf + 7);
