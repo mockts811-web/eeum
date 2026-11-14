@@ -466,7 +466,7 @@ var CONFIG = {
     { id: 'F2026102400077', type: '지하철', name: '장우산', cat: '우산', sub: '장우산', color: '남색', date: '2026-10-24', line: '7호선', found: '7호선 열차 내', org: '태릉입구 유실물센터', desc: '장우산 남색 자동', photo: 'umbrella', valuable: false, status: '보관중', inner: '' },
     { id: 'F2026101800051', type: '지하철', name: '여성용 장지갑', cat: '지갑', sub: '여성용 지갑', color: '빨강', date: '2026-10-18', line: '5호선', found: '5호선 열차 내', org: '왕십리 유실물센터', desc: '장지갑 빨강 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'F2026102200015', type: '지하철', name: '패딩 점퍼', cat: '의류', sub: '점퍼', color: '회색', date: '2026-10-22', line: '4호선', found: '4호선 열차 내', org: '충무로 유실물센터', desc: '패딩 점퍼 회색', photo: 'bag', valuable: false, status: '보관중', inner: '' },
-    { id: 'B2026102400003', type: '버스', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '갈색', date: '2026-10-24', line: '472번 버스', found: '472번 버스 차내', org: '120 다산콜센터 (버스 분실물)', desc: '반지갑 갈색 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
+    { id: 'B2026102400003', type: '버스', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '갈색', date: '2026-10-24', line: '472번 버스', found: '472번 버스 차내', org: '120 다산콜센터 (버스 분실물)', desc: '반지갑 갈색 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' }, // #서유석 수정 (3차)
     { id: 'P2026102400211', type: '경찰서', name: '장지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-24', line: '', found: '강남역 인근 (경찰서 접수)', org: '강남경찰서 유실물', desc: '장지갑 검정 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'P2026101700145', type: '경찰서', name: '반지갑', cat: '지갑', sub: '남성용 지갑', color: '검정', date: '2026-10-17', line: '2호선', found: '시청 유실물센터에서 이관', org: '강남경찰서 유실물', desc: '반지갑 검정 가죽', photo: 'wallet', valuable: true, status: '보관중', inner: '' },
     { id: 'P2026102300302', type: '경찰서', name: '쇼핑백', cat: '가방', sub: '쇼핑백', color: '흰색', date: '2026-10-23', line: '', found: '서초역 인근 (경찰서 접수)', org: '서초경찰서 유실물', desc: '쇼핑백 흰색 의류', photo: 'bag', valuable: false, status: '보관중', inner: '' }
@@ -848,7 +848,7 @@ var CONFIG = {
   // 시범 버스 노선 (가상 데이터 · 실제 정류장 순서·운수회사와 다를 수 있음)
   // ===== #서유석 수정 시작 =====
   var BUSES = {}; // 노선 정보는 서버(transit-locate)에서 노선 번호로 받아 채워요
-  var tState = { mode: '지하철', line: '2호선', station: '강남', dir: '외선', time: defaultTime(), where: '뒤쪽 칸 선반', what: '검은 가죽 반지갑', bus: '146', busStop: '', busDir: 0, region: '서울', gCands: [], gBuses: null, gLoading: false };
+  var tState = { mode: '지하철', line: '2호선', station: '강남', dir: '외선', time: defaultTime(), where: '뒤쪽 칸 선반', what: '검은 가죽 반지갑', bus: '146', busStop: '', busDir: 0, region: '서울', gCands: [], gBuses: null, gLoading: false }; // #서유석 수정 (5차)
   // 서울 지하철 노선 목록 (표시 이름 → 역 목록 키 · 실시간 열차 노선명). 역 목록은 함수 지하철역 모드에서 받아요.
   var METRO_LINES = [ // #서유석 수정 (4차): key = 공개 역 목록 이름, s0 = 상행·내선(updn 0) 열차가 역 목록에서 움직이는 쪽 (2026-11-09 실제 열차 이동으로 확인), loop = 순환선
     { label: '1호선', key: '01호선', rt: '1호선', s0: -1 }, { label: '2호선', key: '02호선', rt: '2호선', s0: 1, loop: true }, { label: '3호선', key: '03호선', rt: '3호선', s0: -1 },
@@ -864,10 +864,10 @@ var CONFIG = {
   var LINE_COLORS = { '1호선': '#0C3C8C', '2호선': '#00A84D', '3호선': '#EF7C1C', '4호선': '#00A5DE', '5호선': '#996CAC', '6호선': '#CD7C2F', '7호선': '#747F00', '8호선': '#E6186C', '9호선': '#BDB092', '경의중앙선': '#77C4A3', '수인분당선': '#FABE00', '신림선': '#5E7DBE', '신분당선': '#D4003B', '우이신설선': '#B0CE18' }; // #서유석 수정 (2차)
   function metroColor() { return LINE_COLORS[tState.line] || '#00A84D'; } // #서유석 수정 (2차)
   function setLine(label) {
-    var m = metroOf(label), raw = m.loop ? STATIONS_LOOP2 : SUBWAY_LINES[m.key];
+    var m = metroOf(label), raw = m.loop ? STATIONS_LOOP2 : SUBWAY_LINES[m.key]; // #서유석 수정 (4차)
     if (raw && m.startAt && raw.indexOf(m.startAt) > 0) raw = raw.slice(raw.indexOf(m.startAt)).concat(raw.slice(0, raw.indexOf(m.startAt))); // 공개 목록이 노선 중간부터 시작하면 시작역부터 다시 줄 세움
     tState.line = m.label;
-    if (raw && raw.length) {
+    if (raw && raw.length) { // #서유석 수정 (4차)
       if (raw.indexOf(tState.station) < 0) { var p0 = pathFor(m.label, raw, ''); tState.station = p0[Math.floor(p0.length / 2)]; } // 기본 역은 그림 경로의 가운데
       STATION_CHOICES = raw;
       STATIONS = pathFor(m.label, raw, tState.station);
@@ -1111,7 +1111,7 @@ var CONFIG = {
     // ===== #서유석 수정 끝 =====
         strip({ names: names, me: 1, vehicles: vehicles, color: metroColor(), icon: I.trainSide }) + // #서유석 수정 (2차)
         '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 열차</span><span><i style="background:#9FB0C2"></i>다른 후보</span><span>시간표 기준 추정이며 실제 위치와 다를 수 있어요</span></div></div>',
-      cands: cands, facts: facts, callName: lineContact().name, callTel: lineContact().tel, callNote: lineContact().note };
+      cands: cands, facts: facts, callName: lineContact().name, callTel: lineContact().tel, callNote: lineContact().note }; // #서유석 수정 (4차)
   }
   // ===== #서유석 수정 시작 =====
   function busDemo() {
@@ -1241,7 +1241,7 @@ var CONFIG = {
       }).join('');
       return '<div style="margin-top:8px"><b>' + esc(l) + '</b> <span class="small">열차 ' + by[l].length + '대</span>' + list + '</div>';
     }).join('');
-    return '<div style="margin-top:14px"><h3 class="s">전체 노선 실시간 열차</h3><p class="small">서울 지하철 ' + lines.length + '개 노선 · ' + (tState.dir === '내선' ? '상행·내선' : '하행·외선') + ' 방향 기준</p>' + rows + '</div>';
+    return '<div style="margin-top:14px"><h3 class="s">전체 노선 실시간 열차</h3><p class="small">서울 지하철 ' + lines.length + '개 노선 · ' + (tState.dir === '내선' ? '상행·내선' : '하행·외선') + ' 방향 기준</p>' + rows + '</div>'; // #서유석 수정 (4차)
   }
   function liveBus() {
     var r = TRACK.result;
@@ -1323,7 +1323,7 @@ var CONFIG = {
     var ahead = (r.buses || []).filter(function (b) { return b.idx >= si; }).map(function (b) {
       return { no: b.plainNo, idx: b.idx, off: b.idx - si, station: stops[b.idx].nm };
     });
-    var ranked = el > 180 ? [] : ahead.slice().sort(function (x, y) { return Math.abs(x.off - est) - Math.abs(y.off - est); });
+    var ranked = el > 180 ? [] : ahead.slice().sort(function (x, y) { return Math.abs(x.off - est) - Math.abs(y.off - est); }); // #서유석 수정 (5차)
     var best = ranked[0];
     var n = Math.min(7, stops.length), start = (!best || best.off <= 5) ? si - 1 : best.idx - 3;
     start = Math.max(0, Math.min(start, stops.length - n));
@@ -1332,16 +1332,16 @@ var CONFIG = {
       var isBest = !!best && b.plainNo === best.no && b.idx === best.idx;
       return { pos: b.idx - start, label: b.plainNo + (isBest ? ' · 탔던 버스?' : ''), best: isBest };
     });
-    var bnote = !reach || el > 180 ? timeNote(el, est, '정류장') : '<p class="small">내린 지 ' + el + '분 지났어요. 정류장 사이 거리와 지금 구간 속도로 계산하면 탔던 버스는 ' + (reach.end ? '종점 ' + esc(reach.at) + '에 ' + hhmm(toMin(tState.time) + Math.round(reach.t)) + '쯤 닿았어요. 운행을 마치면 차고지에서 물건을 확인해요.' : '내린 곳에서 약 ' + Math.round(est) + '정류장 지난 <b>' + esc(reach.at) + '</b> → ' + esc(reach.next) + ' 사이에 있어요.') + '</p>';
+    var bnote = !reach || el > 180 ? timeNote(el, est, '정류장') : '<p class="small">내린 지 ' + el + '분 지났어요. 정류장 사이 거리와 지금 구간 속도로 계산하면 탔던 버스는 ' + (reach.end ? '종점 ' + esc(reach.at) + '에 ' + hhmm(toMin(tState.time) + Math.round(reach.t)) + '쯤 닿았어요. 운행을 마치면 차고지에서 물건을 확인해요.' : '내린 곳에서 약 ' + Math.round(est) + '정류장 지난 <b>' + esc(reach.at) + '</b> → ' + esc(reach.next) + ' 사이에 있어요.') + '</p>'; // #서유석 수정 (6차)
     var cands = bnote + (ranked.length ? ranked.slice(0, 3).map(function (b, i) {
       return '<div class="cand' + (i === 0 ? ' best' : '') + '"><span><span class="no">' + esc(b.no) + '</span><br><span class="small">지금 ' + esc(b.station) + ' 부근 · 내린 정류장에서 ' + (b.off === 0 ? '아직 같은 정류장' : b.off + '정류장 지남') + '</span></span><span class="badge ' + (i === 0 ? 's-soon' : 'b-low') + '">' + (i === 0 ? '가능성 높음' : '추정') + '</span></div>';
     }).join('') : (el > 180 ? '' : '<p class="small">내린 정류장을 지나간 버스를 찾지 못했어요. 운수회사나 120에 문의하세요.</p>'));
     var last = stops[stops.length - 1].nm;
-    var facts = [['노선·방향', tState.bus + '번 · ' + last + ' 방면'], ['차량 번호', best ? best.no + ' (추정)' : '-'], ['내린 정류장·시각', tState.busStop + ' · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']];
+    var facts = [['노선·방향', tState.bus + '번 · ' + last + ' 방면'], ['차량 번호', best ? best.no + ' (추정)' : '-'], ['내린 정류장·시각', tState.busStop + ' · ' + tState.time], ['물건을 둔 곳', tState.where || '-'], ['잃어버린 물건', tState.what || '-']]; // #서유석 수정 (5차)
     var color = BUSES[tState.bus] ? BUSES[tState.bus].color : '#3D5BAB';
-    return { screen: '<div class="screen" role="img" aria-label="' + esc(tState.bus) + '번 버스 실시간 위치 화면"><div class="hd"><b><span class="lineno" style="--line-c:' + color + ';background:' + color + ';width:auto;padding:0 8px;border-radius:6px">' + esc(tState.bus) + '</span>' + esc(last) + ' 방면</b><span class="clock">내린 지 ' + el + '분 · ' + (reach ? '구간 속도 계산' : '실시간') + '</span></div>' +
+    return { screen: '<div class="screen" role="img" aria-label="' + esc(tState.bus) + '번 버스 실시간 위치 화면"><div class="hd"><b><span class="lineno" style="--line-c:' + color + ';background:' + color + ';width:auto;padding:0 8px;border-radius:6px">' + esc(tState.bus) + '</span>' + esc(last) + ' 방면</b><span class="clock">내린 지 ' + el + '분 · ' + (reach ? '구간 속도 계산' : '실시간') + '</span></div>' + // #서유석 수정 (6차)
         strip({ names: names, me: me, vehicles: vehicles, color: color, icon: I.busSide }) +
-        '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 버스</span><span>' + (reach ? '내린 시각·구간 속도로 계산하고 실시간 위치와 맞췄어요' : '내린 시각과 실시간 위치로 계산했어요') + '. 실제와 다를 수 있어요</span></div></div>',
+        '<div class="legend"><span><i style="background:#FFC83D"></i>탔을 가능성이 높은 버스</span><span>' + (reach ? '내린 시각·구간 속도로 계산하고 실시간 위치와 맞췄어요' : '내린 시각과 실시간 위치로 계산했어요') + '. 실제와 다를 수 있어요</span></div></div>', // #서유석 수정 (6차)
       cands: cands, facts: facts, callName: '120 다산콜센터 (운수회사 확인)', callTel: '120', callNote: '버스는 운행을 마치면 차고지에서 물건을 확인해요. 차량 번호를 알면 함께 알려 주세요.' };
   }
 
@@ -1358,14 +1358,14 @@ var CONFIG = {
       // ===== #서유석 수정 시작 =====
       form = '<div class="f"><label for="t-line">노선</label><select id="t-line">' + lineOptions() + '</select></div>' +
       // ===== #서유석 수정 끝 =====
-        '<div class="f"><label for="t-st">내린 역</label><select id="t-st">' + STATION_CHOICES.map(function (s) { return '<option' + (s === tState.station ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></div>' +
+        '<div class="f"><label for="t-st">내린 역</label><select id="t-st">' + STATION_CHOICES.map(function (s) { return '<option' + (s === tState.station ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></div>' + // #서유석 수정 (4차)
         '<div class="f full"><span class="lbl" id="l-dir">열차 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-dir"><label><input type="radio" name="dir" value="외선"' + (tState.dir === '외선' ? ' checked' : '') + '>' + esc(dirLabel('외선')) + '</label><label><input type="radio" name="dir" value="내선"' + (tState.dir === '내선' ? ' checked' : '') + '>' + esc(dirLabel('내선')) + '</label></div></div>' + common;
     } else {
       v = busView();
       var b = BUSES[tState.bus];
       var stopOpts = b ? (tState.busDir === 0 ? b.stops : b.stops.slice().reverse()).map(function (s) { return '<option' + (s === tState.busStop ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') : '<option>노선 번호를 먼저 입력하세요</option>';
       // ===== #서유석 수정 시작 =====
-      form = '<div class="f"><label for="t-bus">버스 노선 번호</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + busListOptions() + '</datalist></div>' +
+      form = '<div class="f"><label for="t-bus">버스 노선 번호</label><input id="t-bus" type="text" inputmode="numeric" list="bus-list" value="' + esc(tState.bus) + '" placeholder="예: 472"><datalist id="bus-list">' + busListOptions() + '</datalist></div>' + // #서유석 수정 (5차)
       // ===== #서유석 수정 끝 =====
         '<div class="f"><label for="t-stop">내린 정류장</label><select id="t-stop"' + (b ? '' : ' disabled') + '>' + stopOpts + '</select></div>' +
         (b ? '<div class="f full"><span class="lbl" id="l-bdir">버스 방향</span><div class="dirs" role="radiogroup" aria-labelledby="l-bdir"><label><input type="radio" name="bdir" value="0"' + (tState.busDir === 0 ? ' checked' : '') + '>' + esc(b.stops[b.stops.length - 1]) + ' 방면</label><label><input type="radio" name="bdir" value="1"' + (tState.busDir === 1 ? ' checked' : '') + '>' + esc(b.stops[0]) + ' 방면</label></div></div>' : '') + common;
@@ -1751,7 +1751,7 @@ var CONFIG = {
           // ===== #서유석 수정 시작 =====
           var nl = g('t-line'); if (nl && nl !== tState.line) setLine(nl); else { tState.station = g('t-st'); setLine(tState.line); } // #서유석 수정 (4차): 노선을 바꾸면 새 노선의 역으로
           // ===== #서유석 수정 끝 =====
-          var r = app.querySelector('input[name="dir"]:checked'); if (r) tState.dir = r.value;
+          var r = app.querySelector('input[name="dir"]:checked'); if (r) tState.dir = r.value; // #서유석 수정 (4차)
         } else {
           // ===== #서유석 수정 시작 =====
           var prevR = tState.region; tState.region = g('t-region') || '서울';
