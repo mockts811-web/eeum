@@ -1135,7 +1135,7 @@ var CONFIG = {
     }).join('');
     if (!list.length) cards = '<div class="empty panel"><b>이 조건에 맞는 습득물이 아직 없어요</b><p class="small">습득물 등록까지 보통 1~2일 걸려요. 조건을 저장하면 새로 올라올 때 알려 드려요.</p><a class="btn secondary" href="#track">이 조건으로 알림 받기</a></div>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>습득물 찾기</span></nav>' +
-      '<div class="view"><div class="head"><h2>습득물 찾기</h2><p class="small">지하철, 버스, 경찰서에 보관 중인 습득물이에요. 문장으로 찾거나 아래 조건을 직접 골라 보세요.</p></div>' +
+      '<div class="view"><div class="head"><h2>습득물 찾기</h2><p class="small">지하철, 버스, 경찰서에 보관 중인 습득물을 한 번에 찾아요. 문장으로 설명하거나, 아래 조건을 직접 골라 보세요.</p></div>' +
       aiSearchHtml(state, '예: 어제 2호선 강남역에서 검은 가죽 반지갑을 두고 내렸어요', '문장을 입력하면 AI가 분류·색상·날짜·노선을 찾아 아래 조건에 채워요.') +
       itemTabsHtml(state) + // #김다영 수정
       filtersHtml(state, '잃어버린 날') +
