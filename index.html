@@ -1517,8 +1517,11 @@ var CONFIG = {
     cands.forEach(function (c) {
       var hit = null;
       if (cm) all.forEach(function (t) { if (!hit && ttDigits(t.trainNo) === ttDigits(c.code)) hit = { no: t.trainNo, station: t.station, status: t.status, off: offOf(t.station), how: '번호' }; });
-      if (!hit && !cm && c.schedOff !== null && !c.done) live.forEach(function (t) {
+      // 번호가 같아도 위치가 말이 안 되면 버림: 내린 역보다 뒤에 있거나, 시간표상 위치와 3정거장 넘게 차이 (9호선은 시간표·실시간 번호가 어긋남, 2026-11-16 확인)
+      if (hit && (hit.off === null || hit.off < 0 || (c.schedOff !== null && !c.done && (function (d) { return m.loop ? Math.min(d, L - d) : d; })(Math.abs(hit.off - c.schedOff)) > 3))) hit = null;
+      if (!hit && c.schedOff !== null && !c.done) live.forEach(function (t) { // 번호로 못 찾으면 시간표상 위치에서 가장 가까운 실시간 열차 (2정거장 안)
         if (used[t.no]) return;
+        if (m.rt === '9호선' && /^9[67]/.test(String(t.no)) !== !!c.exp) return; // 9호선 실시간 번호: 급행 96xx·97xx, 일반 91xx·92xx → 급행은 급행끼리만
         var d = Math.abs(t.off - c.schedOff); if (m.loop) d = Math.min(d, L - d);
         if (d <= 2 && (!hit || d < hit.d)) hit = { no: t.no, station: t.station, status: t.status, off: t.off, d: d, how: '위치' };
       });
