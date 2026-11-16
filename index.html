@@ -2340,7 +2340,7 @@ var CONFIG = {
         '</div></div>';
     }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>보관 물품 조회·수정</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
-      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요.</p>' +
+      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요.<br>문의 전화 내용을 문장 그대로 AI 검색에 넣으면, 맞는 보관 물품을 유사도 순으로 찾아 드려요.</p>' +
         '<p class="valhint"><span class="badge s-val">고액·귀중품</span><span>표시가 있는 물품은 수령 때 본인 확인을 더 꼼꼼히 해 주세요.</span></p></div>' + // 부제목과 따로 한 줄로
       aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
       itemTabsHtml(inv) + // #김다영 수정
