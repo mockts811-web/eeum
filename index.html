@@ -61,6 +61,8 @@ a { color: var(--primary-strong); }
 .small { font-size: 15px; color: var(--fg-2); } .cap { font-size: 13px; color: var(--fg-3); }
 button, input, textarea, select { font-family: inherit; }
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+/* 입력칸 포커스: 바깥에 떨어진 굵은 테두리 대신 칸 테두리를 파랗게 + 옅은 그림자 (이중 테두리·위 제목과 겹침 방지) */
+textarea:focus-visible, select:focus-visible, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* 머리 영역 */
@@ -342,7 +344,7 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tmpl .exm { border-left: 3px solid var(--primary); padding: 4px 0 4px 12px; }
 .memo-block { display: flex; flex-direction: column; gap: 8px; }
 .memo-box { border: 1px solid var(--line-strong); border-radius: var(--r-md); overflow: hidden; background: var(--bg); }
-.memo-box:focus-within { outline: 3px solid var(--primary); outline-offset: 2px; }
+.memo-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent); }
 .memo-guide { background: var(--surface); border-bottom: 1px dashed var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
 .memo-guide .mg-top { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
 .memo-guide .mg-top .fmt { font-weight: 700; }
@@ -354,7 +356,7 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .memo-guide:not([open]) > summary { color: var(--fg-3); }
 .memo-guide .mg-points { margin: 2px 0 0; padding-left: 20px; color: var(--fg-2); display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
 .memo-box textarea { border: 0; border-radius: 0; min-height: 120px; }
-.memo-box textarea:focus-visible { outline: none; }
+.memo-box textarea:focus-visible { outline: none; box-shadow: none; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .toolbar .grow { flex: 1 1 220px; min-width: 0; }
 .toolbar select { width: auto; min-width: 140px; }
