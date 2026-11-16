@@ -2904,6 +2904,14 @@ var CONFIG = {
     });
   });
   window.addEventListener('hashchange', route);
+  // 입력칸 자동 완성(브라우저의 이전 입력 기록 목록) 끄기 — 화면이 다시 그려질 때마다 새로 생긴 칸에도 적용. 담당자 로그인 칸은 비밀번호 관리자를 쓸 수 있게 그대로 둠
+  var noAuto = function (root) {
+    (root.querySelectorAll ? root.querySelectorAll('input, textarea') : []).forEach(function (el) {
+      if (el.id === 'l-email' || el.id === 'l-pw' || /^(checkbox|radio|hidden|file|range|submit|button)$/.test(el.type)) return;
+      el.setAttribute('autocomplete', 'off');
+    });
+  };
+  if (window.MutationObserver) new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) { if (/^(INPUT|TEXTAREA)$/.test(n.tagName)) noAuto(n.parentNode || document); else noAuto(n); } }); }); }).observe(document.body, { childList: true, subtree: true });
   app.innerHTML = '<p class="small">불러오는 중…</p>';
   // ===== #서유석 수정 시작 (4차): Supabase 연결이 끝난 뒤 역 목록·버스 노선 목록을 받음 (전에는 연결 전에 불러서 실패) =====
   var afterInit = function () { route(); loadSubwayLines(); loadSeoulRoutes(); };
