@@ -2143,11 +2143,14 @@ var CONFIG = {
   // #고현 수정: 장소 칸에는 '장소 부분'만 — 한 문장 메모를 통째로 장소로 넣어 '카드 1장·현금 들어있어'가 공개 장소 칸에 새던 문제 수정
   //   '에서·쯤에서·주웠·습득·발견'이나 문장부호 앞까지만, 40자 이하, 금액·카드 장수·개인정보 낱말·가린 자리가 있으면 '확인 필요'(서버 trimPlace와 같음)
   var PLACE_CUT_LOCAL = /\s*(?:쯤에서|근처에서|부근에서|에서)|\s*(?:주웠|주운|주움|습득|발견)|[.。!?]/;
+  // '역'이 들어가지만 장소가 아닌 낱말(지역 상품권, 무역회사 등)은 장소로 보지 않음 — 서버 ai-parse의 isPlace와 같은 규칙
+  var NOT_PLACE_YEOK_LOCAL = /(^|[\s,(·])(지역|무역|역할|영역|역시|역대|번역|역량|역사(?!\s*(?:안|내|밖|앞)))/g;
+  function isPlaceLocal(s) { return /호선|역|버스|정류장|열차/.test(String(s || '').replace(NOT_PLACE_YEOK_LOCAL, '$1')); }
   var NOT_PUBLIC_LOCAL = new RegExp('카드\\s*\\d+\\s*장|현금|' + MONEY_LOCAL.source, 'i');
   function trimPlaceLocal(place) {
     if (place === '확인 필요') return place;
     var head = place.split(PLACE_CUT_LOCAL)[0].trim();
-    if (!head || head.length > 40 || head.indexOf(PII_MASK) > -1 || NOT_PUBLIC_LOCAL.test(head) || PRIVACY_LOCAL.test(head) || !/호선|역|버스|정류장|열차/.test(head)) return '확인 필요';
+    if (!head || head.length > 40 || head.indexOf(PII_MASK) > -1 || NOT_PUBLIC_LOCAL.test(head) || PRIVACY_LOCAL.test(head) || !isPlaceLocal(head)) return '확인 필요';
     return head;
   }
   // #고현 수정: 등록 분류를 '물건 이름 부분'으로 먼저 정하는 함수(서버 catByItem과 같음)
@@ -2158,7 +2161,7 @@ var CONFIG = {
   function catByItemLocal(pub) {
     var m = pub.match(ITEM_VERB_LOCAL), item = '';
     if (m) item = (m[1].split(/에서|쯤|근처|부근/).pop() || '').trim();
-    else { var ps = splitKeepNum(pub, /,/); if (ps[0] && /호선|역|버스|정류장|열차/.test(ps[0])) ps.shift(); item = ps[0] || ''; }
+    else { var ps = splitKeepNum(pub, /,/); if (ps[0] && isPlaceLocal(ps[0])) ps.shift(); item = ps[0] || ''; }
     return findIn(item, CATS) || findIn(pub.replace(CONTENTS_LOCAL, ' '), CATS);
   }
   function aiRegisterLocal(memo) {
@@ -2171,7 +2174,7 @@ var CONFIG = {
     var secrets = (pub.match(SECRET_LOCAL) || []).map(function (x) { return x.trim(); }); // #고현 수정: 공개 쪽 금액·카드 장수를 비공개 칸으로(비공개 표시가 있어도). 원래: 비공개가 없을 때만 /카드\s*\d+\s*장|현금[^,]*|\d+\s*만\s*원/g
     hidden = hidden.concat(secrets.filter(function (x) { return hidden.indexOf(x) < 0; })).join(', '); // #고현 수정: 비공개 항목 + 공개 쪽 금액·카드 장수
     var pieces = splitKeepNum(pub, /,/); // #고현 수정: 숫자 사이 쉼표에서는 안 나눔. 원래: pub.split(',').map(trim).filter(Boolean)
-    var place = (pieces[0] && /호선|역|버스|정류장|열차/.test(pieces[0])) ? pieces.shift() : '확인 필요';
+    var place = (pieces[0] && isPlaceLocal(pieces[0])) ? pieces.shift() : '확인 필요';
     place = normPlace(trimPlaceLocal(place)); // #고현 수정: 습득 장소 표기 정리 — 지하철/버스 표기 통일을 덧붙임
     // #고현 수정: 장소 부분만 남김(위 trimPlaceLocal). 원래(#고현 수정): 가린 자리가 있으면 '확인 필요', 아니면 금액만 지움
     var cleaned = pieces.filter(function (p) { return !/카드\s*\d+\s*장|현금|\d{4}[- ]?\d{4}/.test(p) && !MONEY_LOCAL.test(p) && p.indexOf(PII_MASK) < 0; }); // #고현 수정: 금액·가린 자리가 든 조각도 공개에서 뺌

@@ -80,6 +80,10 @@ const NEVER_PUBLIC_PHOTO = /사람|인물|얼굴|여성|남성|남자|여자|아
 // ===== #고현 수정 끝 =====
 const PRIVACY_WORDS = /카드번호|신분증|주민|명함|이름|성명|소유자|연락처|전화번호|학생증|사원증|면허증|여권|\d{4}[- ]?\d{4}|\d{6}-\d/;
 const PLACE_WORDS = /호선|역|버스|정류장|열차|택시/; // #김다영 수정: 택시 추가
+// '역'이 들어가지만 장소가 아닌 낱말(지역 상품권, 무역회사, 역할 등)은 장소로 보지 않음
+// 낱말 첫머리일 때만 지움 → 홍대입구역(구역)·구로디지털단지역(지역)·대전역(전역)처럼 역 이름 안에 든 건 그대로
+const NOT_PLACE_YEOK = /(^|[\s,(·])(지역|무역|역할|영역|역시|역대|번역|역량|역사(?!\s*(?:안|내|밖|앞)))/g;
+const isPlace = (s: string): boolean => PLACE_WORDS.test(String(s || "").replace(NOT_PLACE_YEOK, "$1"));
 const TAXI = /택시|\b(?:taxi|cab)s?\b/i; // #김다영 수정: 습득장소 '택시'
 
 // ── 2. 개인정보 가림: AI에 보내기 전 한 번, AI 결과에 한 번 더 ──
@@ -502,15 +506,15 @@ const SENTENCE_SPLIT = /\n|[.。](?!\d)/;
 function placePiece(raw: string): string {
   const pieces = String(raw || "").split(SENTENCE_SPLIT).map((s) => s.trim()).filter(Boolean);
   if (pieces.length < 2) return pieces[0] ?? "";
-  return pieces.find((p) => PLACE_WORDS.test(p)) ?? String(raw).trim();
+  return pieces.find((p) => isPlace(p)) ?? String(raw).trim();
 }
 function placeByRule(pub: string): string {
   const first = placePiece(pub.split(",")[0]?.trim() ?? ""); // 예전처럼 첫 쉼표 조각만 봄
-  return first && PLACE_WORDS.test(first) && !MASK_WORDS.test(first) ? first.slice(0, 80) : "";
+  return first && isPlace(first) && !MASK_WORDS.test(first) ? first.slice(0, 80) : "";
 }
 function featsByRule(pub: string): string { // index.html 규칙 + 개인정보 조각 제외
   const pieces = pub.split(",").map((s) => s.trim()).filter(Boolean);
-  if (pieces[0] && PLACE_WORDS.test(pieces[0])) pieces.shift(); // 첫 조각이 장소면 빼고
+  if (pieces[0] && isPlace(pieces[0])) pieces.shift(); // 첫 조각이 장소면 빼고
   return pieces.slice(1) // 다음 조각은 물품명
     .filter((p) => !NEVER_PUBLIC.test(p) && !NEVER_PUBLIC_PHOTO.test(p) && !MASK_WORDS.test(p) && !PRIVACY_WORDS.test(p)).join(", "); // #고현 수정: 사람·신분 관련 말 제외
 }
