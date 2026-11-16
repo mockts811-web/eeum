@@ -361,6 +361,10 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .scard .inner { font-size: 15px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm); padding: 4px 8px; width: fit-content; max-width: 100%; }
 .scard.val { border: 2px solid var(--val-fg); } /* #김다영 수정: 고액·귀중품 테두리·이름 (남색과 어울리는 빨강) */
 .scard.val .cname { color: var(--val-fg); font-weight: 700; }
+.valhint { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; padding: 10px 14px; background: var(--surface); border-radius: var(--r-md); font-size: 15px; color: var(--fg-2); width: fit-content; max-width: 100%; }
+.tabs button .tcount { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; padding: 0 7px; margin-left: 2px; border-radius: 999px; background: var(--surface); color: var(--fg-2); font-size: 13px; font-weight: 700; vertical-align: 1px; }
+.tabs button .tcount.on { background: var(--primary); color: var(--on-primary); }
+.tabs button[aria-selected="true"] .tcount:not(.on) { background: var(--primary-soft); color: var(--primary-strong); }
 .scard.done { opacity: .7; }
 .sacts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: center; min-width: 150px; } /* #김다영 수정 */
 .sacts .pickb { grid-column: 1 / -1; }
@@ -2260,8 +2264,8 @@ var CONFIG = {
     ['이관', '이관 대상', function (it) { return it.status === '보관중' && it.type !== '경찰서' && storage(it).age > 7; }],
     ['전체', '전체', function () { return true; }],
     // #김다영 수정: 처리할 일(수령 신청·수령 완료)은 오른쪽에 따로 모음
-    ['요청', '📩 수령 신청', function (it) { return it.status === '보관중' && openClaims(it.id).length > 0; }],
-    ['수령완료', '✅ 수령 완료', function (it) { return it.status === '수령완료'; }]
+    ['요청', '수령 신청', function (it) { return it.status === '보관중' && openClaims(it.id).length > 0; }],
+    ['수령완료', '수령 완료', function (it) { return it.status === '수령완료'; }]
   ];
   // ===== #김다영 수정 시작: 담당자 '수령 신청' 페이지 — 시민이 보낸 수령 신청을 모아 보고 처리 =====
   function vStaffReq() {
@@ -2287,7 +2291,10 @@ var CONFIG = {
     var all = rankItems(mine, c);
     var tabs = INV_TABS.map(function (t) {
       var n = all.filter(function (r) { return t[2](r.it); }).length;
-      return '<button type="button" role="tab" aria-selected="' + (inv.tab === t[0]) + '" data-it="' + t[0] + '"' + (t[0] === '고액' ? ' class="tab-val"' : t[0] === '요청' ? ' class="tab-gap"' : '') + '>' + t[1] + ' ' + n + '</button>';
+      var task = t[0] === '요청' || t[0] === '수령완료'; // 처리할 일 탭: 이모지 대신 숫자 칩 (신청이 있으면 파랑으로 강조)
+      var cls = [t[0] === '고액' ? 'tab-val' : '', t[0] === '요청' ? 'tab-gap' : '', task ? 'tab-task' : ''].filter(Boolean).join(' ');
+      return '<button type="button" role="tab" aria-selected="' + (inv.tab === t[0]) + '" data-it="' + t[0] + '"' + (cls ? ' class="' + cls + '"' : '') + '>' + t[1] + ' ' +
+        (task ? '<span class="tcount' + (t[0] === '요청' && n > 0 ? ' on' : '') + '">' + n + '</span>' : n) + '</button>';
     }).join('');
     var list = all.filter(function (r) { return tabDef[2](r.it); });
     if (!scored) list.sort(function (a, b) { return a.it.date < b.it.date ? -1 : 1; });
@@ -2301,7 +2308,7 @@ var CONFIG = {
       return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + (rq0 ? ' hasreq' : '') + '">' +
         (rq0 ? '<span class="reqflag' + (rq0.status === '접수' ? ' new' : '') + '" title="수령 신청이 들어왔어요" aria-label="수령 신청 알림">🔔</span>' : '') + // #김다영 수정: 신청 알림이 눈에 띄게 왼쪽 위에 큰 종
         '<span class="thumb">' + pic(it) + '</span>' +
-        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">📩 수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락 완료') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
+        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락 완료') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
           '<span class="small">' + esc(it.id) + ' / 습득 날짜: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
@@ -2314,7 +2321,8 @@ var CONFIG = {
         '</div></div>';
     }).join('') || '<div class="empty panel"><b>이 조건에 맞는 보관 물품이 없어요</b><p class="small">위 탭이나 검색 조건을 바꿔 보세요.</p></div>';
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>보관 물품 조회·수정</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
-      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요. <span class="badge s-val">고액·귀중품</span> 표시가 있는 물품은 수령 때 본인 확인을 더 꼼꼼히 해 주세요.</p></div>' +
+      '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요. 시민 습득물 찾기와 같은 방식으로 찾을 수 있어요.</p>' +
+        '<p class="valhint"><span class="badge s-val">고액·귀중품</span><span>표시가 있는 물품은 수령 때 본인 확인을 더 꼼꼼히 해 주세요.</span></p></div>' + // 부제목과 따로 한 줄로
       aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
       itemTabsHtml(inv) + // #김다영 수정
       filtersHtml(inv, '분실한 날') +
