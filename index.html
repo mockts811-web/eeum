@@ -493,6 +493,8 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .reqbar a { margin-left: auto; color: inherit; font-weight: 700; }
 .reqbar:not(.new) { background: var(--surface); color: var(--fg-2); border-bottom-color: var(--line); } /* 연락 완료: 회색 */
 .reqbar.new b::after { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-left: 8px; vertical-align: 2px; } /* 새 신청: 옅은 파랑 + 작은 점 */
+.btn.primary.is-off { background: var(--surface-2); color: var(--fg-3); } .btn.primary.is-off:hover { background: var(--surface-2); } /* 수령 완료 기록: 필수 체크 전 */
+.ferr { margin: -2px 0 2px 30px; color: var(--error-fg); font-size: 14px; font-weight: 700; }
 .reqline { display: block; font-size: 14px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
 .alert.inline > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; } /* #김다영 수정: 제목 옆에 간격 두고 한 줄로 */
 .alert.inline > div > p { margin: 0; }
@@ -2415,12 +2417,23 @@ var CONFIG = {
       b.disabled = true;
       DB.setClaim(b.getAttribute('data-claim'), b.getAttribute('data-st')).then(function () { pickupModal(id); route(); }, function (e) { b.disabled = false; document.getElementById('pick-msg').textContent = '요청 상태를 바꾸지 못했어요 (' + ((e && e.message) || '오류') + ').'; });
     }); });
+    var g = function (id) { var el = document.getElementById(id); return !!(el && el.checked); };
+    var needIds = function () { return ['c1', 'c2'].concat(v ? ['c4'] : []).concat(g('c3') ? ['c6', 'c7', 'c5'] : []); };
+    var pickBtn = document.querySelector('#f-pick button[type="submit"]');
+    var clearErr = function () { document.querySelectorAll('#f-pick .ferr').forEach(function (x) { x.remove(); }); };
+    var syncPick = function () { var ok = needIds().every(g); pickBtn.classList.toggle('is-off', !ok); pickBtn.setAttribute('aria-disabled', String(!ok)); };
+    document.querySelectorAll('#f-pick input[type="checkbox"]').forEach(function (cb) { cb.addEventListener('change', function () { clearErr(); syncPick(); }); });
+    syncPick(); // 필수 항목을 다 체크하기 전엔 회색, 다 체크하면 파랑
     document.getElementById('f-pick').addEventListener('submit', function (e) {
       e.preventDefault();
-      var g = function (id) { var el = document.getElementById(id); return !!(el && el.checked); };
-      var need = ['c1', 'c2'].concat(v ? ['c4'] : []).concat(g('c3') ? ['c6', 'c7', 'c5'] : []);
       var msg = document.getElementById('pick-msg');
-      if (!need.every(g)) { msg.style.color = 'var(--error-fg)'; msg.textContent = '체크하지 않은 확인 항목이 있어요. 모두 확인한 뒤 기록할 수 있어요.'; return; }
+      var miss = needIds().filter(function (k) { return !g(k); })[0];
+      clearErr();
+      if (miss) { // 위에서부터 첫 번째로 빠진 항목 바로 아래에 빨간 안내
+        var box = document.getElementById(miss).closest('.check');
+        var p = document.createElement('p'); p.className = 'ferr'; p.setAttribute('role', 'alert'); p.textContent = '이 항목을 확인한 뒤 체크해 주세요.';
+        box.insertAdjacentElement('afterend', p); document.getElementById(miss).focus(); msg.textContent = ''; return;
+      }
       msg.style.color = ''; msg.textContent = '기록하는 중…';
       DB.recordPickup(id, { id: true, feat: true, proxy: g('c3'), doc: g('c5'), note: document.getElementById('c-note').value }).then(function () { closeModal(); route(); }, function (err) { msg.style.color = 'var(--error-fg)'; msg.textContent = '기록하지 못했어요: ' + (err.message || err); });
     });
