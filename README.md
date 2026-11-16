@@ -310,7 +310,7 @@ scripts/, tests/, audit/           사진 AI 빌드·테스트·검증 기록
 |---|---|
 | 이시은 | **QA** — 서비스 품질 검증 및 UX 개선, 시연 시나리오 설계 및 영상 제작, README 작성 |
 | 고현 | AI 문장 정리(ai-parse), 사진 AI 분석 |
-| 김다영 | 화면 전반, 수령 신청·알림·메일 |
+| 김다영 | 화면 전반 FE, 수령 신청·알림·메일, Supabase BE 구축(DB·권한·로그인·사진 저장소) |
 | 김준희 | 습득물 데이터 수집(fetch-police-items), 알림 비교(match-alerts) |
 | 서유석 | 당일 분실 실시간 위치(transit-locate), 열차 시간표 |
 
