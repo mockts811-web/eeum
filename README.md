@@ -4,10 +4,12 @@
 
 청년공공AX 서포터즈 **에공 팀**의 시범 서비스입니다.
 
-- 서비스 주소: **https://mockts811-web.github.io/eeum/**
+- **서비스 주소** : **https://mockts811-web.github.io/eeum/**
 - 시민은 로그인 없이 이용하며, 기관 담당자는 기관 계정으로 로그인하여 이용합니다.
 
-> **[화면 캡처 자리]** 메인 화면 전체 · 저장할 파일: `docs/images/01-main.png`
+
+<img width="1317" height="922" alt="01-main" src="https://github.com/user-attachments/assets/4bb04bd6-d276-4ff1-87e8-64cd6006ce9f" />
+
 
 <br>
 
@@ -55,7 +57,8 @@
 - 각 후보에 **일치 이유**("색상·날짜·분류가 같아요 / 특징 '햄스터'도 같아요")와 유사도 점수를 함께 보여 줍니다.
 - AI가 찾은 조건은 화면에서 바로 고칠 수 있습니다.
 
-> **[화면 캡처 자리]** 문장 검색 결과 목록 · `docs/images/02-search.png`
+ <img width="1071" height="781" alt="02-search" src="https://github.com/user-attachments/assets/9003d4d3-fe70-4eaf-aa12-9981497b2064" />
+
 
 #### 2. 수령 신청
 습득물 상세 화면에서 **"내 물건이에요"** 신청을 보냅니다.
@@ -64,7 +67,9 @@
 - 본인 수령과 **대리 수령**(대리인 이름·관계·연락처)을 고를 수 있습니다.
 - 신청하면 **확인 메일**이 오고, 담당자 화면에 바로 나타납니다.
 
-> **[화면 캡처 자리]** 습득물 상세와 수령 신청서 · `docs/images/03-claim.png`
+
+<img width="1061" height="912" alt="03-claim" src="https://github.com/user-attachments/assets/f9f6366b-84cd-4025-8b38-9a00807f3e48" />
+
 
 #### 3. 당일 분실 (방금 두고 내렸어요)
 내린 노선·정류장·시각·방향을 고르면 **탔던 열차·버스가 지금 어디쯤 있는지** 보여 주고, 바로 연락할 곳과 문의할 때 알려 줄 정보를 정리해 줍니다.
@@ -73,9 +78,16 @@
 - **그 밖의 노선과 서울·경기·인천 버스:** 실시간 위치와 구간 속도로 계산합니다.
 - 문의 정보(노선·방향·열차번호·내린 역·시각·물건)는 버튼 하나로 복사합니다.
 
-> **[화면 캡처 자리]** 당일 분실 지하철 결과 · `docs/images/04-today-subway.png`
->
-> **[화면 캡처 자리]** 당일 분실 버스 결과 · `docs/images/05-today-bus.png`
+
+
+<table>
+  <tr>
+    <td align="center"><img width="100%" alt="04-today-subway" src="https://github.com/user-attachments/assets/1aa663f4-7177-4916-b6a8-1782797122fd" /><br/>지하철 탑승 추정</td>
+    <td align="center"><img width="100%" alt="05-today-bus" src="https://github.com/user-attachments/assets/78aeb8a8-ae8d-4e68-91af-085c7c1cb18e" /><br/>버스 탑승 추정</td>
+  </tr>
+</table>
+
+
 
 #### 4. 비슷한 물건 알림
 아직 등록되지 않은 물건은 **알림 조건을 저장**해 두면, 매일 오전 9시와 오후 6시에 새 습득물과 비교해 **유사도 60 이상**이면 이메일로 알려 줍니다.
@@ -83,7 +95,8 @@
 - 저장하면 확인 메일이 옵니다.
 - 로그인 없이 **이메일 확인 코드**로 내 알림과 진행 단계(조건 저장 → 비교 중 → 후보 발견 → 수령 완료)를 불러옵니다.
 
-> **[화면 캡처 자리]** 비슷한 물건 알림 화면 · `docs/images/06-alert.png`
+<img width="988" height="847" alt="06-alert" src="https://github.com/user-attachments/assets/c7cef3b1-bd6d-408f-a63a-f6e0a582ad0b" />
+
 
 #### 5. 보관 기관 안내
 지하철 유실물센터, 버스 분실물 문의처, 경찰서 연락처와 운영 시간을 한곳에 모았습니다.
@@ -100,7 +113,15 @@
 - 이름·전화번호·카드번호 같은 **개인정보는 AI에 보내기 전에 가리고**, 신분증·카드처럼 개인정보가 찍히기 쉬운 물건은 경고합니다.
 - 지갑·휴대폰·카드 같은 물건은 **고액·귀중품**으로 자동 표시합니다.
 
-> **[화면 캡처 자리]** 담당자 등록 AI 정리 결과 · `docs/images/07-register.png`
+<table>
+  <tr>
+    <td align="center"><img width="996" height="943" alt="07-register_left" src="https://github.com/user-attachments/assets/8f8ac9e6-7946-4212-bfee-f70bc65909b4" /></td>
+    <td align="center"><img width="1000" height="873" alt="07-register_right" src="https://github.com/user-attachments/assets/ab1fe21c-137f-421f-a742-3c25acb50d82" /></td>
+  </tr>
+</table>
+
+
+
 
 #### 2. 보관 물품 조회·수정
 문의 전화 내용을 문장 그대로 넣으면 AI가 **유사도 순**으로 찾아 줍니다.
@@ -109,7 +130,9 @@
 - 습득일 오래된 순·최신순·유사도 순으로 정렬합니다.
 - 7일이 지난 지하철·버스 습득물은 경찰서 이관 대상으로 자동 분류됩니다.
 
-> **[화면 캡처 자리]** 보관 물품 목록 · `docs/images/08-staff-list.png`
+
+<img width="1028" height="977" alt="08-staff-list" src="https://github.com/user-attachments/assets/3e0cf0a2-630e-4902-88c8-5812005cc116" />
+
 
 #### 3. 수령 신청 처리
 시민이 보낸 신청이 목록 맨 위 안내 띠와 **수령 신청** 페이지에 모입니다.
@@ -117,7 +140,9 @@
 - 시민이 적은 안쪽 특징과 비공개 메모를 나란히 보여 주고, **겹치는 말**을 표시합니다.
 - 수령 확인 창은 필수 확인 항목(신분증 확인, 주인만 아는 특징, 대리 수령이면 대리인 이름·관계·위임 서류)을 **모두 체크해야** 기록됩니다.
 
-> **[화면 캡처 자리]** 수령 확인 창 · `docs/images/09-pickup.png`
+
+<img width="1036" height="923" alt="09-pickup" src="https://github.com/user-attachments/assets/29114853-cfd5-4a47-b8d3-4adaa94ce00b" />
+
 
 <br>
 
@@ -130,8 +155,6 @@
 | 서울시 지하철 실시간 열차 위치정보 | 서울 열린데이터광장 | 당일 분실: 열차가 지금 어느 역에 있는지 |
 | 서울교통공사 서울 도시철도 열차운행시각표 | 서울교통공사 · 공공데이터포털 (15098251) | 당일 분실: 내린 역·시각으로 탔던 열차 찾기 (1~9호선) |
 | 서울시 버스 노선·위치 정보 | 서울특별시 | 당일 분실: 서울 버스 실시간 위치 |
-| 경기도 버스 노선·위치 정보 | 경기도 · 공공데이터포털 | 당일 분실: 경기 버스 실시간 위치 |
-| 인천광역시 버스 노선·위치 정보 | 인천광역시 · 공공데이터포털 | 당일 분실: 인천 버스 실시간 위치 |
 | Google Gemini API | Google | 문장 → 검색 조건, 메모·사진 → 등록 항목, 비슷한 물건 비교 |
 
 - 습득물은 서울 지역만 모아서 저장합니다.
@@ -285,7 +308,7 @@ scripts/, tests/, audit/           사진 AI 빌드·테스트·검증 기록
 
 | 이름 | 담당 업무 |
 |---|---|
-| 이시은 | **QA** — 서비스 품질 검증 및 UX 개선 주도(수령 확인·대리 수령 절차, 보관 물품 정렬, 유사도 표기 통일, 당일 분실 열차 추정 오류 개선), 시연 시나리오 설계 및 영상 제작, README 작성 |
+| 이시은 | **QA** — 서비스 품질 검증 및 UX 개선, 시연 시나리오 설계 및 영상 제작, README 작성 |
 | 고현 | AI 문장 정리(ai-parse), 사진 AI 분석 |
 | 김다영 | 화면 전반, 수령 신청·알림·메일 |
 | 김준희 | 습득물 데이터 수집(fetch-police-items), 알림 비교(match-alerts) |
