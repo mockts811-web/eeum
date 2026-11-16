@@ -425,7 +425,7 @@ function buildRegister(ai: Record<string, unknown>, memo: string, original: stri
   const aiPlace = clean(ai.place, 80, names);
   const ruleP = placeByRule(pub);
   const placeRaw = aiPlace && grounded(aiPlace, pubSq) ? aiPlace : ruleP || "확인 필요";
-  const place = placeRaw === "확인 필요" ? placeRaw : (normPlace(trimPlace(placeRaw)) || "확인 필요"); // #고현 수정: 서술 부분을 먼저 잘라낸 뒤 표기 통일
+  const place = placeRaw === "확인 필요" ? placeRaw : (normPlace(trimPlace(placePiece(placeRaw))) || "확인 필요"); // #고현 수정: 서술 부분을 먼저 잘라낸 뒤 표기 통일
   // ===== #고현 수정 시작: 습득일 — "3일 전에 접수됐어"를 오늘로 잡던 것 =====
   // 날짜 계산은 코드가 함. 메모에서 못 찾으면 "" 로 두고, 화면이 오늘 날짜를 기본값으로 씀.
   const today = todayKst();
@@ -496,8 +496,16 @@ function normPlace(raw: string): string {
   return t;
 }
 // ===== #고현 수정 끝: 습득 장소 표기 정리 =====
+// 메모를 마침표·줄바꿈으로 나눠 적어도("어제. 학생증 카드. 홍대입구역 내.") 장소 문장만 고름
+// 쉼표는 나누지 않음 — "2호선, 강남역 승강장"처럼 장소 안의 쉼표는 그대로 두기 위함
+const SENTENCE_SPLIT = /\n|[.。](?!\d)/;
+function placePiece(raw: string): string {
+  const pieces = String(raw || "").split(SENTENCE_SPLIT).map((s) => s.trim()).filter(Boolean);
+  if (pieces.length < 2) return pieces[0] ?? "";
+  return pieces.find((p) => PLACE_WORDS.test(p)) ?? String(raw).trim();
+}
 function placeByRule(pub: string): string {
-  const first = pub.split(",")[0]?.trim() ?? "";
+  const first = placePiece(pub.split(",")[0]?.trim() ?? ""); // 예전처럼 첫 쉼표 조각만 봄
   return first && PLACE_WORDS.test(first) && !MASK_WORDS.test(first) ? first.slice(0, 80) : "";
 }
 function featsByRule(pub: string): string { // index.html 규칙 + 개인정보 조각 제외
