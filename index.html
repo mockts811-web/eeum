@@ -164,6 +164,8 @@ textarea::placeholder, input::placeholder { color: var(--fg-3); }
 .tabs button { border: 0; background: transparent; color: var(--fg-2); font-size: 17px; font-weight: 700; padding: 10px 16px; cursor: pointer; min-height: 48px; border-bottom: 3px solid transparent; }
 .tabs button[aria-selected="true"] { color: var(--primary-strong); border-bottom-color: var(--primary); }
 .listhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+.lsort { display: inline-flex; align-items: center; gap: 8px; align-self: center; }
+.lsort select { width: auto; min-height: 40px; padding: 6px 12px; font-size: 15px; }
 .list { display: flex; flex-direction: column; gap: 12px; }
 .card { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; gap: 16px; align-items: center; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; background: var(--bg); cursor: pointer; text-align: left; color: var(--fg); font-size: 17px; width: 100%; }
 .card:hover { border-color: var(--primary); }
@@ -2261,7 +2263,7 @@ var CONFIG = {
   }
 
   /* ================= 화면: 담당자 보관 물품 ================= */
-  var inv = { conds: emptyConds(), aiKeys: {}, query: '', aiMsg: '', tab: '보관중' };
+  var inv = { conds: emptyConds(), aiKeys: {}, query: '', aiMsg: '', tab: '보관중', sort: '' }; // sort: ''(자동) | old | new | sim
   function myItems() { return ITEMS.filter(function (it) { return !state.staff || it.org === state.staff.org; }); }
   var INV_TABS = [
     ['보관중', '보관 중', function (it) { return it.status === '보관중'; }],
@@ -2303,7 +2305,14 @@ var CONFIG = {
         (task ? '<span class="tcount' + (t[0] === '요청' && n > 0 ? ' on' : '') + '">' + n + '</span>' : n) + '</button>';
     }).join('');
     var list = all.filter(function (r) { return tabDef[2](r.it); });
-    if (!scored) list.sort(function (a, b) { return a.it.date < b.it.date ? -1 : 1; });
+    // 정렬: 오래된 순 / 최신순 / 닮은 순(검색·조건이 있을 때만). 고르지 않았으면 검색 중엔 닮은 순, 아니면 오래된 순
+    if (inv.sort && inv.sortSig !== JSON.stringify(c)) inv.sort = ''; // 검색 조건이 바뀌면 다시 자동(검색 중엔 닮은 순)
+    var sortBy = inv.sort === 'sim' && !scored ? 'old' : (inv.sort || (scored ? 'sim' : 'old'));
+    if (sortBy !== 'sim') list.sort(function (a, b) { return a.it.date === b.it.date ? 0 : (a.it.date < b.it.date) === (sortBy === 'old') ? -1 : 1; });
+    var sortHtml = '<label class="lsort"><select id="inv-sort" aria-label="정렬">' +
+      [['old', '습득일 오래된 순'], ['new', '습득일 최신순'], ['sim', '유사도 순' + (scored ? '' : ' (검색 시)')]].map(function (o) {
+        return '<option value="' + o[0] + '"' + (o[0] === sortBy ? ' selected' : '') + (o[0] === 'sim' && !scored ? ' disabled' : '') + '>' + o[1] + '</option>';
+      }).join('') + '</select></label>';
     // #김다영 수정: 10개씩 쪽 나누기 (탭·조건이 바뀌면 1쪽으로)
     var PER = 10, pages = Math.max(1, Math.ceil(list.length / PER)), sig = inv.tab + '|' + JSON.stringify(c);
     if (inv.pageSig !== sig) { inv.pageSig = sig; inv.page = 1; }
@@ -2333,7 +2342,7 @@ var CONFIG = {
       itemTabsHtml(inv) + // #김다영 수정
       filtersHtml(inv, '분실한 날') +
       '<section class="col" aria-label="보관 물품 목록">' +
-        '<div class="listhead"><h3 class="s">' + tabDef[1] + ' ' + list.length + '건</h3><span class="cap">' + (scored ? '조건과 닮은 순 정렬' : '습득일이 오래된 순 정렬') + '</span></div>' +
+        '<div class="listhead"><h3 class="s">' + tabDef[1] + ' ' + list.length + '건</h3>' + sortHtml + '</div>' +
         '<div class="tabs" role="tablist" aria-label="물품 상태">' + tabs + '</div>' +
         '<div class="list">' + cards + '</div>' + pagerHtml(inv.page, pages) + '</section></div>'; // #김다영 수정: 쪽 번호
   }
@@ -2856,6 +2865,7 @@ var CONFIG = {
     }
     if (h === 'staff-items') {
       bindSearch(inv);
+      var invSort = document.getElementById('inv-sort'); if (invSort) invSort.addEventListener('change', function () { inv.sort = invSort.value; inv.sortSig = JSON.stringify(inv.conds); route(); }); // 정렬 바꾸기
       app.querySelectorAll('[data-it]').forEach(function (b) { b.addEventListener('click', function () { inv.tab = b.getAttribute('data-it'); route(); }); });
       app.querySelectorAll('[data-pg]').forEach(function (b) { b.addEventListener('click', function () { // #김다영 수정: 보관 물품 쪽 이동
         inv.page = Number(b.getAttribute('data-pg')); route();
