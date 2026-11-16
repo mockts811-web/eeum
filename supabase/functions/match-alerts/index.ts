@@ -481,7 +481,7 @@ JSON 배열 이외의 설명이나 마크다운은 출력하지 마.
 습득 날짜: ${item.found_on ?? "정보 없음"}
 습득 장소: ${item.found_place ?? "정보 없음"}
 
-닮음 점수: ${score}
+유사도: ${Math.round(score * 100)}
 
 AI 판단 이유:
 ${match.reason ?? "정보 없음"}`
