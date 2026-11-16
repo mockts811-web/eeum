@@ -1866,10 +1866,12 @@ var CONFIG = {
     // #김다영 수정 시작: 노선(버스 번호)·역·방향을 고르기 전에는 노선도 대신 안내를 보여 줌
     var need = sub ? [!tState.line && '지하철 노선', !tState.station && '내린 정류장', !tState.dir && '열차 방향'].filter(Boolean)
       : [!tState.bus && '버스 노선', !tState.busStop && '내린 정류장'].filter(Boolean);
-    if (need.length) {
+    var ready = !need.length && !tState.ran[tState.mode]; // 다 골랐지만 아직 '추정하기'를 누르기 전 → 결과 대신 안내
+    if (need.length || ready) {
       right = '<section class="panel" aria-labelledby="h-tr"><h3 id="h-tr" class="s">' + (sub ? '탔던 열차 위치' : '탔던 버스 위치') /* #김다영 수정: 제목 통일 */ + '</h3>' +
+        (ready ? '<div class="empty-guide"><b>왼쪽 아래 「' + (sub ? '탑승한 열차 추정하기' : '탑승한 버스 추정하기') + '」를 눌러 주세요</b><p class="small">내린 시각과 물건 정보까지 확인한 뒤 누르면,<br>탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>' :
         '<div class="empty-guide"><b>' + esc(need.join(', ')) + (/[가-힣]/.test(need[need.length - 1].slice(-1)) && ((need[need.length - 1].slice(-1).charCodeAt(0) - 0xAC00) % 28) ? '을' : '를') + ' 골라 주세요</b>' +
-        '<p class="small">' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 정류장과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'; // #김다영 수정: 구절 단위 줄바꿈
+        '<p class="small">' + (sub ? '노선을 고르면 노선도가 나오고,<br>내린 정류장과 방향까지 고르면' : '버스 번호와 내린 정류장을 고르면<br>') + ' 탔던 ' + (sub ? '열차' : '버스') + '가 지금 어디쯤 있는지 보여 드려요.</p></div></section>'); // #김다영 수정: 구절 단위 줄바꿈
       if (sub && tState.line && STATIONS.length) { // #김다영 수정: 노선을 고르면 그 노선의 노선도(7개 역)를 먼저 보여 줌. 내린 역을 고르면 그 역이 가운데
         var pa = STATIONS.indexOf(tState.station), pf = pa < 0 ? 0 : Math.max(0, Math.min(pa - 3, STATIONS.length - 7));
         var pn = STATIONS.slice(pf, pf + 7);
