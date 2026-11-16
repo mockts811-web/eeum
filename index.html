@@ -1099,7 +1099,7 @@ var CONFIG = {
     return '<div class="view">' +
       '<section class="hero" aria-labelledby="h-home">' +
         '<h1 id="h-home">잃어버린 물건, 한 문장으로 찾아보세요</h1>' +
-        '<p class="sub">지하철·버스·경찰서에 접수된 습득물을 한 번에 찾아, 닮은 순서대로 보여 드려요.<br class="wide-only"> 분류나 지역을 고르지 않아도 됩니다.</p>' +  // #고현 수정: 줄바꿈 — 넓은 화면에서는 문장 단위로 줄을 나눔
+        '<p class="sub">지하철·버스·경찰서에 접수된 습득물을 한 번에 찾아, 유사도 순으로 보여 드려요.<br class="wide-only"> 분류나 지역을 고르지 않아도 됩니다.</p>' +  // #고현 수정: 줄바꿈 — 넓은 화면에서는 문장 단위로 줄을 나눔
         '<form class="search" id="f-search"><label for="q">무엇을, 언제, 어디서 잃어버렸나요?</label>' +
           '<textarea id="q" rows="3" placeholder="' + esc(EXAMPLES[0]) + '">' + esc(state.query) + '</textarea>' +
           '<div class="row"><span class="cap" id="ph-hint">회색 글씨는 예시예요. 비워 두고 누르면 예시로 찾아 드려요.</span>' +
@@ -1251,7 +1251,7 @@ var CONFIG = {
       itemTabsHtml(state) + // #김다영 수정
       filtersHtml(state, '잃어버린 날') +
       '<section class="col" aria-label="습득물 목록">' +
-        '<div class="listhead"><h3 class="s">' + (scored ? '조건과 닮은 습득물 ' + all.length + '건' : '전체 습득물 ' + all.length + '건') + '</h3><span class="cap">' + (scored ? '유사도 순 정렬 · AI가 고른 후보이며, 내 물건인지는 보관 기관에서 확인해요' : '최근 습득 순 정렬') + '</span></div>' +
+        '<div class="listhead"><h3 class="s">' + (scored ? '조건과 유사한 습득물 ' + all.length + '건' : '전체 습득물 ' + all.length + '건') + '</h3><span class="cap">' + (scored ? '유사도 순 정렬 · AI가 고른 후보이며, 내 물건인지는 보관 기관에서 확인해요' : '최근 습득 순 정렬') + '</span></div>' +
         '<div class="tabs" role="tablist" aria-label="보관 위치">' + tabs + '</div>' +
         '<div class="list">' + cards + '</div>' +
         pagerHtml(state.page, pages) + // #김다영 수정
@@ -1926,7 +1926,7 @@ var CONFIG = {
         var st = hitStatus(h);
         return '<li><span class="badge ' + st[0] + '">' + st[1] + '</span> <b>' + esc(h.name) + (h.color ? ' (' + esc(h.color) + ')' : '') + '</b> · 유사도 ' + Math.round(Number(h.score) * 100) +
           '<br><span class="cap">' + (h.found_on ? md(h.found_on) + ' 습득 · ' : '') + esc(h.org) + (h.tel ? ' ' + esc(h.tel) : '') + ' · 관리번호 ' + esc(h.item_id) + '</span> <a href="#detail" data-open-item="' + esc(h.item_id) + '">자세히</a></li>';
-      }).join('') + '</ul>' : '<p class="cap">' + (a.last_checked_at ? '아직 닮은 습득물이 없어요. 계속 비교하고 있어요.' : '아직 첫 비교 전이에요. 오전 9시와 오후 6시에 비교해요.') + '</p>') + '</div>';
+      }).join('') + '</ul>' : '<p class="cap">' + (a.last_checked_at ? '아직 유사한 습득물이 없어요. 계속 비교하고 있어요.' : '아직 첫 비교 전이에요. 오전 9시와 오후 6시에 비교해요.') + '</p>') + '</div>';
   }
   // ===== #김다영 수정 끝 =====
   function vTrack() {
@@ -2319,8 +2319,8 @@ var CONFIG = {
         (task ? '<span class="tcount' + (t[0] === '요청' && n > 0 ? ' on' : '') + '">' + n + '</span>' : n) + '</button>';
     }).join('');
     var list = all.filter(function (r) { return tabDef[2](r.it); });
-    // 정렬: 오래된 순 / 최신순 / 닮은 순(검색·조건이 있을 때만). 고르지 않았으면 검색 중엔 닮은 순, 아니면 오래된 순
-    if (inv.sort && inv.sortSig !== JSON.stringify(c)) inv.sort = ''; // 검색 조건이 바뀌면 다시 자동(검색 중엔 닮은 순)
+    // 정렬: 오래된 순 / 최신순 / 유사도 순(검색·조건이 있을 때만). 고르지 않았으면 검색 중엔 유사도 순, 아니면 오래된 순
+    if (inv.sort && inv.sortSig !== JSON.stringify(c)) inv.sort = ''; // 검색 조건이 바뀌면 다시 자동(검색 중엔 유사도 순)
     var sortBy = inv.sort === 'sim' && !scored ? 'old' : (inv.sort || (scored ? 'sim' : 'old'));
     if (sortBy !== 'sim') list.sort(function (a, b) { return a.it.date === b.it.date ? 0 : (a.it.date < b.it.date) === (sortBy === 'old') ? -1 : 1; });
     var sortHtml = '<label class="lsort"><select id="inv-sort" aria-label="정렬">' +
@@ -2353,7 +2353,7 @@ var CONFIG = {
     return '<nav class="crumb" aria-label="현재 위치"><a href="#staff">담당자 화면</a><span>›</span><span>보관 물품 조회·수정</span></nav>' + // #김다영 수정: 다른 페이지처럼 위치 표시(간격도 같아짐). 담당자 화면은 '홈' 없이 시작
       '<div class="view"><div class="head"><h2>보관 물품 조회·수정</h2><p class="small">' + esc(state.staff ? state.staff.org : '') + '에서 보관 중인 물품이에요.<br>문의 전화 내용을 문장 그대로 AI 검색에 넣으면, 맞는 보관 물품을 유사도 순으로 찾아 드려요.</p>' +
         '<p class="valhint"><span class="badge s-val">고액·귀중품</span><span>표시가 있는 물품은 수령 때 본인 확인을 더 꼼꼼히 해 주세요.</span></p></div>' + // 부제목과 따로 한 줄로
-      aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 닮은 순으로 보여 줘요.') +
+      aiSearchHtml(inv, '예: 어제 들어온 검정 반지갑 / 2호선 흰색 이어폰', '문의 전화 내용을 그대로 적으면 AI가 조건을 찾아 보관 물품을 유사도 순으로 보여 줘요.') +
       itemTabsHtml(inv) + // #김다영 수정
       filtersHtml(inv, '분실한 날') +
       '<section class="col" aria-label="보관 물품 목록">' +
