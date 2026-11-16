@@ -1317,7 +1317,7 @@ var CONFIG = {
   // 시범 버스 노선 (가상 데이터 · 실제 정류장 순서·운수회사와 다를 수 있음)
   // ===== #서유석 수정 시작 =====
   var BUSES = {}; // 노선 정보는 서버(transit-locate)에서 노선 번호로 받아 채워요
-  var tState = { mode: '지하철', line: '', station: '', dir: '', time: defaultTime(), where: '', what: '', bus: '', busStop: '', busDir: 0, region: '서울', gCands: [], gBuses: null, gLoading: false }; // #서유석 수정 (5차) · #김다영 수정: 처음 화면은 내린 시각만 채우고 나머지는 비움
+  var tState = { mode: '지하철', line: '', station: '', dir: '', time: defaultTime(), where: '', what: '', bus: '', busStop: '', busDir: 0, region: '서울', gCands: [], gBuses: null, gLoading: false, ran: { '지하철': false, '버스': false } }; // #서유석 수정 (5차) · #김다영 수정: 처음 화면은 내린 시각만 채우고 나머지는 비움
   // 서울 지하철 노선 목록 (표시 이름 → 역 목록 키 · 실시간 열차 노선명). 역 목록은 함수 지하철역 모드에서 받아요.
   var METRO_LINES = [ // #서유석 수정 (4차): key = 공개 역 목록 이름, s0 = 상행·내선(updn 0) 열차가 역 목록에서 움직이는 쪽 (2026-11-09 실제 열차 이동으로 확인), loop = 순환선
     { label: '1호선', key: '01호선', rt: '1호선', s0: -1 }, { label: '2호선', key: '02호선', rt: '2호선', s0: 1, loop: true }, { label: '3호선', key: '03호선', rt: '3호선', s0: -1 },
@@ -1884,7 +1884,7 @@ var CONFIG = {
     return '<nav class="crumb" aria-label="현재 위치"><a href="#home">홈</a><span>›</span><span>당일 분실</span></nav>' +
       '<div class="view"><div class="head"><h2>방금 두고 내렸나요?</h2><p class="small">아직 차 안에 있을 수 있어요. 온라인 등록 전이니, 지금 운영 기관에 바로 알리는 게 가장 빨라요.</p></div>' + tabs +
       '<div class="today"><form class="panel" id="f-today"><h3 class="s">내린 정보</h3><div class="form">' + form + '</div>' +
-        '<button class="btn primary" type="submit">' + (sub ? '열차 위치 다시 추정하기' : '버스 위치 다시 추정하기') /* #김다영 수정: 이름 통일 */ + '</button>' +
+        '<button class="btn primary" type="submit">' + (tState.ran[tState.mode] ? (sub ? '열차 위치 다시 추정하기' : '버스 위치 다시 추정하기') : (sub ? '탑승한 열차 추정하기' : '탑승한 버스 추정하기')) /* 처음엔 '탑승한 … 추정하기', 한 번 누른 뒤엔 '… 위치 다시 추정하기' */ + '</button>' +
         // #김다영 수정: 이 기능 설명
         '<div class="fhelp"><b>💡 이 기능은 이렇게 도와드려요</b><ol>' +
           '<li><b>' + (sub ? '🚇' : '🚌') + ' 탔던 ' + (sub ? '열차' : '버스') + '를 찾아요</b>' + (sub ? '내린 역·시각·방향으로 1~9호선은 열차 시간표에서,<br>다른 노선은 평균 운행 속도로 탔던 열차를 계산해요.' : '내린 정류장·시각과<br>정류장 사이 거리·구간 속도로 탔던 버스를 계산해요.') + '</li>' +
@@ -2707,7 +2707,7 @@ var CONFIG = {
         }
         route();
       }
-      document.getElementById('f-today').addEventListener('submit', function (e) { e.preventDefault(); upd(); });
+      document.getElementById('f-today').addEventListener('submit', function (e) { e.preventDefault(); tState.ran[tState.mode] = true; upd(); }); // 한 번 추정한 뒤엔 버튼 이름을 '다시 추정하기'로
       // ===== #서유석 수정 시작 =====
       ['t-line', 't-st', 't-stop', 't-bus', 't-region'].forEach(function (id) { var el = document.getElementById(id); if (el) el.addEventListener('change', upd); });
       // ===== #서유석 수정 끝 =====
