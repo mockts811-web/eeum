@@ -186,7 +186,7 @@ textarea::placeholder, input::placeholder { color: var(--fg-3); }
 .s-soon { background: var(--warning-bg); color: var(--warning-fg); }
 .s-moved { background: var(--surface-2); color: var(--fg); }
 .s-done { background: var(--success-bg); color: var(--success-fg); }
-.s-val { background: var(--val-bg); color: var(--val-fg); border: 1px solid currentColor; }
+.s-val { background: var(--val-bg); color: var(--val-fg); border: 1px solid color-mix(in srgb, var(--val-fg) 30%, transparent); } /* 테두리 옅게 */
 .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 
@@ -362,7 +362,7 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .scard:hover { border-color: var(--line); }
 .scard .inner { font-size: 15px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm); padding: 4px 8px; width: fit-content; max-width: 100%; }
 /* 고액·귀중품 카드: 굵은 빨간 테두리 대신 옅은 테두리 + 왼쪽 얇은 줄로 차분하게 (배지가 뜻을 알려 줌) */
-.scard.val { border-color: color-mix(in srgb, var(--val-fg) 30%, var(--line)); box-shadow: inset 4px 0 0 var(--val-fg); }
+.scard.val { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--val-fg) 75%, var(--bg)); } /* 고액·귀중품: 테두리는 기본색, 왼쪽 얇은 줄만 */
 .scard.val .cname { color: var(--fg); font-weight: 700; }
 .valhint { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; padding: 10px 14px; background: var(--surface); border-radius: var(--r-md); font-size: 15px; color: var(--fg-2); width: fit-content; max-width: 100%; }
 .tabs button .tcount { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; padding: 0 7px; margin-left: 2px; border-radius: 999px; background: var(--surface); color: var(--fg-2); font-size: 13px; font-weight: 700; vertical-align: 1px; }
