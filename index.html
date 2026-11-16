@@ -367,6 +367,10 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tabs button .tcount.on { background: var(--primary); color: var(--on-primary); }
 .tabs button[aria-selected="true"] .tcount:not(.on) { background: var(--primary-soft); color: var(--primary-strong); }
 .scard.val.hasreq { box-shadow: none; } /* 수령 신청 파란 줄이 있으면 빨간 줄은 겹치지 않게 */
+.proxybox { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; display: grid; gap: 10px; }
+.proxybox dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 15px; }
+.proxybox dt { color: var(--fg-3); }
+.proxybox dd { margin: 0; font-weight: 700; }
 .scard.done { opacity: .7; }
 .sacts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: center; min-width: 150px; } /* #김다영 수정 */
 .sacts .pickb { grid-column: 1 / -1; }
@@ -2365,7 +2369,7 @@ var CONFIG = {
             '<p class="ctext">' + esc(cl.text) + '</p>' +
             '<p class="small"><b>비공개 메모:</b> ' + esc(it.inner || '없음') + '</p>' +
             (cl.contact ? '<p class="small"><b>이메일:</b> ' + esc(cl.contact) + '</p>' : (cl.id ? '<p class="cap">연락처를 남기지 않았어요. 시민이 전화하면 이 내용과 맞춰 보세요.</p>' : '')) + // #김다영 수정
-            (cl.method === '대리' ? '<p class="small"><b>대리 수령 신청</b> ' + esc(cl.proxyName) + ' (' + esc(cl.proxyRel) + ') ' + esc(cl.proxyTel) + ' — 위임장·분실자 신분증 사본을 확인하세요</p>' : '') + // #김다영 수정
+            (cl.method === '대리' ? '<p class="small"><b>대리 수령 신청</b> — 아래 「대리 수령이에요」에서 대리인 정보를 확인하세요</p>' : '') + // 대리인 정보는 대리 수령 확인 칸으로 옮김
             (it.inner
               ? '<p class="small">' + (m.hit.length
                   ? '<span class="badge b-high">겹치는 말 ' + m.hit.length + '개</span> ' + esc(m.hit.join(', '))
@@ -2379,7 +2383,17 @@ var CONFIG = {
         // ===== #고현 수정 끝 =====
         (v ? '<label class="check"><input type="checkbox" id="c4"><span>특징을 먼저 묻고 답을 들은 뒤 메모와 대조함 (메모를 먼저 알려 주지 않기)</span></label>' : '') +
         '<label class="check"><input type="checkbox" id="c3"><span>대리 수령이에요</span></label>' +
-        '<label class="check" id="c5wrap" hidden><input type="checkbox" id="c5"><span>위임 확인 서류(위임장, 분실자 신분증 사본) 확인</span></label></div>' +
+        // 대리 수령: 신청서에 적힌 대리인 이름·관계를 보여 주고, 하나씩 확인했는지 체크
+        (function () {
+          var pc = claimFor(it.id), px = pc && pc.method === '대리' ? pc : null;
+          var nm = px && px.proxyName ? px.proxyName : '', rel = px && px.proxyRel ? px.proxyRel : '';
+          return '<div class="proxybox" id="c5wrap" hidden>' +
+            (px ? '<dl><dt>대리인 이름</dt><dd>' + esc(nm || '-') + '</dd><dt>분실자와의 관계</dt><dd>' + esc(rel || '-') + '</dd>' + (px.proxyTel ? '<dt>대리인 연락처</dt><dd>' + esc(px.proxyTel) + '</dd>' : '') + '</dl>'
+                : '<p class="cap">대리 수령 신청서가 없어요. 방문한 대리인에게 이름과 관계를 직접 확인하세요.</p>') +
+            '<label class="check"><input type="checkbox" id="c6"><span>대리인 신분증의 이름' + (nm ? '이 신청서 이름(' + esc(nm) + ')과 같음' : ' 확인') + '</span></label>' +
+            '<label class="check"><input type="checkbox" id="c7"><span>분실자와의 관계' + (rel ? '(' + esc(rel) + ') 확인' : ' 확인') + '</span></label>' +
+            '<label class="check"><input type="checkbox" id="c5"><span>위임 확인 서류(위임장, 분실자 신분증 사본) 확인</span></label></div>';
+        })() + '</div>' +
         '<div class="f" style="display:flex;flex-direction:column;gap:6px"><label for="c-note" class="lbl">메모 (선택)</label><input id="c-note" type="text" placeholder="예: 본인 방문, 카드 3장 일치"></div>' +
         '<p id="pick-msg" aria-live="polite" class="small"></p>' +
         '<div class="btns end"><button class="btn tertiary" type="button" data-close>닫기</button><button class="btn primary" type="submit">수령 완료 기록</button></div></form>', v ? 'val' : '');
@@ -2393,7 +2407,7 @@ var CONFIG = {
     document.getElementById('f-pick').addEventListener('submit', function (e) {
       e.preventDefault();
       var g = function (id) { var el = document.getElementById(id); return !!(el && el.checked); };
-      var need = ['c1', 'c2'].concat(v ? ['c4'] : []).concat(g('c3') ? ['c5'] : []);
+      var need = ['c1', 'c2'].concat(v ? ['c4'] : []).concat(g('c3') ? ['c6', 'c7', 'c5'] : []);
       var msg = document.getElementById('pick-msg');
       if (!need.every(g)) { msg.style.color = 'var(--error-fg)'; msg.textContent = '체크하지 않은 확인 항목이 있어요. 모두 확인한 뒤 기록할 수 있어요.'; return; }
       msg.style.color = ''; msg.textContent = '기록하는 중…';
