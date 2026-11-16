@@ -368,7 +368,7 @@ table.queue td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tabs button .tcount { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; padding: 0 7px; margin-left: 2px; border-radius: 999px; background: var(--surface); color: var(--fg-2); font-size: 13px; font-weight: 700; vertical-align: 1px; }
 .tabs button .tcount.on { background: var(--primary); color: var(--on-primary); }
 .tabs button[aria-selected="true"] .tcount:not(.on) { background: var(--primary-soft); color: var(--primary-strong); }
-.scard.val.hasreq { box-shadow: none; } /* 수령 신청 파란 줄이 있으면 빨간 줄은 겹치지 않게 */
+.scard.val.hasreq { box-shadow: inset 3px 0 0 var(--primary); } /* 수령 신청이 있으면 파란 줄 하나만 */
 .proxybox { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; display: grid; gap: 10px; }
 .proxybox dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 15px; }
 .proxybox dt { color: var(--fg-3); }
@@ -486,13 +486,14 @@ h1, h2, h3, .empty-guide b { text-wrap: balance; }
 .track2 > form.panel > .btn, .track2 > form.panel > .btns { margin-top: 8px; }
 .reqnote { margin: 12px 0 4px; padding: 12px 16px; border-radius: var(--r-lg, 12px); background: var(--surface, #F4F6F8); } /* #김다영 수정: 수령 전 안내 */
 .reqnote p { margin: 0 0 6px; }
-.scard.hasreq { border-left: 5px solid var(--primary, #2563EB); position: relative; }
-.reqflag { position: absolute; top: -16px; left: -16px; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 27px; line-height: 1; background: #fff; border: 2px solid var(--primary, #2563EB); box-shadow: 0 2px 6px rgba(13, 36, 86, .25); z-index: 1; }
-.reqflag.new { animation: ring 1.6s ease-in-out infinite; transform-origin: 50% 20%; }
-@keyframes ring { 0%, 60%, 100% { transform: rotate(0); } 10% { transform: rotate(14deg); } 20% { transform: rotate(-12deg); } 30% { transform: rotate(8deg); } 40% { transform: rotate(-6deg); } }
-@media (prefers-reduced-motion: reduce) { .reqflag.new { animation: none; } } /* #김다영 수정: 수령 신청이 들어온 물품 */
-.reqbadge { background: #EAF1FF; color: #1D4ED8; border: 1px solid #BFD3FB; font-weight: 700; }
-.reqline { display: block; font-size: 14px; color: #1E3A8A; background: #F1F5FF; border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
+.scard.hasreq { box-shadow: inset 3px 0 0 var(--primary); position: relative; } /* 수령 신청: 왼쪽 얇은 파란 줄 */
+.reqbar { grid-column: 1 / -1; margin: -16px -16px 0 -13px; padding: 10px 16px 10px 13px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 15px; background: var(--primary-soft); color: var(--primary-strong); border-bottom: 1px solid color-mix(in srgb, var(--primary) 25%, transparent); border-radius: 0 calc(var(--r-lg) - 1px) 0 0; } /* 수령 신청 안내 띠 */
+.reqbar svg { width: 18px; height: 18px; flex: none; }
+.reqbar b { font-size: 16px; }
+.reqbar a { margin-left: auto; color: inherit; font-weight: 700; }
+.reqbar:not(.new) { background: var(--surface); color: var(--fg-2); border-bottom-color: var(--line); } /* 연락 완료: 회색 */
+.reqbar.new b::after { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-left: 8px; vertical-align: 2px; } /* 새 신청: 옅은 파랑 + 작은 점 */
+.reqline { display: block; font-size: 14px; color: var(--fg-2); background: var(--surface); border-radius: var(--r-sm, 6px); padding: 4px 8px; width: fit-content; max-width: 100%; }
 .alert.inline > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; } /* #김다영 수정: 제목 옆에 간격 두고 한 줄로 */
 .alert.inline > div > p { margin: 0; }
 /* #김다영 수정: 글자 크기 통일 — 당일 분실 '기능 설명'(본문 16px·보조 14px)을 기준으로 */
@@ -2321,13 +2322,14 @@ var CONFIG = {
       var it = r.it, st = storage(it), done = it.status === '수령완료', val = it.valuable && !done;
       var rq = done ? [] : openClaims(it.id), rq0 = rq[0]; // #김다영 수정: 이 물품에 들어온 수령 신청
       return '<div class="card scard' + (val ? ' val' : '') + (done ? ' done' : '') + (rq0 ? ' hasreq' : '') + '">' +
-        (rq0 ? '<span class="reqflag' + (rq0.status === '접수' ? ' new' : '') + '" title="수령 신청이 들어왔어요" aria-label="수령 신청 알림">🔔</span>' : '') + // #김다영 수정: 신청 알림이 눈에 띄게 왼쪽 위에 큰 종
+        (rq0 ? '<div class="reqbar' + (rq0.status === '접수' ? ' new' : '') + '">' + I.bell + '<b>' + (rq0.status === '접수' ? '새 수령 신청' : '수령 신청 · 연락 완료') + (rq.length > 1 ? ' ' + rq.length + '건' : '') + '</b>' + // 수령 신청: 카드 맨 위 안내 띠 (새 신청은 진한 파랑)
+          '<span>' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(mdt(rq0.at)) + ' 신청</span><a href="#staff-req">신청 보기 ›</a></div>' : '') +
         '<span class="thumb">' + pic(it) + '</span>' +
-        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + (rq0 ? '<span class="badge reqbadge">수령 신청' + (rq.length > 1 ? ' ' + rq.length + '건' : '') + ' · ' + (rq0.status === '접수' ? '새 신청' : '연락 완료') + '</span>' : '') /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
+        '<div class="cbody"><span class="tags">' + (it.valuable ? '<span class="badge s-val">고액·귀중품</span>' : '') + '<span class="badge ' + st.cls + '">' + st.label + '</span>' + '' /* #김다영 수정 */ + (scored ? '<span class="badge b-mid">닮음 ' + r.s.toFixed(2) + '</span>' : '') + '</span>' +
           '<span class="cname">' + esc(it.name) + ' (' + esc(it.color) + ')</span>' +
           '<span class="small">' + esc(it.id) + ' / 습득 날짜: ' + md(it.date) + ' / 습득 장소: ' + esc(it.found) + '</span>' + // #김다영 수정: 항목 이름을 붙여 읽기 쉽게
           '<span class="inner">비공개 메모: ' + esc(it.inner || '없음') + '</span>' +
-          (rq0 ? '<span class="reqline">' + (rq0.method === '대리' ? '대리 수령 (' + esc(rq0.proxyName || '-') + ')' : '본인 수령') + ' · ' + esc(rq0.contact || '-') + ' · ' + esc(mdt(rq0.at)) + ' 신청 · 주인이 적은 특징: ' + esc(rq0.text) + ' <a href="#staff-req">신청 보기 ›</a></span>' : '') + // #김다영 수정: '신청 보기'를 버튼 대신 링크로 // #김다영 수정: 신청 요약
+          (rq0 ? '<span class="reqline">주인이 적은 특징: ' + esc(rq0.text) + (rq0.contact ? ' · 연락처: ' + esc(rq0.contact) : '') + '</span>' : '') + // #김다영 수정: '신청 보기'를 버튼 대신 링크로 // #김다영 수정: 신청 요약
           (scored ? '<span class="reason">일치 이유: ' + esc(r.reason) + '</span>' : '') + '</div>' +
         '<div class="sacts">' + // #김다영 수정: 버튼 정리 — 수령 확인(파랑) 하나만 크게, 수정·삭제는 아래에 작게 나란히
           (done ? '' : '<button class="btn primary sm pickb" type="button" data-pick="' + esc(it.id) + '">수령 확인</button>') +
