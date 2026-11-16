@@ -197,6 +197,7 @@ textarea::placeholder, input::placeholder { color: var(--fg-3); }
 .alert svg { width: 22px; height: 22px; }
 .alert > div > b { display: block; } /* #고현 수정: 알림 제목만 줄바꿈. 본문 안의 굵은 글씨가 제멋대로 줄을 바꾸던 것 */
 .alert p { color: var(--fg); font-size: 15px; }
+.alert p.atime { margin-top: 2px; color: var(--fg-3); font-size: 13px; font-variant-numeric: tabular-nums; } /* 알림 예시: 날짜는 아래 줄에 작고 흐리게 */
 .a-info { background: var(--info-bg); color: var(--info-fg); }
 .a-warn { background: var(--warning-bg); color: var(--warning-fg); }
 .a-error { background: var(--error-bg); color: var(--error-fg); }
@@ -1966,12 +1967,12 @@ var CONFIG = {
         // #김다영 수정 끝
         '</section>' +
         '<section class="panel demo-alerts" aria-labelledby="h-nt"><h3 id="h-nt" class="s">받은 알림 <span class="exlabel">(예시)</span></h3>' +
-          '<div class="alert a-ok">' + I.ok + '<div><b>닮은 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정) · 시청 유실물센터 · 유사도 높음 · ' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일
-          '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요. · ' + md('2026-10-30') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
-          '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요. · ' + md('2026-10-31') + '</p></div></div>' + // #김다영 수정: 날짜에 요일
+          '<div class="alert a-ok">' + I.ok + '<div><b>비슷한 새 습득물이 올라왔어요</b><p>남성용 반지갑(검정), 시청 유실물센터, 유사도 높음</p><p class="atime">' + md('2026-10-25') + ' 09:02</p></div></div>' + // #김다영 수정: 날짜에 요일 · 날짜는 아래 줄에 작게
+          '<div class="alert a-warn">' + I.warn + '<div><b>내일 경찰서로 옮겨질 수 있어요</b><p>습득 6일째예요. 오늘 보관 기관에 연락하세요.</p><p class="atime">' + md('2026-10-30') + '</p></div></div>' + // #김다영 수정: 날짜에 요일 · 날짜는 아래 줄에 작게
+          '<div class="alert a-info">' + I.info + '<div><b>후보 물건이 경찰서로 옮겨졌어요</b><p>경찰서 보관 습득물에서 다시 찾아 연결했어요.</p><p class="atime">' + md('2026-10-31') + '</p></div></div>' + // #김다영 수정: 날짜에 요일 · 날짜는 아래 줄에 작게
         // #김다영 수정: 알림이 오는 과정을 한 단계씩 움직여 보여 줌 (움직임 줄이기 설정이면 멈춤)
         '<div class="aflow" aria-label="알림이 오는 과정"><h4 class="s">알림이 오는 과정</h4><ol>' +
-          [['📝', '조건 저장', '찾는 물건을 저장해요'], ['📦', '새 습득물 등록', '기관이 습득물을 올려요'], ['🤖', 'AI가 비교', '하루 두 번 유사도를 계산해요'], ['✉️', '알림 도착', '닮은 물건을 알려 드려요']].map(function (x, k) {
+          [['📝', '조건 저장', '찾는 물건을 저장해요'], ['📦', '새 습득물 등록', '기관이 습득물을 올려요'], ['🤖', 'AI가 비교', '하루 두 번 유사도를 계산해요'], ['✉️', '알림 도착', '비슷한 물건을 알려 드려요']].map(function (x, k) {
             return '<li style="--k:' + k + '"><span class="ic" aria-hidden="true">' + x[0] + '</span><b>' + x[1] + '</b><span class="cap">' + x[2] + '</span></li>';
           }).join('') +
         '</ol><div class="abar" aria-hidden="true"><i></i></div></div>' +
