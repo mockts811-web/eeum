@@ -1279,7 +1279,7 @@ var CONFIG = {
           '<tr><th scope="row">보관 기한</th><td>' + (it.type === '경찰서' ? '경찰서 공고 후 6개월 (유실물법)' : md(deadline) + '까지 (이후 경찰서 이관)') + '</td></tr>' +
         '</tbody></table></div>' +
         '<p class="cap">전화할 때 관리번호 ' + esc(it.id) + '를 알려 주세요.</p>' +
-        '<h3 class="s">찾는 방법</h3><ol class="howto"><li><b>연락</b><span class="small">관리번호를 말하고 보관 여부를 확인해요</span></li><li><b>방문</b><span class="small">' + (org.delivery ? '직접 방문하거나 보관함·집앞배송을 신청해요' : '보관 장소를 직접 방문해요') + '</span></li><li><b>본인 확인 후 수령</b><span class="small">신분증과 물건 특징을 확인해요</span></li></ol>' +
+        '<h3 class="s">찾는 방법</h3><ol class="howto"><li><b>연락</b><span class="small">관리번호를 말하고 보관 여부를 확인해요</span></li><li><b>방문</b><span class="small">' + '보관 장소를 직접 방문해요' + '</span></li><li><b>본인 확인 후 수령</b><span class="small">신분증과 물건 특징을 확인해요</span></li></ol>' +
       '</div></div>' +
       // ===== #김다영 수정 시작: 본인 수령·대리 수령을 '수령 신청' 하나로 합침 (주인 확인 → 받는 사람 선택 → 담당자에게 전달) =====
       // (예전: #고현 수정 '본인 수령 안내' 패널 + '대리 수령 신청' 폼을 따로 열던 구조)
@@ -1293,7 +1293,7 @@ var CONFIG = {
           '<ul class="mg-points"><li><b>챙길 것:</b> 신분증 (본인 확인용)</li>' + // #김다영 수정: 항목 이름 뒤에 쌍점, '준비할 말' → '확인할 내용'
           '<li><b>확인할 내용:</b> 내용물, 잠금화면, 각인처럼 겉에서 안 보이는 특징</li>' +
           '<li><b>왜 묻나요:</b> 같은 물건이 여러 개일 수 있어서, 공개된 설명 말고 주인만 아는 것으로 확인해요</li></ul>' +
-          '<p class="cap">' + (org.delivery ? '직접 가기 어려우면 보관함·집앞배송도 신청할 수 있어요.' : '이 기관은 방문 수령만 돼요.') + '</p></div>' +
+          '</div>' + // 배송 안내 뺌 (방문 수령만 안내)
           '<div class="reqstep"><h4 class="s"><span class="no">1</span>내 물건인지 확인하기 <span class="cap">대리 수령이어도 물건 주인이 먼저 적어 주세요</span></h4>' +
             '<p class="small">나만 알 수 있는 정보를 적어 주세요. 담당자가 등록해 둔 주인 확인용 메모와 맞춰 봐요.</p>' + // #김다영 수정: 예전 문구
             '<div class="f full"><label for="claim-text">안쪽 특징 (내용물·각인·잠금화면 등)</label>' +
