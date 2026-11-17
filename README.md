@@ -6,6 +6,7 @@
 청년공공AX 서포터즈 **에공 팀**의 시범 서비스입니다.
 
 - **서비스 주소** : **https://mockts811-web.github.io/eeum/**
+- **시연영상 링크** : **https://youtu.be/HrtLu47xieQ?si=jqq_yzne2trMbABI**
 - 시민은 로그인 없이 이용하며, 기관 담당자는 기관 계정으로 로그인하여 이용합니다.
 
 
